@@ -5,6 +5,12 @@ local padding = {
   ["{"] = "%s ",
   ["}"] = " %s",
   ["="] = " %s ",
+  ["or"] = " %s ",
+  ["and"] = " %s ",
+  ["+"] = " %s ",
+  ["-"] = " %s ",
+  ["*"] = " %s ",
+  ["/"] = " %s ",
 }
 
 local function toggle_boolean(node)
