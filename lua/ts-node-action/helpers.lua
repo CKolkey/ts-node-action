@@ -12,6 +12,7 @@ function M.multiline_node(node)
 end
 
 -- left-pad text with spaces. If indent is a ts-node, assume we want the starting column
+-- offset can be used to add extra padding
 function M.indent_text(text, indent, offset)
   offset = offset or 0
 
@@ -24,17 +25,16 @@ end
 
 -- Combine node_text() and indent_text(). Offset can be used to add extra padding
 function M.indent_node_text(node, offset)
-  offset = offset or 0
-
-  local start_row, _, _, _ = node:range()
+  local start_row = node:start()
   local indent = vim.fn.indent(start_row + 1)
 
-  return M.indent_text(M.node_text(node), indent + offset)
+  return M.indent_text(M.node_text(node), indent, offset)
 end
 
 -- Adds whitespace to some unnamed nodes for nicer formatting
--- padding is a table where the key is the text of the unnamed node, and the value
--- is a format string, ie, "%s "
+-- `padding` is a table where the key is the text of the unnamed node, and the value
+-- is a format string. The following would add a space after commas:
+-- { [","] = "%s " }
 function M.padded_node_text(node, padding)
   local text = M.node_text(node)
 
@@ -54,8 +54,6 @@ function M.replace_node(node, replacement, opts)
     replacement = { replacement }
   end
 
-  opts = opts or {}
-
   local start_row, start_col, end_row, end_col = node:range()
   vim.api.nvim_buf_set_text(
     vim.api.nvim_get_current_buf(),
@@ -65,6 +63,8 @@ function M.replace_node(node, replacement, opts)
     end_col,
     replacement
   )
+
+  opts = opts or {}
 
   if opts.cursor then
     local position
