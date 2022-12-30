@@ -53,7 +53,7 @@ local function toggle_multiline(node)
     fn = collapse_child_nodes
   end
 
-  return fn(node), { cursor = true }
+  return fn(node), { cursor = {} }
 end
 
 return {

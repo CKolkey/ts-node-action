@@ -3,7 +3,7 @@ local M = {}
 -- private
 -- @replacement: string|table
 -- @opts: table
--- @opts.cursor: boolean|table
+-- @opts.cursor: table|nil
 -- @opts.cursor.row: number|nil
 -- @opts.cursor.col: number|nil
 local function replace_node(node, replacement, opts)
@@ -22,17 +22,13 @@ local function replace_node(node, replacement, opts)
   )
 
   if opts.cursor then
-    local position
-    if type(opts.cursor) == "boolean" then
-      position = { start_row + 1, start_col }
-    elseif type(opts.cursor) == "table" then
-      position = {
-        start_row + 1 + (opts.cursor.row or 0),
+    vim.api.nvim_win_set_cursor(
+      vim.api.nvim_get_current_win(),
+      {
+        start_row + (opts.cursor.row or 0) + 1,
         start_col + (opts.cursor.col or 0)
       }
-    end
-
-    vim.api.nvim_win_set_cursor(vim.api.nvim_get_current_win(), position)
+    )
   end
 end
 

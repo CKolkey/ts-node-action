@@ -55,7 +55,7 @@ local function toggle_multiline(node)
     fn = collapse_child_nodes
   end
 
-  return fn(node), { cursor = true }
+  return fn(node), { cursor = {} }
 end
 
 local function cycle_case(node)
@@ -168,7 +168,7 @@ local function toggle_block(node)
     end
   end
 
-  return replacement, { cursor = true }
+  return replacement, { cursor = {} }
 end
 
 local function toggle_comparison(node)
@@ -246,7 +246,7 @@ local function expand_ternary(node)
 
   table.insert(replacement, 3, helpers.indent_text("else", node))
   table.insert(replacement, helpers.indent_text("end", node))
-  return replacement, { cursor = true }
+  return replacement, { cursor = {} }
 end
 
 -- If there is an 'else' clause, collapse into ternary, otherwise inline it
@@ -283,7 +283,7 @@ local function multiline_conditional(node)
   end
 
   replacement = { replacement[1] .. condition, "  " .. body, helpers.indent_text("end", node) }
-  return replacement, { cursor = true }
+  return replacement, { cursor = {} }
 end
 
 return {
