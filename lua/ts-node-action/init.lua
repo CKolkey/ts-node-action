@@ -1,5 +1,41 @@
 local M = {}
 
+-- private
+-- @replacement: string|table
+-- @opts: table
+-- @opts.cursor: boolean|table
+-- @opts.cursor.row: number|nil
+-- @opts.cursor.col: number|nil
+local function replace_node(node, replacement, opts)
+  if type(replacement) ~= "table" then
+    replacement = { replacement }
+  end
+
+  local start_row, start_col, end_row, end_col = node:range()
+  vim.api.nvim_buf_set_text(
+    vim.api.nvim_get_current_buf(),
+    start_row,
+    start_col,
+    end_row,
+    end_col,
+    replacement
+  )
+
+  if opts.cursor then
+    local position
+    if type(opts.cursor) == "boolean" then
+      position = { start_row + 1, start_col }
+    elseif type(opts.cursor) == "table" then
+      position = {
+        start_row + 1 + (opts.cursor.row or 0),
+        start_col + (opts.cursor.col or 0)
+      }
+    end
+
+    vim.api.nvim_win_set_cursor(vim.api.nvim_get_current_win(), position)
+  end
+end
+
 M.node_actions = {
   lua = require("ts-node-action/filetypes/lua"),
   json = require("ts-node-action/filetypes/json"),
@@ -24,7 +60,8 @@ function M.node_action()
 
   local action = M.node_actions[vim.o.filetype][node:type()]
   if action then
-    action(node)
+    local replacement, opts = action(node)
+    replace_node(node, replacement, opts or {})
   else
     print("(ts-node-action) No action defined for " .. vim.o.filetype .. " node type: '" .. node:type() .. "'")
   end

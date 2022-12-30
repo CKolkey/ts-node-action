@@ -47,7 +47,7 @@ local function toggle_multiline(node)
     fn = collapse_child_nodes
   end
 
-  helpers.replace_node(node, fn(node), { cursor = true })
+  return fn(node), { cursor = true }
 end
 
 return {

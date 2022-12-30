@@ -10,7 +10,7 @@ local padding = {
 }
 
 local function toggle_boolean(node)
-  helpers.replace_node(node, tostring(node:type() ~= "true"))
+  return tostring(node:type() ~= "true")
 end
 
 local function collapse_child_nodes(node)
@@ -55,7 +55,7 @@ local function toggle_multiline(node)
     fn = collapse_child_nodes
   end
 
-  helpers.replace_node(node, fn(node), { cursor = true })
+  return fn(node), { cursor = true }
 end
 
 local function cycle_case(node)
@@ -118,7 +118,7 @@ local function cycle_case(node)
     format = formats.toSnakeCase
   end
 
-  helpers.replace_node(node, format(words))
+  return format(words)
 end
 
 local function toggle_block(node)
@@ -168,7 +168,7 @@ local function toggle_block(node)
     end
   end
 
-  helpers.replace_node(node, replacement, { cursor = true })
+  return replacement, { cursor = true }
 end
 
 local function toggle_comparison(node)
@@ -192,7 +192,7 @@ local function toggle_comparison(node)
     end
   end
 
-  helpers.replace_node(node, table.concat(replacement, " "))
+  return table.concat(replacement, " ")
 end
 
 local function inline_conditional(node)
@@ -210,11 +210,8 @@ local function inline_conditional(node)
     end
   end
 
-  helpers.replace_node(
-    node,
-    body .. " " .. helpers.node_text(node:child(0)) .. " " .. condition,
-    { cursor = { col = #body + 1 } }
-  )
+  local replacement = body .. " " .. helpers.node_text(node:child(0)) .. " " .. condition
+  return replacement, { cursor = { col = #body + 1 } }
 end
 
 local function collapse_ternary(node)
@@ -233,7 +230,7 @@ local function collapse_ternary(node)
     end
   end
 
-  helpers.replace_node(node, table.concat(replacement), { cursor = { col = #replacement[1] - 2 } })
+  return table.concat(replacement), { cursor = { col = #replacement[1] - 2 } }
 end
 
 local function expand_ternary(node)
@@ -249,16 +246,19 @@ local function expand_ternary(node)
 
   table.insert(replacement, 3, helpers.indent_text("else", node))
   table.insert(replacement, helpers.indent_text("end", node))
-  helpers.replace_node(node, replacement, { cursor = true })
+  return replacement, { cursor = true }
 end
 
+-- If there is an 'else' clause, collapse into ternary, otherwise inline it
 local function handle_conditional(node)
-  -- If there is an 'else' clause, collapse into ternary, otherwise inline it
+  local fn
   if node:named_child_count() > 2 then
-    collapse_ternary(node)
+    fn = collapse_ternary
   else
-    inline_conditional(node)
+    fn = inline_conditional
   end
+
+  return fn(node)
 end
 
 local function multiline_conditional(node)
@@ -283,7 +283,7 @@ local function multiline_conditional(node)
   end
 
   replacement = { replacement[1] .. condition, "  " .. body, helpers.indent_text("end", node) }
-  helpers.replace_node(node, replacement, { cursor = true })
+  return replacement, { cursor = true }
 end
 
 return {

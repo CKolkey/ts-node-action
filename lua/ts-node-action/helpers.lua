@@ -45,40 +45,4 @@ function M.padded_node_text(node, padding)
   return text
 end
 
--- replace node with provided replacement.
--- `replacement` can be string or table value
--- `opts` can be used to specify if the cursor position needs to be updated
--- after replacing text
-function M.replace_node(node, replacement, opts)
-  if type(replacement) ~= "table" then
-    replacement = { replacement }
-  end
-
-  local start_row, start_col, end_row, end_col = node:range()
-  vim.api.nvim_buf_set_text(
-    vim.api.nvim_get_current_buf(),
-    start_row,
-    start_col,
-    end_row,
-    end_col,
-    replacement
-  )
-
-  opts = opts or {}
-
-  if opts.cursor then
-    local position
-    if type(opts.cursor) == "boolean" then
-      position = { start_row + 1, start_col }
-    elseif type(opts.cursor) == "table" then
-      position = {
-        start_row + 1 + (opts.cursor.row or 0),
-        start_col + (opts.cursor.col or 0)
-      }
-    end
-
-    vim.api.nvim_win_set_cursor(vim.api.nvim_get_current_win(), position)
-  end
-end
-
 return M

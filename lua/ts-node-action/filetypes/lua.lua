@@ -8,7 +8,7 @@ local padding = {
 }
 
 local function toggle_boolean(node)
-  helpers.replace_node(node, tostring(node:type() ~= "true"))
+  return tostring(node:type() ~= "true")
 end
 
 local function collapse_child_nodes(node)
@@ -53,7 +53,7 @@ local function toggle_multiline(node)
     fn = collapse_child_nodes
   end
 
-  helpers.replace_node(node, fn(node), { cursor = true })
+  return fn(node), { cursor = true }
 end
 
 return {
