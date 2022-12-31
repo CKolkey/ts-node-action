@@ -137,12 +137,53 @@ or
 If the `cursor` key is present, even with an empty table value, the cursor will be moved to the start of the line where
 the current node is. the `row` and `col` keys can be used to add/subtract an offset for the final cursor position.
 
-Here's a simplified example of how a function gets called:
+Here's a simplified example of how a node-action function gets called:
 ```lua
 local action = node_actions[vim.o.filetype][node:type()]
 local replacement, opts = action(node)
 replace_node(node, replacement, opts or {})
 ```
+
+## Builtin Actions
+**Ruby**
+```lua
+{
+  ["true"]              = toggle_boolean,
+  ["false"]             = toggle_boolean,
+  ["array"]             = toggle_multiline,
+  ["hash"]              = toggle_multiline,
+  ["argument_list"]     = toggle_multiline,
+  ["method_parameters"] = toggle_multiline,
+  ["identifier"]        = cycle_case,
+  ["constant"]          = cycle_case,
+  ["block"]             = toggle_block,
+  ["do_block"]          = toggle_block,
+  ["binary"]            = toggle_operator,
+  ["if"]                = handle_conditional,
+  ["unless"]            = handle_conditional,
+  ["if_modifier"]       = multiline_conditional,
+  ["unless_modifier"]   = multiline_conditional,
+  ["conditional"]       = expand_ternary,
+  ["pair"]              = toggle_hash_style,
+}
+```
+**JSON**
+```lua
+{
+  ["object"] = toggle_multiline,
+  ["array"]  = toggle_multiline,
+}
+```
+**LUA**
+```lua
+{
+  ["false"]             = toggle_boolean,
+  ["true"]              = toggle_boolean,
+  ["table_constructor"] = toggle_multiline,
+  ["arguments"]         = toggle_multiline,
+}
+```
+
 
 ## Contributing
 
