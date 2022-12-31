@@ -16,7 +16,8 @@ Table of Contents                           *ts-node-action-table-of-contents*
 ==============================================================================
 1. TS Node Action                              *ts-node-action-ts-node-action*
 
-A framework for running functions on Tree-sitter nodes.
+A framework for running functions on Tree-sitter nodes, and updating the buffer
+with the result.
 
 <div class="figure">
 <img src="https://user-images.githubusercontent.com/7228095/210153650-49f85ffb-274c-4191-aa55-5dacc76f1768.gif" title="fig:"/>
