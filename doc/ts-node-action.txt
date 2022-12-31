@@ -17,12 +17,9 @@ Table of Contents                           *ts-node-action-table-of-contents*
 1. TS Node Action                              *ts-node-action-ts-node-action*
 
 A framework for running functions on Tree-sitter nodes, and updating the buffer
-with the result.
-
-<div class="figure">
-<img src="https://user-images.githubusercontent.com/7228095/210153650-49f85ffb-274c-4191-aa55-5dacc76f1768.gif" title="fig:"/>
-<p class="caption">Screen Recording 2022-12-31 at 20 05 14 mov</p>
-</div>
+with the result. <img
+src='https://user-images.githubusercontent.com/7228095/210154055-8851210e-e8e1-4ba3-a474-0be373df8d1b.gif'
+title=''/>
 
 INSTALLATION                                     *ts-node-action-installation*
 
