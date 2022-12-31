@@ -3,7 +3,143 @@
 ==============================================================================
 Table of Contents                           *ts-node-action-table-of-contents*
 
+1. TS Node Action                              |ts-node-action-ts-node-action|
+  - Installation                                 |ts-node-action-installation|
+  - Configuration                               |ts-node-action-configuration|
+  - API                                                   |ts-node-action-api|
+  - Helpers                                           |ts-node-action-helpers|
+  - Writing your own Node Actions|ts-node-action-writing-your-own-node-actions|
 
+==============================================================================
+1. TS Node Action                              *ts-node-action-ts-node-action*
+
+A framework for running functions on Tree-sitter nodes.
+
+INSTALLATION                                     *ts-node-action-installation*
+
+
+- Lazy.nvim:
+
+
+>
+    {
+        'ckolkey/ts-node-action',
+         dependencies = { 'nvim-treesitter' },
+         config = function() -- Optional
+             require("ts-node-action").setup({})
+         end
+    }
+<
+
+
+It’s not required to call `require("ts-node-action").setup()` to initialize
+the plugin, but a table can be passed into the setup function to specify new
+actions for nodes.
+
+The easiest way to use this plugin is to bind
+`require("ts-node-action").node_action()` to something. This is left up to the
+user to do.
+
+CONFIGURATION                                   *ts-node-action-configuration*
+
+The `setup()` function accepts a table that conforms to the following schema:
+
+>
+    {
+        filetype = {
+            ["node_type"] = function(node),
+            ...
+        },
+        ...
+    }
+<
+
+
+
+- `filetype` should be the value of `vim.o.filetype`
+- `node_type` should be the value of `require("nvim-treesitter.ts_utils").get_node_at_cursor():type()`
+
+
+An assigned function takes the ts_node as it’s argument, and return either a
+string or table of strings to replace the node under your cursor. Optionally,
+the function can return a second table of options which can be used to position
+the cursor after replacing the text.
+
+API                                                       *ts-node-action-api*
+
+
+- `require("ts-node-action").node_action()` Main function for plugin. Should be
+    assigned by user, and when called will attempt to run the assigned function for
+    the node your cursor is currently on.
+- `require("ts-node-action").debug()` Prints some helpful information about the
+    current node, as well as the loaded node actions for all filetypes
+
+
+HELPERS                                               *ts-node-action-helpers*
+
+`require("ts-node-action.helpers")`
+
+
+- `node_text(node)` nod: tsnode retur: string Returns the text of the specified
+    node.
+- `multiline_node(node)` nod: tsnode retur: boolean Returns true if node spans
+    multiple lines, and false if it’s a single line.
+- `indent_text(text, indent, offset)` tex: string inden: number|tsnode offse:
+    number|nil retur: string Returns the text (string) left padded by the `indent`
+    amount. If `indent` is a tsnode, use it’s starting column value. `offset` can
+    be used to increase/decrease indentation, but is optional.
+- `indent_node_text(node, offset)` nod: tsnode offse: number|nil retur: string
+    Returns the node text left padded by whitespace to match it’s start_column
+    position in the buffer. `offset` can be used to increase/decrease indentation,
+    but is optional.
+- `padded_node_text(node, padding)` nod: tsnode paddin: table retur: string For
+    formatting unnamed tsnodes. For example, if you pass in an unnamed node
+    representing the text `,`, you could pass in a `padding` table (below) to add a
+    trailing whitespace to `,` nodes.
+
+
+>
+    { [","] = "%s " }
+<
+
+
+Nodes not specified in table are returned unchanged.
+
+WRITING YOUR OWN NODE ACTIONS   *ts-node-action-writing-your-own-node-actions*
+
+
+- _Node Action Function Signature_
+    All node actions should be a function that takes one argument: the tree-sitter node under the cursor. You can read more
+    about their API via `:help tsnode`
+
+
+This function can return one or two values: - The first being the text to
+replace the node with. The replacement text can be either a string, or table of
+strings. With a table of strings, each string will be on it’s own line. - The
+second (optional) returned value is a table of options. Here’s how that can
+look:
+
+>
+    { cursor = { row = 0, col = 0 } }
+<
+
+
+>
+    { cursor = {} }
+<
+
+
+If the `cursor` key is present, even with an empty table value, the cursor will
+be moved to the start of the line where the current node is. the `row` and
+`col` keys can be used to add/subtract an offset for the final cursor position.
+
+Here’s a simplified example of how a function gets called:
+
+>
+    local action = node_actions[vim.o.filetype][node:type()]
+    local replacement, opts = action(node)
+    replace_node(node, replacement, opts or {})
+<
 
 
 Generated by panvimdoc <https://github.com/kdheepak/panvimdoc>
