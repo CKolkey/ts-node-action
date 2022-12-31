@@ -6,120 +6,12 @@ local padding = {
   ["{"] = "%s ",
   ["=>"] = " %s ",
   ["="] = " %s ",
-  ["}"] = " %s"
+  ["}"] = " %s",
+  ["+"] = " %s ",
+  ["-"] = " %s ",
+  ["*"] = " %s ",
+  ["/"] = " %s ",
 }
-
-local function toggle_boolean(node)
-  return tostring(node:type() ~= "true")
-end
-
-local function collapse_child_nodes(node)
-  local replacement = {}
-
-  for child, _ in node:iter_children() do
-    if child:named_child_count() > 0 then
-      table.insert(replacement, collapse_child_nodes(child))
-    else
-      table.insert(replacement, helpers.padded_node_text(child, padding))
-    end
-  end
-
-  return table.concat(vim.tbl_flatten(replacement))
-end
-
-local function expand_child_nodes(node)
-  local replacement = {}
-
-  for child in node:iter_children() do
-    if child:named() then
-      table.insert(replacement, helpers.indent_node_text(child, vim.fn.shiftwidth()))
-    else
-      if child:next_sibling() and child:prev_sibling() then
-        replacement[#replacement] = replacement[#replacement] .. helpers.node_text(child)
-      elseif not child:prev_sibling() then -- Opening brace
-        table.insert(replacement, helpers.node_text(child))
-      else -- Closing brace
-        table.insert(replacement, helpers.indent_node_text(child))
-      end
-    end
-  end
-
-  return replacement
-end
-
-local function toggle_multiline(node)
-  local fn
-  if helpers.multiline_node(node) then
-    fn = expand_child_nodes
-  else
-    fn = collapse_child_nodes
-  end
-
-  return fn(node), { cursor = {} }
-end
-
-local function cycle_case(node)
-  local text = helpers.node_text(node)
-  local words
-  local format
-
-  local formats = {
-    ["toSnakeCase"] = function(tbl)
-      return string.lower(table.concat(tbl, "_"))
-    end,
-
-    ["toCamelCase"] = function(tbl)
-      local tmp = vim.tbl_map(function(word)
-        return word:gsub("^.", string.upper)
-      end, tbl)
-      local value, _ = table.concat(tmp, ""):gsub("^.", string.lower)
-      return value
-    end,
-
-    ["toPascalCase"] = function(tbl)
-      local tmp = vim.tbl_map(function(word)
-        return word:gsub("^.", string.upper)
-      end, tbl)
-      local value, _ = table.concat(tmp, "")
-      return value
-    end,
-
-    ["toYellingCase"] = function(tbl)
-      local tmp = vim.tbl_map(function(word)
-        return word:upper()
-      end, tbl)
-      local value, _ = table.concat(tmp, "_")
-      return value
-    end,
-  }
-
-  if (string.find(text, "_") and string.sub(text, 1, 1) == string.sub(text, 1, 1):lower()) or text:lower() == text then -- snake_case
-    words = vim.split(string.lower(text), "_", { trimempty = true })
-    format = formats.toPascalCase
-
-  elseif string.sub(text, 1, 2) == string.sub(text, 1, 2):upper() then -- YELLING_CASE
-    words = vim.split(string.lower(text), "_", { trimempty = true })
-    format = formats.toCamelCase
-
-  elseif string.sub(text, 1, 1) == string.sub(text, 1, 1):upper() then -- PascalCase
-    words = vim.split(
-      text:gsub(".%f[%l]", " %1"):gsub("%l%f[%u]", "%1 "):gsub("^.", string.upper),
-      " ",
-      { trimempty = true }
-    )
-    format = formats.toYellingCase
-
-  else -- camelCase
-    words = vim.split(
-      text:gsub(".%f[%l]", " %1"):gsub("%l%f[%u]", "%1 "):gsub("^.", string.upper),
-      " ",
-      { trimempty = true }
-    )
-    format = formats.toSnakeCase
-  end
-
-  return format(words)
-end
 
 local function toggle_block(node)
   local block_params
@@ -171,30 +63,6 @@ local function toggle_block(node)
   return replacement, { cursor = {} }
 end
 
-local function toggle_comparison(node)
-  local translations = {
-    ["!="] = "==",
-    ["=="] = "!=",
-    [">"] = "<",
-    ["<"] = ">",
-    [">="] = "<=",
-    ["<="] = ">=",
-  }
-
-  local replacement = {}
-
-  for child, _ in node:iter_children() do
-    local text = helpers.node_text(child)
-    if translations[text] then
-      table.insert(replacement, translations[text])
-    else
-      table.insert(replacement, text)
-    end
-  end
-
-  return table.concat(replacement, " ")
-end
-
 local function inline_conditional(node)
   local body
   local condition
@@ -233,6 +101,17 @@ local function collapse_ternary(node)
   return table.concat(replacement), { cursor = { col = #replacement[1] - 2 } }
 end
 
+local function handle_conditional(node)
+  local fn
+  if node:named_child_count() > 2 then
+    fn = collapse_ternary
+  else
+    fn = inline_conditional
+  end
+
+  return fn(node)
+end
+
 local function expand_ternary(node)
   local replacement = {}
 
@@ -247,18 +126,6 @@ local function expand_ternary(node)
   table.insert(replacement, 3, helpers.indent_text("else", node))
   table.insert(replacement, helpers.indent_text("end", node))
   return replacement, { cursor = {} }
-end
-
--- If there is an 'else' clause, collapse into ternary, otherwise inline it
-local function handle_conditional(node)
-  local fn
-  if node:named_child_count() > 2 then
-    fn = collapse_ternary
-  else
-    fn = inline_conditional
-  end
-
-  return fn(node)
 end
 
 local function multiline_conditional(node)
@@ -286,21 +153,43 @@ local function multiline_conditional(node)
   return replacement, { cursor = {} }
 end
 
+local function toggle_hash_style(node)
+  local replacement = {}
+  local toggle = { ["=>"] = ": ", [":"] = " => " }
+
+  for child, _ in node:iter_children() do
+    local text = helpers.node_text(child)
+    if child:type() == "=>" or child:type() == ":" then
+      table.insert(replacement, toggle[text])
+    else
+      table.insert(replacement, text)
+    end
+  end
+
+  return table.concat(replacement)
+end
+
+local toggle_boolean   = require("ts-node-action.actions.toggle_boolean")
+local toggle_multiline = require("ts-node-action.actions.toggle_multiline")(padding)
+local cycle_case       = require("ts-node-action.actions.cycle_case")
+local toggle_operator  = require("ts-node-action.actions.toggle_operator")
+
 return {
-  ["true"] = toggle_boolean,
-  ["false"] = toggle_boolean,
-  ["array"] = toggle_multiline,
-  ["hash"] = toggle_multiline,
-  ["argument_list"] = toggle_multiline,
+  ["true"]              = toggle_boolean,
+  ["false"]             = toggle_boolean,
+  ["array"]             = toggle_multiline,
+  ["hash"]              = toggle_multiline,
+  ["argument_list"]     = toggle_multiline,
   ["method_parameters"] = toggle_multiline,
-  ["identifier"] = cycle_case,
-  ["constant"] = cycle_case,
-  ["block"] = toggle_block,
-  ["do_block"] = toggle_block,
-  ["binary"] = toggle_comparison,
-  ["if"] = handle_conditional,
-  ["unless"] = handle_conditional,
-  ["if_modifier"] = multiline_conditional,
-  ["unless_modifier"] = multiline_conditional,
-  ["conditional"] = expand_ternary,
+  ["identifier"]        = cycle_case,
+  ["constant"]          = cycle_case,
+  ["block"]             = toggle_block,
+  ["do_block"]          = toggle_block,
+  ["binary"]            = toggle_operator,
+  ["if"]                = handle_conditional,
+  ["unless"]            = handle_conditional,
+  ["if_modifier"]       = multiline_conditional,
+  ["unless_modifier"]   = multiline_conditional,
+  ["conditional"]       = expand_ternary,
+  ["pair"]              = toggle_hash_style,
 }
