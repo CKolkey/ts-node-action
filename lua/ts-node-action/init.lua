@@ -14,11 +14,7 @@ local function replace_node(node, replacement, opts)
   local start_row, start_col, end_row, end_col = node:range()
   vim.api.nvim_buf_set_text(
     vim.api.nvim_get_current_buf(),
-    start_row,
-    start_col,
-    end_row,
-    end_col,
-    replacement
+    start_row, start_col, end_row, end_col, replacement
   )
 
   if opts.cursor then
@@ -30,6 +26,10 @@ local function replace_node(node, replacement, opts)
       }
     )
   end
+end
+
+local function info(message)
+  vim.notify(message, vim.log.levels.INFO, { title = "Node Action" })
 end
 
 M.node_actions = {
@@ -45,12 +45,12 @@ end
 function M.node_action()
   local node = require("nvim-treesitter.ts_utils").get_node_at_cursor()
   if not node then
-    print("(ts-node-action) No node found at cursor")
+    info("No node found at cursor")
     return
   end
 
   if not M.node_actions[vim.o.filetype] then
-    print("(ts-node-action) No actions defined for filetype: '" .. vim.o.filetype .. "'")
+    info("No actions defined for filetype: '" .. vim.o.filetype .. "'")
     return
   end
 
@@ -59,7 +59,7 @@ function M.node_action()
     local replacement, opts = action(node)
     replace_node(node, replacement, opts or {})
   else
-    print("(ts-node-action) No action defined for " .. vim.o.filetype .. " node type: '" .. node:type() .. "'")
+    info("No action defined for " .. vim.o.filetype .. " node type: '" .. node:type() .. "'")
   end
 end
 
