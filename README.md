@@ -1,8 +1,7 @@
 # TS Node Action
 
 A framework for running functions on Tree-sitter nodes, and updating the buffer with the result.
-
-![Screen Recording 2022-12-31 at 20 05 14 mov](https://user-images.githubusercontent.com/7228095/210153650-49f85ffb-274c-4191-aa55-5dacc76f1768.gif)
+![welcome](https://user-images.githubusercontent.com/7228095/210154055-8851210e-e8e1-4ba3-a474-0be373df8d1b.gif)
 
 ## Installation
 
