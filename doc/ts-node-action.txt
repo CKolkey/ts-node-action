@@ -18,6 +18,11 @@ Table of Contents                           *ts-node-action-table-of-contents*
 
 A framework for running functions on Tree-sitter nodes.
 
+<div class="figure">
+<img src="https://user-images.githubusercontent.com/7228095/210153650-49f85ffb-274c-4191-aa55-5dacc76f1768.gif" title="fig:"/>
+<p class="caption">Screen Recording 2022-12-31 at 20 05 14 mov</p>
+</div>
+
 INSTALLATION                                     *ts-node-action-installation*
 
 `Lazy.nvim`:
@@ -207,6 +212,50 @@ Here’s a simplified example of how a node-action function gets called:
 
 BUILTIN ACTIONS                               *ts-node-action-builtin-actions*
 
+_toggle_multiline_
+
+<div class="figure">
+<img src="https://user-images.githubusercontent.com/7228095/210153839-5009dbed-db7a-4b1c-b5c9-879b90f32a64.gif" title="fig:"/>
+<p class="caption">multiline</p>
+</div>
+
+_cycle_case_
+
+<div class="figure">
+<img src="https://user-images.githubusercontent.com/7228095/210153704-a1ec4b18-5ab8-4373-b766-e57dfdcc87b1.gif" title="fig:"/>
+<p class="caption">Screen Recording 2022-12-31 at 20 05 14 mov</p>
+</div>
+
+_inline/multiline conditional_ & _toggle_boolean_
+
+<div class="figure">
+<img src="https://user-images.githubusercontent.com/7228095/210153712-8be29018-00a3-427f-8a59-959e705e12c6.gif" title="fig:"/>
+<p class="caption">Screen Recording 2022-12-31 at 20 06 54 mov</p>
+</div>
+
+_expand/collapse ternary_
+
+<div class="figure">
+<img src="https://user-images.githubusercontent.com/7228095/210153716-2fde6101-352b-4ef9-ba00-0842e6749201.gif" title="fig:"/>
+<p class="caption">Screen Recording 2022-12-31 at 20 08 04 mov</p>
+</div>
+
+_toggle_operator_
+
+<div class="figure">
+<img src="https://user-images.githubusercontent.com/7228095/210153726-3f5da644-ae1f-4288-b52b-e12a9c757293.gif" title="fig:"/>
+<p class="caption">Screen Recording 2022-12-31 at 20 05 58 mov</p>
+</div>
+
+_toggle_block_
+
+<div class="figure">
+<img src="https://user-images.githubusercontent.com/7228095/210153731-a2c2a717-e7ae-4330-9664-11ba4ed3c005.gif" title="fig:"/>
+<p class="caption">Screen Recording 2022-12-31 at 20 08 58 mov</p>
+</div>
+
+_And more!_
+
 **Ruby**
 
 >
@@ -242,7 +291,7 @@ BUILTIN ACTIONS                               *ts-node-action-builtin-actions*
 <
 
 
-**LUA**
+**Lua**
 
 >
     {
