@@ -131,13 +131,14 @@ This function can return one or two values:
 ```lua
 { cursor = { row = 0, col = 0 } }
 ```
-or
+or (equivalent to above)
 ```lua
 { cursor = {} }
 ```
 
-If the `cursor` key is present, even with an empty table value, the cursor will be moved to the start of the line where
-the current node is. the `row` and `col` keys can be used to add/subtract an offset for the final cursor position.
+If the `cursor` key is present with an empty table value, the cursor will be moved to the start of the line where the current node is (`row = 0` `col = 0` relative to node `start_row` and `start_col`). 
+
+`row` and `col` keys can be used to add/subtract an offset for the final cursor position.
 
 Here's a simplified example of how a node-action function gets called:
 ```lua
