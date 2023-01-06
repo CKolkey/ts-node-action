@@ -99,7 +99,8 @@ about their API via `:help tsnode`
 
 This function can return one or two values:
 - The first being the text to replace the node with. The replacement text can be either a string, or table of strings. With a table of strings, each string will be on it's own line.
-- The second (optional) returned value is a table of options. Here's how that can look:
+- The second (optional) returned value is either a table of options, or a function. Here's how that can look with a
+  table:
 
 ```lua
 { cursor = { row = 0, col = 0 } }
@@ -112,7 +113,9 @@ This function can return one or two values:
 If the `cursor` key is present, even with an empty table value, the cursor will be moved to the start of the line where
 the current node is. the `row` and `col` keys can be used to add/subtract an offset for the final cursor position.
 
-Here's a simplified example of how a function gets called:
+If `cursor` is a function, it will simply get called without arguments.
+
+Here's a simplified example of how a node action function gets called:
 ```lua
 local action = node_actions[vim.o.filetype][node:type()]
 local replacement, opts = action(node)

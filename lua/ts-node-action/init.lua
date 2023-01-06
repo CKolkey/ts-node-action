@@ -18,13 +18,17 @@ local function replace_node(node, replacement, opts)
   )
 
   if opts.cursor then
-    vim.api.nvim_win_set_cursor(
-      vim.api.nvim_get_current_win(),
-      {
-        start_row + (opts.cursor.row or 0) + 1,
-        start_col + (opts.cursor.col or 0)
-      }
-    )
+    if type(opts.cursor) == "table" then
+      vim.api.nvim_win_set_cursor(
+        vim.api.nvim_get_current_win(),
+        {
+          start_row + (opts.cursor.row or 0) + 1,
+          start_col + (opts.cursor.col or 0)
+        }
+      )
+    elseif type(opts.cursor) == "function" then
+      opts.cursor()
+    end
   end
 end
 
