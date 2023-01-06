@@ -39,7 +39,7 @@ use({
 ```
 
 **Note**: It's not required to call `require("ts-node-action").setup()` to initialize the plugin, but a table can be passed into
-the setup function to specify new actions for nodes.
+the setup function to specify new actions for nodes or additional filetypes.
 
 ## Usage
 
