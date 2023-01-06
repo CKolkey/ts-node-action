@@ -147,8 +147,7 @@ You can read more about their API via `:help tsnode`
 This function can return one or two values:
 
 - The first being the text to replace the node with. The replacement text can be either a string, or table of strings. With a table of strings, each string will be on it's own line.
-- The second (optional) returned value is either a table of options, or a function. Here's how that can look with a
-  table:
+- The second (optional) returned value is a table of options. Here's how that can look.
 
 ```lua
 { cursor = { row = 0, col = 0 } }
