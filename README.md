@@ -67,9 +67,10 @@ The `setup()` function accepts a table that conforms to the following schema:
 - `filetype` should be the value of `vim.o.filetype`
 - `node_type` should be the value of `require("nvim-treesitter.ts_utils").get_node_at_cursor():type()`
 
-An assigned function takes the ts_node as it's argument, and return either a string or table of strings to replace
-the node under your cursor. Optionally, the function can return a second table of options which can be used to position
-the cursor after replacing the text.
+An assigned function takes the ts_node as it's argument, and should return either a `"string"` or `{ "table", "of", "strings" }` to replace
+the node under your cursor. 
+
+Additionally, the function can return a second value: a table of options which can be used to position the cursor after replacing the text.
 
 ## API
 
