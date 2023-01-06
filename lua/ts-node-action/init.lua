@@ -69,6 +69,11 @@ end
 
 function M.debug()
   local node = require("nvim-treesitter.ts_utils").get_node_at_cursor()
+  if not node then
+    info("No node found at cursor")
+    return
+  end
+
   print(vim.inspect(
     {
       node = {
