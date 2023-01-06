@@ -1,4 +1,4 @@
-*ts-node-action.txt*       For NVIM v0.8.0       Last change: 2022 December 31
+*ts-node-action.txt*        For NVIM v0.8.0       Last change: 2023 January 06
 
 ==============================================================================
 Table of Contents                           *ts-node-action-table-of-contents*
@@ -189,11 +189,9 @@ You can read more about their API via `:help tsnode`
 This function can return one or two values:
 
 
-- The first being the text to replace the node with. The replacement text can be
-    either a string, or table of strings. With a table of strings, each string will
-    be on it’s own line.
-- The second (optional) returned value is a table of options. Here’s how that
-    can look:
+- The first being the text to replace the node with. The replacement text can be either a string, or table of strings. With a table of strings, each string will be on it’s own line.
+- The second (optional) returned value is either a table of options, or a function. Here’s how that can look with a
+    table:
 
 
 >
@@ -212,8 +210,7 @@ If the `cursor` key is present with an empty table value, the cursor will be
 moved to the start of the line where the current node is (`row = 0` `col = 0`
 relative to node `start_row` and `start_col`).
 
-`row` and `col` keys can be used to add/subtract an offset for the final cursor
-position.
+If `cursor` is a function, it will simply get called without arguments.
 
 Here’s a simplified example of how a node-action function gets called:
 
