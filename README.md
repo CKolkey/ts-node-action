@@ -1,7 +1,18 @@
 # TS Node Action
 
 A framework for running functions on Tree-sitter nodes, and updating the buffer with the result.
-![welcome](https://user-images.githubusercontent.com/7228095/210154055-8851210e-e8e1-4ba3-a474-0be373df8d1b.gif)
+
+![cycle case](https://user-images.githubusercontent.com/7228095/210154055-8851210e-e8e1-4ba3-a474-0be373df8d1b.gif)
+
+![multiline](https://user-images.githubusercontent.com/7228095/210153839-5009dbed-db7a-4b1c-b5c9-879b90f32a64.gif)
+
+![condition formatting](https://user-images.githubusercontent.com/7228095/210153712-8be29018-00a3-427f-8a59-959e705e12c6.gif)
+
+![ternerizing](https://user-images.githubusercontent.com/7228095/210153716-2fde6101-352b-4ef9-ba00-0842e6749201.gif)
+
+![operator flipflop](https://user-images.githubusercontent.com/7228095/210153726-3f5da644-ae1f-4288-b52b-e12a9c757293.gif)
+
+![split join blocks](https://user-images.githubusercontent.com/7228095/210153731-a2c2a717-e7ae-4330-9664-11ba4ed3c005.gif)
 
 ## Installation
 
@@ -159,31 +170,7 @@ replace_node(node, replacement, opts or {})
 ```
 
 ## Builtin Actions
-*toggle_multiline*
 
-![multiline](https://user-images.githubusercontent.com/7228095/210153839-5009dbed-db7a-4b1c-b5c9-879b90f32a64.gif)
-
-*cycle_case*
-
-![Screen Recording 2022-12-31 at 20 05 14 mov](https://user-images.githubusercontent.com/7228095/210153704-a1ec4b18-5ab8-4373-b766-e57dfdcc87b1.gif)
-
-*inline/multiline conditional* & *toggle_boolean*
-
-![Screen Recording 2022-12-31 at 20 06 54 mov](https://user-images.githubusercontent.com/7228095/210153712-8be29018-00a3-427f-8a59-959e705e12c6.gif)
-
-*expand/collapse ternary*
-
-![Screen Recording 2022-12-31 at 20 08 04 mov](https://user-images.githubusercontent.com/7228095/210153716-2fde6101-352b-4ef9-ba00-0842e6749201.gif)
-
-*toggle_operator*
-
-![Screen Recording 2022-12-31 at 20 05 58 mov](https://user-images.githubusercontent.com/7228095/210153726-3f5da644-ae1f-4288-b52b-e12a9c757293.gif)
-
-*toggle_block*
-
-![Screen Recording 2022-12-31 at 20 08 58 mov](https://user-images.githubusercontent.com/7228095/210153731-a2c2a717-e7ae-4330-9664-11ba4ed3c005.gif)
-
-*And more!*
 
 
 **Ruby**
