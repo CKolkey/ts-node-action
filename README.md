@@ -38,8 +38,8 @@ use({
 })
 ```
 
-**Note**: It's not required to call `require("ts-node-action").setup()` to initialize the plugin, but a table can be passed into
-the setup function to specify new actions for nodes or additional filetypes.
+**Note**: It's not required to call `require("ts-node-action").setup()` to initialize the plugin, but a table can be
+passed into the setup function to specify new actions for nodes or additional filetypes.
 
 ## Usage
 
@@ -64,13 +64,45 @@ The `setup()` function accepts a table that conforms to the following schema:
 }
 ```
 
-- `filetype` should be the value of `vim.o.filetype`
-- `node_type` should be the value of `require("nvim-treesitter.ts_utils").get_node_at_cursor():type()`
+- `filetype` should be the value of `vim.o.filetype`, or `['*']` for the global table
+- `node_type` should be the value of `vim.treesitter.get_node_at_cursor()`
 
-An assigned function takes the ts_node as it's argument, and should return either a `"string"` or `{ "table", "of", "strings" }` to replace
-the node under your cursor. 
 
-Additionally, the function can return a second value: a table of options which can be used to position the cursor after replacing the text.
+## Writing your own Node Actions
+
+All node actions should be a function that takes one argument: the tree-sitter node under the cursor.
+
+You can read more about their API via `:help tsnode`
+
+This function can return one or two values:
+
+- The first being the text to replace the node with. The replacement text can be either a `"string"` or
+`{ "table", "of", "strings" }`. With a table of strings, each string will be on it's own line.
+
+- The second (optional) returned value is a table of options with a `cursor` or `callback` key. Both are optional.
+Here's how that can look.
+
+```lua
+{ cursor = { row = 0, col = 0 }, callback = function() }
+```
+
+or (equivalent to above)
+```lua
+{ cursor = {}, callback = function() }
+```
+
+If the `cursor` key is present with an empty table value, the cursor will be moved to the start of the line where the
+current node is (`row = 0` `col = 0` relative to node `start_row` and `start_col`).
+
+If `callback` is present, it will simply get called without arguments after the buffer has been updated, and after the
+cursor has been positioned.
+
+Here's a simplified example of how a node-action function gets called:
+```lua
+local action = node_actions[vim.o.filetype][node:type()]
+local replacement, opts = action(node)
+replace_node(node, replacement, opts or {})
+```
 
 ## API
 
@@ -138,40 +170,16 @@ a `padding` table (below) to add a trailing whitespace to `,` nodes.
 
 Nodes not specified in table are returned unchanged.
 
-## Writing your own Node Actions
-
-All node actions should be a function that takes one argument: the tree-sitter node under the cursor.
-
-You can read more about their API via `:help tsnode`
-
-This function can return one or two values:
-
-- The first being the text to replace the node with. The replacement text can be either a string, or table of strings. With a table of strings, each string will be on it's own line.
-- The second (optional) returned value is a table of options. Here's how that can look.
-
-```lua
-{ cursor = { row = 0, col = 0 } }
-```
-or (equivalent to above)
-```lua
-{ cursor = {} }
-```
-
-If the `cursor` key is present with an empty table value, the cursor will be moved to the start of the line where the current node is (`row = 0` `col = 0` relative to node `start_row` and `start_col`).
-
-If `cursor` is a function, it will simply get called without arguments.
-
-
-Here's a simplified example of how a node-action function gets called:
-```lua
-local action = node_actions[vim.o.filetype][node:type()]
-local replacement, opts = action(node)
-replace_node(node, replacement, opts or {})
-```
-
 ## Builtin Actions
 
-
+**Global** _(Applies to all filetypes)_
+```lua
+{
+  ["true"]       = toggle_boolean,
+  ["false"]      = toggle_boolean,
+  ["identifier"] = cycle_case,
+}
+```
 
 **Ruby**
 ```lua
@@ -195,6 +203,7 @@ replace_node(node, replacement, opts or {})
   ["pair"]              = toggle_hash_style,
 }
 ```
+
 **JSON**
 ```lua
 {
@@ -202,16 +211,41 @@ replace_node(node, replacement, opts or {})
   ["array"]  = toggle_multiline,
 }
 ```
+
 **Lua**
 ```lua
 {
-  ["false"]             = toggle_boolean,
-  ["true"]              = toggle_boolean,
   ["table_constructor"] = toggle_multiline,
   ["arguments"]         = toggle_multiline,
+  ["true"]              = toggle_boolean,
+  ["false"]             = toggle_boolean,
+  ["identifier"]        = cycle_case,
 }
 ```
 
+**Javascript**
+```lua
+{
+  ["object"]              = toggle_multiline,
+  ["array"]               = toggle_multiline,
+  ["statement_block"]     = toggle_multiline,
+  ["identifier"]          = cycle_case,
+  ["property_identifier"] = cycle_case,
+  ["true"]                = toggle_boolean,
+  ["false"]               = toggle_boolean,
+}
+```
+
+**Python**
+```lua
+{
+  ["dictionary"] = toggle_multiline,
+  ["list"]       = toggle_multiline,
+  ["true"]       = toggle_boolean,
+  ["false"]      = toggle_boolean,
+  ["identifier"] = cycle_case,
+}
+```
 
 ## Contributing
 
