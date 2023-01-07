@@ -67,6 +67,7 @@ The `setup()` function accepts a table that conforms to the following schema:
 - `filetype` should be the value of `vim.o.filetype`, or `['*']` for the global table
 - `node_type` should be the value of `vim.treesitter.get_node_at_cursor()`
 
+A definition on the `filetype` table will take precedence over the `*` (global) table.
 
 ## Writing your own Node Actions
 
