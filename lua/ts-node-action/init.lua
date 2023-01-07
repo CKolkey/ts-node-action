@@ -6,6 +6,7 @@ local M = {}
 -- @opts.cursor: table|nil
 -- @opts.cursor.row: number|nil
 -- @opts.cursor.col: number|nil
+-- @opts.callback: function|nil
 local function replace_node(node, replacement, opts)
   if type(replacement) ~= "table" then
     replacement = { replacement }
@@ -18,17 +19,21 @@ local function replace_node(node, replacement, opts)
   )
 
   if opts.cursor then
-    if type(opts.cursor) == "table" then
-      vim.api.nvim_win_set_cursor(
-        vim.api.nvim_get_current_win(),
-        {
-          start_row + (opts.cursor.row or 0) + 1,
-          start_col + (opts.cursor.col or 0)
-        }
-      )
-    elseif type(opts.cursor) == "function" then
-      opts.cursor()
+    if type(opts.cursor) == "function" then
+      print("(TS-Node-Action) Please pass your function in the 'callback' key, not the 'cursor' key.")
     end
+
+    vim.api.nvim_win_set_cursor(
+      vim.api.nvim_get_current_win(),
+      {
+        start_row + (opts.cursor.row or 0) + 1,
+        start_col + (opts.cursor.col or 0)
+      }
+    )
+  end
+
+  if opts.callback then
+    opts.callback()
   end
 end
 
