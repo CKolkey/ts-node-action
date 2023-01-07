@@ -169,19 +169,15 @@ local function toggle_hash_style(node)
   return table.concat(replacement)
 end
 
-local toggle_boolean   = require("ts-node-action.actions.toggle_boolean")
 local toggle_multiline = require("ts-node-action.actions.toggle_multiline")(padding)
 local cycle_case       = require("ts-node-action.actions.cycle_case")
 local toggle_operator  = require("ts-node-action.actions.toggle_operator")
 
 return {
-  ["true"]              = toggle_boolean,
-  ["false"]             = toggle_boolean,
   ["array"]             = toggle_multiline,
   ["hash"]              = toggle_multiline,
   ["argument_list"]     = toggle_multiline,
   ["method_parameters"] = toggle_multiline,
-  ["identifier"]        = cycle_case,
   ["constant"]          = cycle_case,
   ["block"]             = toggle_block,
   ["do_block"]          = toggle_block,

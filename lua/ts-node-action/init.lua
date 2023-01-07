@@ -42,9 +42,12 @@ local function info(message)
 end
 
 M.node_actions = {
-  lua = require("ts-node-action/filetypes/lua"),
-  json = require("ts-node-action/filetypes/json"),
-  ruby = require("ts-node-action/filetypes/ruby"),
+  ["*"]      = require("ts-node-action/filetypes/global"),
+  lua        = require("ts-node-action/filetypes/lua"),
+  json       = require("ts-node-action/filetypes/json"),
+  ruby       = require("ts-node-action/filetypes/ruby"),
+  javascript = require("ts-node-action/filetypes/javascript"),
+  python     = require("ts-node-action/filetypes/python"),
 }
 
 function M.setup(opts)
@@ -58,17 +61,18 @@ function M.node_action()
     return
   end
 
-  if not M.node_actions[vim.o.filetype] then
-    info("No actions defined for filetype: '" .. vim.o.filetype .. "'")
-    return
+  local action
+  if M.node_actions[vim.o.filetype] then
+    action = M.node_actions[vim.o.filetype][node:type()]
+  else
+    action = M.node_actions["*"][node:type()]
   end
 
-  local action = M.node_actions[vim.o.filetype][node:type()]
   if action then
     local replacement, opts = action(node)
     replace_node(node, replacement, opts or {})
   else
-    info("No action defined for " .. vim.o.filetype .. " node type: '" .. node:type() .. "'")
+    info("No action defined for '" .. vim.o.filetype .. "' node type: '" .. node:type() .. "'")
   end
 end
 
