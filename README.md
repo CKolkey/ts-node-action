@@ -24,7 +24,7 @@ A framework for running functions on Tree-sitter nodes, and updating the buffer 
      config = function() -- Optional
          require("ts-node-action").setup({})
      end
-}
+},
 ```
 
 `packer`:
