@@ -1,4 +1,4 @@
-*ts-node-action.txt*        For NVIM v0.8.0       Last change: 2023 January 06
+*ts-node-action.txt*        For NVIM v0.8.0       Last change: 2023 January 07
 
 ==============================================================================
 Table of Contents                           *ts-node-action-table-of-contents*
@@ -7,9 +7,9 @@ Table of Contents                           *ts-node-action-table-of-contents*
   - Installation                                 |ts-node-action-installation|
   - Usage                                               |ts-node-action-usage|
   - Configuration                               |ts-node-action-configuration|
+  - Writing your own Node Actions|ts-node-action-writing-your-own-node-actions|
   - API                                                   |ts-node-action-api|
   - Helpers                                           |ts-node-action-helpers|
-  - Writing your own Node Actions|ts-node-action-writing-your-own-node-actions|
   - Builtin Actions                           |ts-node-action-builtin-actions|
   - Contributing                                 |ts-node-action-contributing|
 
@@ -60,7 +60,7 @@ INSTALLATION                                     *ts-node-action-installation*
          config = function() -- Optional
              require("ts-node-action").setup({})
          end
-    }
+    },
 <
 
 
@@ -109,16 +109,54 @@ The `setup()` function accepts a table that conforms to the following schema:
 
 
 
-- `filetype` should be the value of `vim.o.filetype`
-- `node_type` should be the value of `require("nvim-treesitter.ts_utils").get_node_at_cursor():type()`
+- `filetype` should be the value of `vim.o.filetype`, or `['*']` for the global table
+- `node_type` should be the value of `vim.treesitter.get_node_at_cursor()`
 
 
-An assigned function takes the ts_node as it’s argument, and should return
-either a `"string"` or `{ "table", "of", "strings" }` to replace the node under
-your cursor.
+WRITING YOUR OWN NODE ACTIONS   *ts-node-action-writing-your-own-node-actions*
 
-Additionally, the function can return a second value: a table of options which
-can be used to position the cursor after replacing the text.
+All node actions should be a function that takes one argument: the tree-sitter
+node under the cursor.
+
+You can read more about their API via `:help tsnode`
+
+This function can return one or two values:
+
+
+- The first being the text to replace the node with. The replacement text can be
+    either a `"string"` or `{ "table", "of", "strings" }`. With a table of strings,
+    each string will be on it’s own line.
+- The second (optional) returned value is a table of options with a `cursor` or
+    `callback` key. Both are optional. Here’s how that can look.
+
+
+>
+    { cursor = { row = 0, col = 0 }, callback = function() }
+<
+
+
+or (equivalent to above)
+
+>
+    { cursor = {}, callback = function() }
+<
+
+
+If the `cursor` key is present with an empty table value, the cursor will be
+moved to the start of the line where the current node is (`row = 0` `col = 0`
+relative to node `start_row` and `start_col`).
+
+If `callback` is present, it will simply get called without arguments after the
+buffer has been updated, and after the cursor has been positioned.
+
+Here’s a simplified example of how a node-action function gets called:
+
+>
+    local action = node_actions[vim.o.filetype][node:type()]
+    local replacement, opts = action(node)
+    replace_node(node, replacement, opts or {})
+<
+
 
 API                                                       *ts-node-action-api*
 
@@ -209,48 +247,18 @@ trailing whitespace to `,` nodes.
 
 Nodes not specified in table are returned unchanged.
 
-WRITING YOUR OWN NODE ACTIONS   *ts-node-action-writing-your-own-node-actions*
-
-All node actions should be a function that takes one argument: the tree-sitter
-node under the cursor.
-
-You can read more about their API via `:help tsnode`
-
-This function can return one or two values:
-
-
-- The first being the text to replace the node with. The replacement text can be either a string, or table of strings. With a table of strings, each string will be on it’s own line.
-- The second (optional) returned value is a table of options. Here’s how that can look.
-
-
->
-    { cursor = { row = 0, col = 0 } }
-<
-
-
-or (equivalent to above)
-
->
-    { cursor = {} }
-<
-
-
-If the `cursor` key is present with an empty table value, the cursor will be
-moved to the start of the line where the current node is (`row = 0` `col = 0`
-relative to node `start_row` and `start_col`).
-
-If `cursor` is a function, it will simply get called without arguments.
-
-Here’s a simplified example of how a node-action function gets called:
-
->
-    local action = node_actions[vim.o.filetype][node:type()]
-    local replacement, opts = action(node)
-    replace_node(node, replacement, opts or {})
-<
-
-
 BUILTIN ACTIONS                               *ts-node-action-builtin-actions*
+
+**Global** _(Applies to all filetypes)_
+
+>
+    {
+      ["true"]       = toggle_boolean,
+      ["false"]      = toggle_boolean,
+      ["identifier"] = cycle_case,
+    }
+<
+
 
 **Ruby**
 
@@ -291,10 +299,39 @@ BUILTIN ACTIONS                               *ts-node-action-builtin-actions*
 
 >
     {
-      ["false"]             = toggle_boolean,
-      ["true"]              = toggle_boolean,
       ["table_constructor"] = toggle_multiline,
       ["arguments"]         = toggle_multiline,
+      ["true"]              = toggle_boolean,
+      ["false"]             = toggle_boolean,
+      ["identifier"]        = cycle_case,
+    }
+<
+
+
+**Javascript**
+
+>
+    {
+      ["object"]              = toggle_multiline,
+      ["array"]               = toggle_multiline,
+      ["statement_block"]     = toggle_multiline,
+      ["identifier"]          = cycle_case,
+      ["property_identifier"] = cycle_case,
+      ["true"]                = toggle_boolean,
+      ["false"]               = toggle_boolean,
+    }
+<
+
+
+**Python**
+
+>
+    {
+      ["dictionary"] = toggle_multiline,
+      ["list"]       = toggle_multiline,
+      ["true"]       = toggle_boolean,
+      ["false"]      = toggle_boolean,
+      ["identifier"] = cycle_case,
     }
 <
 
