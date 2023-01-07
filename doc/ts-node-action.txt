@@ -113,6 +113,9 @@ The `setup()` function accepts a table that conforms to the following schema:
 - `node_type` should be the value of `vim.treesitter.get_node_at_cursor()`
 
 
+A definition on the `filetype` table will take precedence over the `*` (global)
+table.
+
 WRITING YOUR OWN NODE ACTIONS   *ts-node-action-writing-your-own-node-actions*
 
 All node actions should be a function that takes one argument: the tree-sitter
