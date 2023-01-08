@@ -41,6 +41,17 @@ local function info(message)
   vim.notify(message, vim.log.levels.INFO, { title = "Node Action" })
 end
 
+local function do_action(action, node)
+  local replacement, opts = action(node)
+
+  if not replacement then
+    info("Action returned nil")
+    return
+  end
+
+  replace_node(node, replacement, opts or {})
+end
+
 M.node_actions = {
   ["*"]      = require("ts-node-action/filetypes/global"),
   lua        = require("ts-node-action/filetypes/lua"),
@@ -68,9 +79,19 @@ function M.node_action()
     action = M.node_actions["*"][node:type()]
   end
 
-  if action then
-    local replacement, opts = action(node)
-    replace_node(node, replacement, opts or {})
+  if type(action) == "function" then
+    do_action(action, node)
+  elseif type(action) == "table" then
+    vim.ui.select(
+      action,
+      {
+        prompt = "Select Action",
+        format_item = function(choice)
+          return choice.name
+        end
+      },
+      function(choice) do_action(choice[1], node) end
+    )
   else
     info("No action defined for '" .. vim.o.filetype .. "' node type: '" .. node:type() .. "'")
   end

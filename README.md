@@ -56,18 +56,35 @@ The `setup()` function accepts a table that conforms to the following schema:
 
 ```lua
 {
+    ['*'] = { -- Global table is checked for all filetypes
+        ["node_type"] = fn,
+        ...
+    },
     filetype = {
-        ["node_type"] = function(node),
+        ["node_type"] = fn,
         ...
     },
     ...
 }
 ```
 
-- `filetype` should be the value of `vim.o.filetype`, or `['*']` for the global table
+- `filetype` should be the value of `vim.o.filetype`, or `'*'` for the global table
 - `node_type` should be the value of `vim.treesitter.get_node_at_cursor()`
 
 A definition on the `filetype` table will take precedence over the `*` (global) table.
+
+
+*Multiple Actions for a Node Type*
+To define multiple actions for a node type, structure your `node_type` value as a table of tables, like so:
+
+```lua
+["node_type"] = {
+  { function_one, name = "Action One" },
+  { function_two, name = "Action Two" },
+}
+```
+
+`vim.ui.select` will use the value of `name` to when prompting you on which action to perform.
 
 ## Writing your own Node Actions
 
