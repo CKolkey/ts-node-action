@@ -3,8 +3,8 @@ local helpers = require("ts-node-action.helpers")
 local snake_case = {
   check = function(text)
     return (string.find(text, "_")
-      and string.sub(text, 1, 1) == string.sub(text, 1, 1):lower())
-      or text:lower() == text
+        and string.sub(text, 1, 1) == string.sub(text, 1, 1):lower())
+        or text:lower() == text
   end,
 
   transform = function(tbl)
