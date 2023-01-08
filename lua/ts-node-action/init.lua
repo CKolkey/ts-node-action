@@ -62,7 +62,7 @@ function M.node_action()
   end
 
   local action
-  if M.node_actions[vim.o.filetype] then
+  if M.node_actions[vim.o.filetype] and M.node_actions[vim.o.filetype][node:type()] then
     action = M.node_actions[vim.o.filetype][node:type()]
   else
     action = M.node_actions["*"][node:type()]
