@@ -73,8 +73,8 @@ The `setup()` function accepts a table that conforms to the following schema:
 
 A definition on the `filetype` table will take precedence over the `*` (global) table.
 
+### Multiple Actions for a Node Type
 
-*Multiple Actions for a Node Type*
 To define multiple actions for a node type, structure your `node_type` value as a table of tables, like so:
 
 ```lua
