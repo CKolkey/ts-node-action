@@ -150,13 +150,17 @@ This function can return one or two values:
     either a `"string"` or `{ "table", "of", "strings" }`. With a table of strings,
     each string will be on it’s own line.
 - The second (optional) returned value is a table of options. Supported keys are:
-    – `cursor` – `callback` – `format`
+    `cursor`, `callback`, and `format`
 
 
 Here’s how that can look.
 
 >
-    { cursor = { row = 0, col = 0 }, callback = function() ... end , format = true }
+    { 
+      cursor   = { row = 0, col = 0 }, 
+      callback = function() ... end, 
+      format   = true 
+    }
 <
 
 
@@ -256,9 +260,10 @@ BUILTIN ACTIONS                               *ts-node-action-builtin-actions*
 
 >
     {
-      ["true"]       = toggle_boolean,
-      ["false"]      = toggle_boolean,
-      ["identifier"] = cycle_case,
+      ["true"]          = toggle_boolean,
+      ["false"]         = toggle_boolean,
+      ["identifier"]    = cycle_case,
+      ["variable_name"] = cycle_case,
     }
 <
 
@@ -330,11 +335,13 @@ BUILTIN ACTIONS                               *ts-node-action-builtin-actions*
 
 >
     {
-      ["dictionary"] = toggle_multiline,
-      ["list"]       = toggle_multiline,
-      ["true"]       = toggle_boolean,
-      ["false"]      = toggle_boolean,
-      ["identifier"] = cycle_case,
+      ["dictionary"]    = toggle_multiline,
+      ["list"]          = toggle_multiline,
+      ["argument_list"] = toggle_multiline,
+      ["parameters"]    = toggle_multiline,
+      ["true"]          = toggle_boolean,
+      ["false"]         = toggle_boolean,
+      ["identifier"]    = cycle_case,
     }
 <
 
