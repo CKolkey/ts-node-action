@@ -20,10 +20,6 @@ local function replace_node(node, replacement, opts)
   )
 
   if opts.cursor then
-    if type(opts.cursor) == "function" then
-      print("(TS-Node-Action) Please pass your function in the 'callback' key, not the 'cursor' key.")
-    end
-
     vim.api.nvim_win_set_cursor(
       vim.api.nvim_get_current_win(),
       {
