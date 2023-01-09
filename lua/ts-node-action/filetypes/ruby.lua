@@ -159,7 +159,7 @@ end
 
 local toggle_multiline = require("ts-node-action.actions.toggle_multiline")(padding)
 local cycle_case       = require("ts-node-action.actions.cycle_case")
-local toggle_operator  = require("ts-node-action.actions.toggle_operator")
+local toggle_operator  = require("ts-node-action.actions.toggle_operator")()
 
 return {
   ["array"]             = toggle_multiline,
