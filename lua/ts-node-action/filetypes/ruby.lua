@@ -30,22 +30,11 @@ local function toggle_block(node)
   end
 
   if helpers.multiline_node(node) then
-    local start_row = node:start()
-    local indent_width = string.rep(" ", vim.o.shiftwidth)
-    local indent = string.rep(indent_width, vim.fn.indent(start_row + 1))
 
     if block_params then
-      replacement = {
-        "do" .. block_params,
-        indent .. indent_width .. block_body,
-        indent .. "end",
-      }
+      replacement = { "do" .. block_params, block_body, "end" }
     else
-      replacement = {
-        "do",
-        indent .. indent_width .. block_body,
-        indent .. "end",
-      }
+      replacement = { "do", block_body, "end" }
     end
   else
     if string.find(block_body, "\n") then
@@ -60,7 +49,7 @@ local function toggle_block(node)
     end
   end
 
-  return replacement, { cursor = {} }
+  return replacement, { cursor = {}, format = true }
 end
 
 local function inline_conditional(node)
@@ -119,13 +108,13 @@ local function expand_ternary(node)
     if child:type() == "call" then
       table.insert(replacement, "if " .. helpers.node_text(child))
     elseif child:named() then
-      table.insert(replacement, helpers.indent_node_text(child, vim.fn.shiftwidth()))
+      table.insert(replacement, helpers.node_text(child))
     end
   end
 
-  table.insert(replacement, 3, helpers.indent_text("else", node))
-  table.insert(replacement, helpers.indent_text("end", node))
-  return replacement, { cursor = {} }
+  table.insert(replacement, 3, "else")
+  table.insert(replacement, "end")
+  return replacement, { cursor = {}, format = true }
 end
 
 local function multiline_conditional(node)
@@ -141,7 +130,7 @@ local function multiline_conditional(node)
     end
 
     if capture_body then
-      body = helpers.indent_node_text(child)
+      body = helpers.node_text(child)
     end
 
     if not capture_body then
@@ -149,8 +138,8 @@ local function multiline_conditional(node)
     end
   end
 
-  replacement = { replacement[1] .. condition, "  " .. body, helpers.indent_text("end", node) }
-  return replacement, { cursor = {} }
+  replacement = { replacement[1] .. condition, "  " .. body, "end" }
+  return replacement, { cursor = {}, format = true }
 end
 
 local function toggle_hash_style(node)

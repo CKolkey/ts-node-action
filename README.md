@@ -97,23 +97,27 @@ This function can return one or two values:
 - The first being the text to replace the node with. The replacement text can be either a `"string"` or
 `{ "table", "of", "strings" }`. With a table of strings, each string will be on it's own line.
 
-- The second (optional) returned value is a table of options with a `cursor` or `callback` key. Both are optional.
+- The second (optional) returned value is a table of options. Supported keys are:
+-- `cursor`
+-- `callback`
+-- `format`
+
 Here's how that can look.
 
 ```lua
-{ cursor = { row = 0, col = 0 }, callback = function() }
+{ cursor = { row = 0, col = 0 }, callback = function() ... end , format = true }
 ```
 
-or (equivalent to above)
-```lua
-{ cursor = {}, callback = function() }
-```
-
+#### `cursor`
 If the `cursor` key is present with an empty table value, the cursor will be moved to the start of the line where the
 current node is (`row = 0` `col = 0` relative to node `start_row` and `start_col`).
 
+#### `callback`
 If `callback` is present, it will simply get called without arguments after the buffer has been updated, and after the
 cursor has been positioned.
+
+#### `format`
+Boolean value. If `true`, will run `==` operator on new buffer text.
 
 Here's a simplified example of how a node-action function gets called:
 ```lua
@@ -125,15 +129,12 @@ replace_node(node, replacement, opts or {})
 ## API
 
 `require("ts-node-action").node_action()`
-
 Main function for plugin. Should be assigned by user, and when called will attempt to run the assigned function for the
 node your cursor is currently on.
 <hr>
 
 `require("ts-node-action").debug()`
-
 Prints some helpful information about the current node, as well as the loaded node actions for all filetypes
-
 
 ## Helpers
 
@@ -151,27 +152,6 @@ Returns the text of the specified node.
 @return: boolean
 ```
 Returns true if node spans multiple lines, and false if it's a single line.
-<hr>
-
-`require("ts-node-action.helpers").indent_text(text, indent, offset)`
-```
-@text: string
-@indent: number|tsnode
-@offset: number|nil
-@return: string
-```
-Returns the text (string) left padded by the `indent` amount. If `indent` is a tsnode, use it's starting column value.
-`offset` can be used to increase/decrease indentation, but is optional.
-<hr>
-
-`require("ts-node-action.helpers").indent_node_text(node, offset)`
-```
-@node: tsnode
-@offset: number|nil
-@return: string
-```
-Returns the node text left padded by whitespace to match it's start_column position in the buffer.
-`offset` can be used to increase/decrease indentation, but is optional.
 <hr>
 
 `require("ts-node-action.helpers").padded_node_text(node, padding)`

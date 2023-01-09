@@ -7,6 +7,7 @@ local M = {}
 -- @opts.cursor.row: number|nil
 -- @opts.cursor.col: number|nil
 -- @opts.callback: function|nil
+-- @opts.format: boolean|nil
 local function replace_node(node, replacement, opts)
   if type(replacement) ~= "table" then
     replacement = { replacement }
@@ -32,15 +33,26 @@ local function replace_node(node, replacement, opts)
     )
   end
 
+  if opts.format then
+    vim.cmd("silent! normal " .. #replacement .. "==")
+  end
+
   if opts.callback then
     opts.callback()
   end
 end
 
+-- @private
+-- @message: string
+-- @return: nil
 local function info(message)
   vim.notify(message, vim.log.levels.INFO, { title = "Node Action" })
 end
 
+-- @private
+-- @action: function
+-- @node: tsnode
+-- @return: nil
 local function do_action(action, node)
   local replacement, opts = action(node)
 

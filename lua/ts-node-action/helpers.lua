@@ -11,9 +11,9 @@ function M.multiline_node(node)
   return start_row == end_row
 end
 
--- left-pad text with spaces. If indent is a ts-node, assume we want the starting column
--- offset can be used to add extra padding
+-- Deprecated - Use opts.format
 function M.indent_text(text, indent, offset)
+  print("(TS-Node-Action) helper.indent_text() will be removed soon - use opts.format instead")
   offset = offset or 0
 
   if type(indent) == "userdata" then
@@ -23,8 +23,9 @@ function M.indent_text(text, indent, offset)
   return (" "):rep(indent + offset) .. text
 end
 
--- Combine node_text() and indent_text(). Offset can be used to add extra padding
+-- Deprecated - Use opts.format
 function M.indent_node_text(node, offset)
+  print("(TS-Node-Action) helper.indent_node_text() will be removed soon - use opts.format instead")
   local start_row = node:start()
   local indent = vim.fn.indent(start_row + 1)
 
