@@ -30,7 +30,6 @@ local function toggle_block(node)
   end
 
   if helpers.multiline_node(node) then
-
     if block_params then
       replacement = { "do" .. block_params, block_body, "end" }
     else
