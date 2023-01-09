@@ -1,4 +1,4 @@
-*ts-node-action.txt*        For NVIM v0.8.0       Last change: 2023 January 08
+*ts-node-action.txt*        For NVIM v0.8.0       Last change: 2023 January 09
 
 ==============================================================================
 Table of Contents                           *ts-node-action-table-of-contents*
@@ -120,8 +120,10 @@ The `setup()` function accepts a table that conforms to the following schema:
 A definition on the `filetype` table will take precedence over the `*` (global)
 table.
 
-_Multiple Actions for a Node Type_ To define multiple actions for a node type,
-structure your `node_type` value as a table of tables, like so:
+MULTIPLE ACTIONS FOR A NODE TYPE ~
+
+To define multiple actions for a node type, structure your `node_type` value as
+a table of tables, like so:
 
 >
     ["node_type"] = {
