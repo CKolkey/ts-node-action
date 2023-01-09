@@ -51,13 +51,11 @@ end
 -- @return: nil
 local function do_action(action, node)
   local replacement, opts = action(node)
-
-  if not replacement then
+  if replacement then
+    replace_node(node, replacement, opts or {})
+  else
     info("Action returned nil")
-    return
   end
-
-  replace_node(node, replacement, opts or {})
 end
 
 M.node_actions = {
