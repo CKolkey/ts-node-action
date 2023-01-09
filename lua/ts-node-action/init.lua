@@ -42,7 +42,7 @@ end
 -- @message: string
 -- @return: nil
 local function info(message)
-  vim.notify(message, vim.log.levels.INFO, { title = "Node Action" })
+  vim.notify(message, vim.log.levels.INFO, { title = "Node Action", icon = " " })
 end
 
 -- @private
