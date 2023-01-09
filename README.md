@@ -97,15 +97,16 @@ This function can return one or two values:
 - The first being the text to replace the node with. The replacement text can be either a `"string"` or
 `{ "table", "of", "strings" }`. With a table of strings, each string will be on it's own line.
 
-- The second (optional) returned value is a table of options. Supported keys are:
--- `cursor`
--- `callback`
--- `format`
+- The second (optional) returned value is a table of options. Supported keys are: `cursor`, `callback`, and `format`
 
 Here's how that can look.
 
 ```lua
-{ cursor = { row = 0, col = 0 }, callback = function() ... end , format = true }
+{ 
+  cursor   = { row = 0, col = 0 }, 
+  callback = function() ... end, 
+  format   = true 
+}
 ```
 
 #### `cursor`
@@ -173,9 +174,10 @@ Nodes not specified in table are returned unchanged.
 **Global** _(Applies to all filetypes)_
 ```lua
 {
-  ["true"]       = toggle_boolean,
-  ["false"]      = toggle_boolean,
-  ["identifier"] = cycle_case,
+  ["true"]          = toggle_boolean,
+  ["false"]         = toggle_boolean,
+  ["identifier"]    = cycle_case,
+  ["variable_name"] = cycle_case,
 }
 ```
 
@@ -237,11 +239,13 @@ Nodes not specified in table are returned unchanged.
 **Python**
 ```lua
 {
-  ["dictionary"] = toggle_multiline,
-  ["list"]       = toggle_multiline,
-  ["true"]       = toggle_boolean,
-  ["false"]      = toggle_boolean,
-  ["identifier"] = cycle_case,
+  ["dictionary"]    = toggle_multiline,
+  ["list"]          = toggle_multiline,
+  ["argument_list"] = toggle_multiline,
+  ["parameters"]    = toggle_multiline,
+  ["true"]          = toggle_boolean,
+  ["false"]         = toggle_boolean,
+  ["identifier"]    = cycle_case,
 }
 ```
 
