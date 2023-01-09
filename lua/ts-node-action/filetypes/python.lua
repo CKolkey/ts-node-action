@@ -16,6 +16,7 @@ return {
   ["dictionary"]    = toggle_multiline,
   ["list"]          = toggle_multiline,
   ["argument_list"] = toggle_multiline,
+  ["parameters"]    = toggle_multiline,
   ["true"]          = toggle_boolean,
   ["false"]         = toggle_boolean,
 }
