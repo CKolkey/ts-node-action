@@ -1,11 +1,11 @@
+local actions = require("ts-node-action.actions")
+
 local padding = {
   [","] = "%s ",
   [":"] = "%s ",
 }
 
-local toggle_multiline = require("ts-node-action.actions.toggle_multiline")(padding)
-
 return {
-  ["object"] = toggle_multiline,
-  ["array"]  = toggle_multiline,
+  ["object"] = actions.toggle_multiline(padding),
+  ["array"]  = actions.toggle_multiline(padding),
 }

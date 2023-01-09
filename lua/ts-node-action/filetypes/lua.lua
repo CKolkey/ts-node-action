@@ -1,3 +1,5 @@
+local actions = require("ts-node-action.actions")
+
 local padding = {
   [","] = "%s ",
   ["{"] = "%s ",
@@ -11,14 +13,15 @@ local padding = {
   ["/"] = " %s ",
 }
 
-local toggle_boolean   = require("ts-node-action.actions.toggle_boolean")
-local toggle_multiline = require("ts-node-action.actions.toggle_multiline")(padding)
-local toggle_operator  = require("ts-node-action.actions.toggle_operator")({ ["=="] = "~=", ["~="] = "==" })
+local operator_override = {
+  ["=="] = "~=",
+  ["~="] = "==",
+}
 
 return {
-  ["binary_expression"] = toggle_operator,
-  ["false"]             = toggle_boolean,
-  ["true"]              = toggle_boolean,
-  ["table_constructor"] = toggle_multiline,
-  ["arguments"]         = toggle_multiline,
+  ["false"]             = actions.toggle_boolean(),
+  ["true"]              = actions.toggle_boolean(),
+  ["table_constructor"] = actions.toggle_multiline(padding),
+  ["arguments"]         = actions.toggle_multiline(padding),
+  ["binary_expression"] = actions.toggle_operator(operator_override),
 }

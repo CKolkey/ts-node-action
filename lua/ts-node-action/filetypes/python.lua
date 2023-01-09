@@ -1,3 +1,5 @@
+local actions = require("ts-node-action.actions")
+
 local padding = {
   [","] = "%s ",
   [":"] = "%s ",
@@ -5,18 +7,16 @@ local padding = {
   ["}"] = " %s",
 }
 
-local toggle_multiline = require("ts-node-action.actions.toggle_multiline")(padding)
-
-local function toggle_boolean(node)
-  local value, _ = tostring(node:type() ~= "true"):gsub("^%l", string.upper)
-  return value
-end
+local boolean_override = {
+  ["True"] = "False",
+  ["False"] = "True",
+}
 
 return {
-  ["dictionary"]    = toggle_multiline,
-  ["list"]          = toggle_multiline,
-  ["argument_list"] = toggle_multiline,
-  ["parameters"]    = toggle_multiline,
-  ["true"]          = toggle_boolean,
-  ["false"]         = toggle_boolean,
+  ["dictionary"]    = actions.toggle_multiline(padding),
+  ["list"]          = actions.toggle_multiline(padding),
+  ["argument_list"] = actions.toggle_multiline(padding),
+  ["parameters"]    = actions.toggle_multiline(padding),
+  ["true"]          = actions.toggle_boolean(boolean_override),
+  ["false"]         = actions.toggle_boolean(boolean_override),
 }

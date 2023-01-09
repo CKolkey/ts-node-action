@@ -1,4 +1,5 @@
 local helpers = require("ts-node-action.helpers")
+local actions = require("ts-node-action.actions")
 
 local padding = {
   [","] = "%s ",
@@ -157,19 +158,15 @@ local function toggle_hash_style(node)
   return table.concat(replacement)
 end
 
-local toggle_multiline = require("ts-node-action.actions.toggle_multiline")(padding)
-local cycle_case       = require("ts-node-action.actions.cycle_case")
-local toggle_operator  = require("ts-node-action.actions.toggle_operator")()
-
 return {
-  ["array"]             = toggle_multiline,
-  ["hash"]              = toggle_multiline,
-  ["argument_list"]     = toggle_multiline,
-  ["method_parameters"] = toggle_multiline,
-  ["constant"]          = cycle_case,
+  ["constant"]          = actions.cycle_case(),
+  ["binary"]            = actions.toggle_operator(),
+  ["array"]             = actions.toggle_multiline(padding),
+  ["hash"]              = actions.toggle_multiline(padding),
+  ["argument_list"]     = actions.toggle_multiline(padding),
+  ["method_parameters"] = actions.toggle_multiline(padding),
   ["block"]             = toggle_block,
   ["do_block"]          = toggle_block,
-  ["binary"]            = toggle_operator,
   ["if"]                = handle_conditional,
   ["unless"]            = handle_conditional,
   ["if_modifier"]       = multiline_conditional,

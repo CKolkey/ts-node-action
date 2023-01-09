@@ -72,24 +72,26 @@ local screaming_snake_case = {
   end
 }
 
-return function(node)
-  local text = helpers.node_text(node)
-  local standardize
-  local transform
+return function()
+  return function(node)
+    local text = helpers.node_text(node)
+    local standardize
+    local transform
 
-  if snake_case.check(text) then
-    standardize = snake_case.standardize
-    transform   = pascal_case.transform
-  elseif screaming_snake_case.check(text) then
-    standardize = screaming_snake_case.standardize
-    transform   = camel_case.transform
-  elseif pascal_case.check(text) then
-    standardize = pascal_case.standardize
-    transform   = screaming_snake_case.transform
-  else
-    standardize = camel_case.standardize
-    transform   = snake_case.transform
+    if snake_case.check(text) then
+      standardize = snake_case.standardize
+      transform   = pascal_case.transform
+    elseif screaming_snake_case.check(text) then
+      standardize = screaming_snake_case.standardize
+      transform   = camel_case.transform
+    elseif pascal_case.check(text) then
+      standardize = pascal_case.standardize
+      transform   = screaming_snake_case.transform
+    else
+      standardize = camel_case.standardize
+      transform   = snake_case.transform
+    end
+
+    return transform(standardize(text))
   end
-
-  return transform(standardize(text))
 end

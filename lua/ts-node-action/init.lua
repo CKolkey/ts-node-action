@@ -58,17 +58,10 @@ local function do_action(action, node)
   end
 end
 
-M.node_actions = {
-  ["*"]      = require("ts-node-action/filetypes/global"),
-  lua        = require("ts-node-action/filetypes/lua"),
-  json       = require("ts-node-action/filetypes/json"),
-  ruby       = require("ts-node-action/filetypes/ruby"),
-  javascript = require("ts-node-action/filetypes/javascript"),
-  python     = require("ts-node-action/filetypes/python"),
-}
+M.ft_node_actions = require("ts-node-action.filetypes")
 
 function M.setup(opts)
-  M.node_actions = vim.tbl_deep_extend("force", M.node_actions, opts or {})
+  M.ft_node_actions = vim.tbl_deep_extend("force", M.ft_node_actions, opts or {})
 end
 
 function M.node_action()
@@ -79,10 +72,10 @@ function M.node_action()
   end
 
   local action
-  if M.node_actions[vim.o.filetype] and M.node_actions[vim.o.filetype][node:type()] then
-    action = M.node_actions[vim.o.filetype][node:type()]
+  if M.ft_node_actions[vim.o.filetype] and M.ft_node_actions[vim.o.filetype][node:type()] then
+    action = M.ft_node_actions[vim.o.filetype][node:type()]
   else
-    action = M.node_actions["*"][node:type()]
+    action = M.ft_node_actions["*"][node:type()]
   end
 
   if type(action) == "function" then
@@ -119,7 +112,7 @@ function M.debug()
         named_children = node:named_child_count(),
       },
       plugin = {
-        node_actions = M.node_actions
+        node_actions = M.ft_node_actions
       }
     }
   ))

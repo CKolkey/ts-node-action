@@ -1,9 +1,8 @@
-local toggle_boolean = require("ts-node-action.actions.toggle_boolean")
-local cycle_case     = require("ts-node-action.actions.cycle_case")
+local actions = require("ts-node-action.actions")
 
 return {
-  ["true"]          = toggle_boolean,
-  ["false"]         = toggle_boolean,
-  ["identifier"]    = cycle_case,
-  ["variable_name"] = cycle_case,
+  ["true"]          = actions.toggle_boolean(),
+  ["false"]         = actions.toggle_boolean(),
+  ["identifier"]    = actions.cycle_case(),
+  ["variable_name"] = actions.cycle_case(),
 }
