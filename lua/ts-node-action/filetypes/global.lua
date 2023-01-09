@@ -5,4 +5,5 @@ return {
   ["true"]       = toggle_boolean,
   ["false"]      = toggle_boolean,
   ["identifier"] = cycle_case,
+  ["variable_name"] = cycle_case,
 }
