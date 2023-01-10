@@ -30,7 +30,7 @@ local function replace_node(node, replacement, opts)
   end
 
   if opts.format then
-    vim.cmd("silent! normal " .. #replacement .. "==")
+    vim.cmd("silent! normal! " .. #replacement .. "==")
   end
 
   if opts.callback then
