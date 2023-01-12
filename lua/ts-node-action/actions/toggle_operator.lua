@@ -3,8 +3,8 @@ local helpers = require("ts-node-action.helpers")
 local default_operators = {
   ["!="] = "==",
   ["=="] = "!=",
-  [">"] = "<",
-  ["<"] = ">",
+  [">"]  = "<",
+  ["<"]  = ">",
   [">="] = "<=",
   ["<="] = ">=",
 }
