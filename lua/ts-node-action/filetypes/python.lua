@@ -8,7 +8,7 @@ local padding = {
 }
 
 local boolean_override = {
-  ["True"] = "False",
+  ["True"]  = "False",
   ["False"] = "True",
 }
 

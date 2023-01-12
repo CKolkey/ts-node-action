@@ -2,16 +2,16 @@ local helpers = require("ts-node-action.helpers")
 local actions = require("ts-node-action.actions")
 
 local padding = {
-  [","] = "%s ",
-  [":"] = "%s ",
-  ["{"] = "%s ",
+  [","]  = "%s ",
+  [":"]  = "%s ",
+  ["{"]  = "%s ",
   ["=>"] = " %s ",
-  ["="] = " %s ",
-  ["}"] = " %s",
-  ["+"] = " %s ",
-  ["-"] = " %s ",
-  ["*"] = " %s ",
-  ["/"] = " %s ",
+  ["="]  = " %s ",
+  ["}"]  = " %s",
+  ["+"]  = " %s ",
+  ["-"]  = " %s ",
+  ["*"]  = " %s ",
+  ["/"]  = " %s ",
 }
 
 local function toggle_block(node)
