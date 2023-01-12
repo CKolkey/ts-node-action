@@ -118,7 +118,7 @@ If `callback` is present, it will simply get called without arguments after the 
 cursor has been positioned.
 
 #### `format`
-Boolean value. If `true`, will run `==` operator on new buffer text.
+Boolean value. If `true`, will run `=` operator on new buffer text. Requires `indentexpr` to be set.
 
 Here's a simplified example of how a node-action function gets called:
 ```lua
@@ -171,81 +171,87 @@ Nodes not specified in table are returned unchanged.
 
 ## Builtin Actions
 
+Builtin actions are all higher-order functions so they can easily have options overridden on a per-filetype basis. Check out the implementations under `lua/filetypes/` to see how!
+
+```lua
+local actions = require("ts-node-actions.actions")
+```
+
 **Global** _(Applies to all filetypes)_
 ```lua
 {
-  ["true"]          = toggle_boolean,
-  ["false"]         = toggle_boolean,
-  ["identifier"]    = cycle_case,
-  ["variable_name"] = cycle_case,
+  ["true"]          = actions.toggle_boolean(),
+  ["false"]         = actions.toggle_boolean(),
+  ["identifier"]    = actions.cycle_case(),
+  ["variable_name"] = actions.cycle_case(),
 }
 ```
 
 **Ruby**
 ```lua
 {
-  ["true"]              = toggle_boolean,
-  ["false"]             = toggle_boolean,
-  ["array"]             = toggle_multiline,
-  ["hash"]              = toggle_multiline,
-  ["argument_list"]     = toggle_multiline,
-  ["method_parameters"] = toggle_multiline,
-  ["identifier"]        = cycle_case,
-  ["constant"]          = cycle_case,
-  ["block"]             = toggle_block,
-  ["do_block"]          = toggle_block,
-  ["binary"]            = toggle_operator,
-  ["if"]                = handle_conditional,
-  ["unless"]            = handle_conditional,
-  ["if_modifier"]       = multiline_conditional,
-  ["unless_modifier"]   = multiline_conditional,
-  ["conditional"]       = expand_ternary,
-  ["pair"]              = toggle_hash_style,
+  ["true"]              = actions.toggle_boolean(),
+  ["false"]             = actions.toggle_boolean(),
+  ["array"]             = actions.toggle_multiline(),
+  ["hash"]              = actions.toggle_multiline(),
+  ["argument_list"]     = actions.toggle_multiline(),
+  ["method_parameters"] = actions.toggle_multiline(),
+  ["identifier"]        = actions.cycle_case(),
+  ["constant"]          = actions.cycle_case(),
+  ["block"]             = actions.toggle_block(),
+  ["do_block"]          = actions.toggle_block(),
+  ["binary"]            = actions.toggle_operator(),
+  ["if"]                = actions.handle_conditional(),
+  ["unless"]            = actions.handle_conditional(),
+  ["if_modifier"]       = actions.multiline_conditional(),
+  ["unless_modifier"]   = actions.multiline_conditional(),
+  ["conditional"]       = actions.expand_ternary(),
+  ["pair"]              = actions.toggle_hash_style(),
 }
 ```
 
 **JSON**
 ```lua
 {
-  ["object"] = toggle_multiline,
-  ["array"]  = toggle_multiline,
+  ["object"] = actions.toggle_multiline(),
+  ["array"]  = actions.toggle_multiline(),
 }
 ```
 
 **Lua**
 ```lua
 {
-  ["table_constructor"] = toggle_multiline,
-  ["arguments"]         = toggle_multiline,
-  ["true"]              = toggle_boolean,
-  ["false"]             = toggle_boolean,
-  ["identifier"]        = cycle_case,
+  ["table_constructor"] = actions.toggle_multiline(),
+  ["arguments"]         = actions.toggle_multiline(),
+  ["true"]              = actions.toggle_boolean(),
+  ["false"]             = actions.toggle_boolean(),
+  ["identifier"]        = actions.cycle_case(),
 }
 ```
 
-**Javascript**
+**Javascript** & **Typescript**
 ```lua
 {
-  ["object"]              = toggle_multiline,
-  ["array"]               = toggle_multiline,
-  ["statement_block"]     = toggle_multiline,
-  ["identifier"]          = cycle_case,
-  ["property_identifier"] = cycle_case,
-  ["true"]                = toggle_boolean,
-  ["false"]               = toggle_boolean,
+  ["object"]              = actions.toggle_multiline(),
+  ["array"]               = actions.toggle_multiline(),
+  ["statement_block"]     = actions.toggle_multiline(),
+  ["identifier"]          = actions.cycle_case(),
+  ["property_identifier"] = actions.cycle_case(),
+  ["true"]                = actions.toggle_boolean(),
+  ["false"]               = actions.toggle_boolean(),
 }
 ```
 
 **Python**
 ```lua
 {
-  ["dictionary"]    = toggle_multiline,
-  ["list"]          = toggle_multiline,
-  ["argument_list"] = toggle_multiline,
-  ["parameters"]    = toggle_multiline,
-  ["true"]          = toggle_boolean,
-  ["false"]         = toggle_boolean,
-  ["identifier"]    = cycle_case,
+  ["dictionary"]    = actions.toggle_multiline(),
+  ["list"]          = actions.toggle_multiline(),
+  ["argument_list"] = actions.toggle_multiline(),
+  ["parameters"]    = actions.toggle_multiline(),
+  ["true"]          = actions.toggle_boolean(),
+  ["false"]         = actions.toggle_boolean(),
+  ["identifier"]    = actions.cycle_case(),
 }
 ```
 
