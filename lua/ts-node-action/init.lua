@@ -58,10 +58,10 @@ local function do_action(action, node)
   end
 end
 
-M.ft_node_actions = require("ts-node-action.filetypes")
+M.node_actions = require("ts-node-action.filetypes")
 
 function M.setup(opts)
-  M.ft_node_actions = vim.tbl_deep_extend("force", M.ft_node_actions, opts or {})
+  M.node_actions = vim.tbl_deep_extend("force", M.node_actions, opts or {})
 end
 
 function M.node_action()
@@ -72,10 +72,10 @@ function M.node_action()
   end
 
   local action
-  if M.ft_node_actions[vim.o.filetype] and M.ft_node_actions[vim.o.filetype][node:type()] then
-    action = M.ft_node_actions[vim.o.filetype][node:type()]
+  if M.node_actions[vim.o.filetype] and M.node_actions[vim.o.filetype][node:type()] then
+    action = M.node_actions[vim.o.filetype][node:type()]
   else
-    action = M.ft_node_actions["*"][node:type()]
+    action = M.node_actions["*"][node:type()]
   end
 
   if type(action) == "function" then
@@ -112,7 +112,7 @@ function M.debug()
         named_children = node:named_child_count(),
       },
       plugin = {
-        node_actions = M.ft_node_actions
+        node_actions = M.node_actions
       }
     }
   ))
