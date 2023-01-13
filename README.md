@@ -50,6 +50,8 @@ For example, this would bind the function to `K`:
 vim.keymap.set({ "n" }, "K", require("ts-node-action").node_action, { desc = "Trigger Node Action" })
 ```
 
+If `tpope/vim-repeat` is installed, calling `node_action()` is dot-repeatable.
+
 ## Configuration
 
 The `setup()` function accepts a table that conforms to the following schema:
@@ -102,10 +104,10 @@ This function can return one or two values:
 Here's how that can look.
 
 ```lua
-{ 
-  cursor   = { row = 0, col = 0 }, 
-  callback = function() ... end, 
-  format   = true 
+{
+  cursor   = { row = 0, col = 0 },
+  callback = function() ... end,
+  format   = true
 }
 ```
 
