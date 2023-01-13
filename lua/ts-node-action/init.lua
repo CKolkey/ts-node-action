@@ -90,7 +90,7 @@ function M.setup(opts)
   )
 end
 
-function M.node_action()
+M.node_action = require("ts-node-action.repeat").set(function()
   local node = require("nvim-treesitter.ts_utils").get_node_at_cursor()
   if not node then
     info("No node found at cursor")
@@ -114,7 +114,7 @@ function M.node_action()
   else
     info("No action defined for '" .. vim.o.filetype .. "' node type: '" .. node:type() .. "'")
   end
-end
+end)
 
 function M.debug()
   local node = require("nvim-treesitter.ts_utils").get_node_at_cursor()
