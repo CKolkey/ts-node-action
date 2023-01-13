@@ -1,13 +1,13 @@
 local M = {}
 
 -- private
--- @replacement: string|table
--- @opts: table
--- @opts.cursor: table|nil
--- @opts.cursor.row: number|nil
--- @opts.cursor.col: number|nil
--- @opts.callback: function|nil
--- @opts.format: boolean|nil
+-- @param replacement string|table
+-- @param opts table
+-- @param opts.cursor table|nil
+-- @param opts.cursor.row number|nil
+-- @param opts.cursor.col number|nil
+-- @param opts.callback function|nil
+-- @param opts.format boolean|nil
 local function replace_node(node, replacement, opts)
   if type(replacement) ~= "table" then
     replacement = { replacement }
@@ -39,16 +39,16 @@ local function replace_node(node, replacement, opts)
 end
 
 -- @private
--- @message: string
--- @return: nil
+-- @param message string
+-- @return nil
 local function info(message)
   vim.notify(message, vim.log.levels.INFO, { title = "Node Action", icon = " " })
 end
 
 -- @private
--- @action: function
--- @node: tsnode
--- @return: nil
+-- @param action function
+-- @param node tsnode
+-- @return nil
 local function do_action(action, node)
   local replacement, opts = action(node)
   if replacement then
@@ -58,8 +58,22 @@ local function do_action(action, node)
   end
 end
 
+-- @private
+-- @param node tsnode
+-- @return function|nil
+local function find_action(node)
+  local type = node:type()
+  if M.node_actions[vim.o.filetype] and M.node_actions[vim.o.filetype][type] then
+    return M.node_actions[vim.o.filetype][type]
+  else
+    return M.node_actions["*"][type]
+  end
+end
+
 M.node_actions = require("ts-node-action.filetypes")
 
+-- @param opts? table
+-- @return nil
 function M.setup(opts)
   M.node_actions = vim.tbl_deep_extend("force", M.node_actions, opts or {})
 end
@@ -71,13 +85,7 @@ function M.node_action()
     return
   end
 
-  local action
-  if M.node_actions[vim.o.filetype] and M.node_actions[vim.o.filetype][node:type()] then
-    action = M.node_actions[vim.o.filetype][node:type()]
-  else
-    action = M.node_actions["*"][node:type()]
-  end
-
+  local action = find_action(node)
   if type(action) == "function" then
     do_action(action, node)
   elseif type(action) == "table" then
