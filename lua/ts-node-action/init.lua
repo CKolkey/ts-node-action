@@ -76,6 +76,18 @@ M.node_actions = require("ts-node-action.filetypes")
 -- @return nil
 function M.setup(opts)
   M.node_actions = vim.tbl_deep_extend("force", M.node_actions, opts or {})
+
+  vim.api.nvim_create_user_command(
+    "NodeAction",
+    M.node_action,
+    { desc = "Performs action on the node under the cursor." }
+  )
+
+  vim.api.nvim_create_user_command(
+    "NodeActionDebug",
+    M.debug,
+    { desc = "Prints debug information for Ts-Node-Action Plugin" }
+  )
 end
 
 function M.node_action()

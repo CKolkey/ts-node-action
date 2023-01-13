@@ -21,9 +21,7 @@ A framework for running functions on Tree-sitter nodes, and updating the buffer 
 {
     'ckolkey/ts-node-action',
      dependencies = { 'nvim-treesitter' },
-     config = function() -- Optional
-         require("ts-node-action").setup({})
-     end
+     opts = {},
 },
 ```
 
@@ -32,14 +30,17 @@ A framework for running functions on Tree-sitter nodes, and updating the buffer 
 use({
     'ckolkey/ts-node-action',
      requires = { 'nvim-treesitter' },
-     config = function() -- Optional
+     config = function()
          require("ts-node-action").setup({})
      end
 })
 ```
 
-**Note**: It's not required to call `require("ts-node-action").setup()` to initialize the plugin, but a table can be
-passed into the setup function to specify new actions for nodes or additional filetypes.
+**Note**: It's not required to call `require("ts-node-action").setup()` to initialize the plugin,
+but a table can be passed into the setup function to specify new actions for nodes or additional filetypes.
+
+Additionally, `:NodeAction` and `:NodeActionDebug` user commands are defined in the `setup()` function,
+so you'll need to call it if you want to use those.
 
 ## Usage
 
