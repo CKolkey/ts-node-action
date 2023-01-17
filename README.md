@@ -191,13 +191,13 @@ A table can also be used in place of a string to implement a custom formatter. E
 - apply (function)
 - standardize (function)
 
-# Pattern
+### pattern
 A Lua pattern (string) that matches the format
 
-# Apply
+### apply
 A function that takes a _table_ of standardized strings as it's argument, and returns a _string_ in the format
 
-# Standardize
+### standardize
 A function that takes a _string_ in this format, and returns a table of strings, all lower case, no special chars.
 ie: standardize("ts_node_action") -> { "ts", "node", "action" }
     standardize("tsNodeAction")   -> { "ts", "node", "action" }
@@ -207,6 +207,7 @@ ie: standardize("ts_node_action") -> { "ts", "node", "action" }
 NOTE: The order of formats can be important, as some identifiers are the same for multiple formats.
   Take the string 'action' for example. This is a match for both snake_case _and_ camel_case. It's
   therefore important to place a format between those two so we can correcly change the string.
+<hr />
 </details>
 
 Builtin actions are all higher-order functions so they can easily have options overridden on a per-filetype basis. Check out the implementations under `lua/filetypes/` to see how!
