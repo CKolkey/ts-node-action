@@ -11,9 +11,6 @@ Table of Contents                           *ts-node-action-table-of-contents*
   - API                                                   |ts-node-action-api|
   - Helpers                                           |ts-node-action-helpers|
   - Builtin Actions                           |ts-node-action-builtin-actions|
-2. Pattern                                            |ts-node-action-pattern|
-3. Apply                                                |ts-node-action-apply|
-4. Standardize                                    |ts-node-action-standardize|
   - Contributing                                 |ts-node-action-contributing|
 
 ==============================================================================
@@ -280,19 +277,16 @@ A table can also be used in place of a string to implement a custom formatter.
 Every format is a table that implements the following interface: - pattern
 (string) - apply (function) - standardize (function)
 
-==============================================================================
-2. Pattern                                            *ts-node-action-pattern*
+PATTERN ~
 
 A Lua pattern (string) that matches the format
 
-==============================================================================
-3. Apply                                                *ts-node-action-apply*
+APPLY ~
 
 A function that takes a _table_ of standardized strings as it’s argument, and
 returns a _string_ in the format
 
-==============================================================================
-4. Standardize                                    *ts-node-action-standardize*
+STANDARDIZE ~
 
 A function that takes a _string_ in this format, and returns a table of
 strings, all lower case, no special chars. ie: standardize("ts_node_action") ->
@@ -303,6 +297,8 @@ standardize("TS_NODE_ACTION") -> { "ts", "node", "action" }
 NOTE: The order of formats can be important, as some identifiers are the same for multiple formats.
 Take the string 'action' for example. This is a match for both snake_case _and_ camel_case. It’s
 therefore important to place a format between those two so we can correcly change the string.
+
+<hr />
 
 Builtin actions are all higher-order functions so they can easily have options
 overridden on a per-filetype basis. Check out the implementations under
