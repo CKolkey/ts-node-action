@@ -14,6 +14,8 @@ local padding = {
   ["/"]  = " %s ",
 }
 
+local identifier_formats = { "snake_case", "pascal_case", "screaming_snake_case" }
+
 local function toggle_block(node)
   local block_params
   local block_body = ""
@@ -159,8 +161,8 @@ local function toggle_hash_style(node)
 end
 
 return {
-  ["identifier"]        = actions.cycle_case({ "snake_case", "pascal_case", "screaming_snake_case" }),
-  ["constant"]          = actions.cycle_case({ "snake_case", "pascal_case", "screaming_snake_case" }),
+  ["identifier"]        = actions.cycle_case(identifier_formats),
+  ["constant"]          = actions.cycle_case(identifier_formats),
   ["binary"]            = actions.toggle_operator(),
   ["array"]             = actions.toggle_multiline(padding),
   ["hash"]              = actions.toggle_multiline(padding),
