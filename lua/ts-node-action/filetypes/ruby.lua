@@ -159,7 +159,8 @@ local function toggle_hash_style(node)
 end
 
 return {
-  ["constant"]          = actions.cycle_case(),
+  ["identifier"]        = actions.cycle_case({ "snake_case", "pascal_case", "screaming_snake_case" }),
+  ["constant"]          = actions.cycle_case({ "snake_case", "pascal_case", "screaming_snake_case" }),
   ["binary"]            = actions.toggle_operator(),
   ["array"]             = actions.toggle_multiline(padding),
   ["hash"]              = actions.toggle_multiline(padding),
