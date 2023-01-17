@@ -172,6 +172,41 @@ Nodes not specified in table are returned unchanged.
 
 ## Builtin Actions
 
+<details>
+<summary>Cycle Case</summary>
+
+`require("ts-node-action.actions").cycle_case(formats)`
+
+```
+@param formats table|nil
+```
+
+`formats` param can be a table of strings specifying the different formats to cycle through. By default it's `{
+  "snake_case", "pascal_case", "screaming_snake_case", "camel_case" }`.
+
+A table can also be used in place of a string to implement a custom formatter. Every format is a table that implements the following interface:
+- pattern (string)
+- apply (function)
+- standardize (function)
+
+# Pattern
+A Lua pattern (string) that matches the format
+
+# Apply
+A function that takes a _table_ of standardized strings as it's argument, and returns a _string_ in the format
+
+# Standardize
+A function that takes a _string_ in this format, and returns a table of strings, all lower case, no special chars.
+ie: standardize("ts_node_action") -> { "ts", "node", "action" }
+    standardize("tsNodeAction")   -> { "ts", "node", "action" }
+    standardize("TsNodeAction")   -> { "ts", "node", "action" }
+    standardize("TS_NODE_ACTION") -> { "ts", "node", "action" }
+
+NOTE: The order of formats can be important, as some identifiers are the same for multiple formats.
+  Take the string 'action' for example. This is a match for both snake_case _and_ camel_case. It's
+  therefore important to place a format between those two so we can correcly change the string.
+</details>
+
 Builtin actions are all higher-order functions so they can easily have options overridden on a per-filetype basis. Check out the implementations under `lua/filetypes/` to see how!
 
 ```lua
