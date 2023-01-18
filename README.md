@@ -268,16 +268,22 @@ local actions = require("ts-node-actions.actions")
 }
 ```
 
-**Javascript** & **Typescript**
+**Javascript** & **Typescript** & **TypescriptReact** & **JavascriptReact** & **Svelte**
 ```lua
 {
+  ["true"]                = actions.toggle_boolean(),
+  ["false"]               = actions.toggle_boolean(),
+  ["identifier"]          = actions.cycle_case(),
+  ["property_identifier"] = actions.cycle_case(),
+  ["binary_expression"]   = actions.toggle_operator(),
   ["object"]              = actions.toggle_multiline(),
   ["array"]               = actions.toggle_multiline(),
   ["statement_block"]     = actions.toggle_multiline(),
-  ["identifier"]          = actions.cycle_case(),
-  ["property_identifier"] = actions.cycle_case(),
-  ["true"]                = actions.toggle_boolean(),
-  ["false"]               = actions.toggle_boolean(),
+  ["object_pattern"]      = actions.toggle_multiline(),
+  ["object_type"]         = actions.toggle_multiline(),
+  ["formal_parameters"]   = actions.toggle_multiline(),
+  ["argument_list"]       = actions.toggle_multiline(),
+  ["method_parameters"]   = actions.toggle_multiline(),
 }
 ```
 
