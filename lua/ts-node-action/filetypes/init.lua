@@ -5,6 +5,7 @@ return {
   ruby            = require("ts-node-action.filetypes.ruby"),
   eruby           = require("ts-node-action.filetypes.ruby"),
   python          = require("ts-node-action.filetypes.python"),
+  php             = require("ts-node-action.filetypes.php"),
   javascript      = require("ts-node-action.filetypes.javascript"),
   javascriptreact = require("ts-node-action.filetypes.javascript"),
   typescript      = require("ts-node-action.filetypes.javascript"),

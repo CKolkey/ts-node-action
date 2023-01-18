@@ -301,6 +301,22 @@ local actions = require("ts-node-actions.actions")
 }
 ```
 
+**PHP**
+```lua
+{
+  ["array_creation_expression"] = actions.toggle_multiline(),
+  ["formal_parameters"]         = actions.toggle_multiline(),
+  ["arguments"]                 = actions.toggle_multiline(),
+  ["subscript_expression"]      = actions.toggle_multiline(),
+  ["true"]                      = actions.toggle_boolean(),
+  ["false"]                     = actions.toggle_boolean(),
+  ["name"]                      = actions.cycle_case(),
+  ["encapsed_string"]           = actions.cycle_quotes(),
+  ["boolean"]                   = actions.toggle_boolean(),
+  ["binary_expression"]         = actions.toggle_operator(),
+}
+```
+
 ## Contributing
 
 If you come up with something that would be a good fit, pull requests for node actions are welcome!
