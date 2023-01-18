@@ -317,6 +317,21 @@ local actions = require("ts-node-actions.actions")
 }
 ```
 
+**Rust**
+```lua
+{
+  ["field_declaration_list"] = actions.toggle_multiline(),
+  ["parameters"]             = actions.toggle_multiline(),
+  ["enum_variant_list"]      = actions.toggle_multiline(),
+  ["block"]                  = actions.toggle_multiline(),
+  ["array_expression"]       = actions.toggle_multiline(),
+  ["tuple_expression"]       = actions.toggle_multiline(),
+  ["tuple_pattern"]          = actions.toggle_multiline(),
+  ["boolean_literal"]        = actions.toggle_boolean(),
+  ["identifier"]             = actions.cycle_case(),
+}
+```
+
 ## Contributing
 
 If you come up with something that would be a good fit, pull requests for node actions are welcome!
