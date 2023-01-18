@@ -5,4 +5,5 @@ return {
   ["false"]         = actions.toggle_boolean(),
   ["identifier"]    = actions.cycle_case(),
   ["variable_name"] = actions.cycle_case(),
+  ["string"]        = actions.cycle_quotes(),
 }
