@@ -1,4 +1,4 @@
-*ts-node-action.txt*        For NVIM v0.8.0       Last change: 2023 January 18
+*ts-node-action.txt*        For NVIM v0.8.0       Last change: 2023 January 19
 
 ==============================================================================
 Table of Contents                           *ts-node-action-table-of-contents*
