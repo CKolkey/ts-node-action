@@ -213,7 +213,7 @@ NOTE: The order of formats can be important, as some identifiers are the same fo
 Builtin actions are all higher-order functions so they can easily have options overridden on a per-filetype basis. Check out the implementations under `lua/filetypes/` to see how!
 
 ```lua
-local actions = require("ts-node-actions.actions")
+local actions = require("ts-node-action.actions")
 ```
 
 **Global** _(Applies to all filetypes)_
