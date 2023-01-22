@@ -98,8 +98,8 @@ M.node_action = require("ts-node-action.repeat").set(function()
   end
 
   local action = find_action(node)
-  if type(action) == "function" then
-    do_action(action, node)
+  if type(action.func) == "function" then
+    do_action(action.func, node)
   elseif type(action) == "table" then
     vim.ui.select(
       action,
@@ -115,6 +115,18 @@ M.node_action = require("ts-node-action.repeat").set(function()
     info("No action defined for '" .. vim.o.filetype .. "' node type: '" .. node:type() .. "'")
   end
 end)
+
+function M.available_actions()
+  local node = require("nvim-treesitter.ts_utils").get_node_at_cursor()
+  if not node then
+    info("No node found at cursor")
+    return
+  end
+  local action = find_action(node)
+  return { name = action.name, func = function()
+    do_action(action.func, node)
+  end }
+end
 
 function M.debug()
   local node = require("nvim-treesitter.ts_utils").get_node_at_cursor()
