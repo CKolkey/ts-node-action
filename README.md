@@ -137,6 +137,23 @@ Main function for plugin. Should be assigned by user, and when called will attem
 node your cursor is currently on.
 <hr>
 
+`require("ts-node-action").available_actions()`
+Exposes the function assigned to the node your cursor is currently on, as well as its name. This is mainly designed for `null-ls` integration, which might look something like this:
+
+```lua
+require "null-ls".register({
+  name = "more_actions",
+  method = { require "null-ls".methods.CODE_ACTION },
+  filetypes = { "_all" },
+  generator = {
+    fn = require("ts-node-action").available_actions
+  }
+})
+```
+
+This will present the available node action(s) for the node under your cursor alongside your `lsp`/`null-ls` code actions.
+<hr>
+
 `require("ts-node-action").debug()`
 Prints some helpful information about the current node, as well as the loaded node actions for all filetypes
 
