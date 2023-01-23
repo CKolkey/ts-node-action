@@ -39,9 +39,6 @@ use({
 **Note**: It's not required to call `require("ts-node-action").setup()` to initialize the plugin,
 but a table can be passed into the setup function to specify new actions for nodes or additional filetypes.
 
-Additionally, `:NodeAction` and `:NodeActionDebug` user commands are defined in the `setup()` function,
-so you'll need to call it if you want to use those.
-
 ## Usage
 
 Bind `require("ts-node-action").node_action` to something. This is left up to the user.
@@ -52,6 +49,10 @@ vim.keymap.set({ "n" }, "K", require("ts-node-action").node_action, { desc = "Tr
 ```
 
 If `tpope/vim-repeat` is installed, calling `node_action()` is dot-repeatable.
+
+If `setup()` is called, user commands `:NodeAction` and `:NodeActionDebug` are defined.
+
+See `available_actions()` below for how to set this up with LSP Code Actions.
 
 ## Configuration
 
