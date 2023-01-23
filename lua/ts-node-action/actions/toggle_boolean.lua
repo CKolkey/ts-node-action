@@ -9,9 +9,9 @@ return function(boolean_pair_override)
   local boolean_pair = vim.tbl_deep_extend("force",
     boolean_pair_default, boolean_pair_override or {})
 
-  local function bool(node)
+  local function action(node)
     return boolean_pair[helpers.node_text(node)] or helpers.node_text(node)
   end
 
-  return { name = "Toggle Bool", func = bool }
+  return { { action, name = "Toggle Boolean" } }
 end

@@ -98,19 +98,21 @@ M.node_action = require("ts-node-action.repeat").set(function()
   end
 
   local action = find_action(node)
-  if type(action.func) == "function" then
-    do_action(action.func, node)
+  if type(action) == "function" then
+    do_action(action, node)
   elseif type(action) == "table" then
-    vim.ui.select(
-      action,
-      {
-        prompt = "Select Action",
-        format_item = function(choice)
-          return choice.name
-        end
-      },
-      function(choice) do_action(choice[1], node) end
-    )
+    if #action == 1 then
+      do_action(action[1][1], node)
+    else
+      vim.ui.select(
+        action,
+        {
+          prompt      = "Select Action",
+          format_item = function(choice) return choice.name end
+        },
+        function(choice) do_action(choice[1], node) end
+      )
+    end
   else
     info("No action defined for '" .. vim.o.filetype .. "' node type: '" .. node:type() .. "'")
   end
@@ -122,10 +124,20 @@ function M.available_actions()
     info("No node found at cursor")
     return
   end
+
+  local function format_action(tbl)
+    return {
+      action = function() do_action(tbl[1], node) end,
+      title  = tbl.name or "Anonymous Node Action",
+    }
+  end
+
   local action = find_action(node)
-  return { name = action.name, func = function()
-    do_action(action.func, node)
-  end }
+  if type(action) == "function" then
+    return { format_action({ action }) }
+  elseif type(action) == "table" then
+    return vim.tbl_map(format_action, action)
+  end
 end
 
 function M.debug()
