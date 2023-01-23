@@ -1,11 +1,11 @@
-local namespace = vim.api.nvim_create_namespace('ts_node_action_conceal')
+local namespace = vim.api.nvim_create_namespace("ts_node_action_conceal")
 
 return function(char, level, cursor)
   char   = char or ""
   level  = level or 2
   cursor = cursor or "nc"
 
-  return function(node)
+  local function action(node)
     vim.api.nvim_win_set_option(0, "concealcursor", cursor)
     vim.api.nvim_win_set_option(0, "conceallevel", level)
 
@@ -24,4 +24,6 @@ return function(char, level, cursor)
       )
     end
   end
+
+  return { { action, name = "Conceal String" } }
 end

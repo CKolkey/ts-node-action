@@ -3,8 +3,8 @@ local helpers = require("ts-node-action.helpers")
 return function(quotes)
   quotes = quotes or { { "'", "'" }, { '"', '"' } }
 
-  return function(node)
-    local text  = helpers.node_text(node)
+  local function action(node)
+    local text = helpers.node_text(node)
     for i, char in ipairs(quotes) do
       if string.sub(text, 1, #char[1]) == char[1] then
         local next      = quotes[i + 1 > #quotes and 1 or i + 1]
@@ -14,4 +14,6 @@ return function(quotes)
       end
     end
   end
+
+  return { { action, name = "Cycle Quotes" } }
 end
