@@ -13,7 +13,7 @@ return function(operator_override)
   local operators = vim.tbl_extend("force",
     default_operators, operator_override or {})
 
-  return function(node)
+  local function action(node)
     local replacement = {}
     for child, _ in node:iter_children() do
       local text = helpers.node_text(child)
@@ -25,4 +25,6 @@ return function(operator_override)
     end
     return table.concat(replacement, " ")
   end
+
+  return { { action, name = "Toggle Operator" } }
 end

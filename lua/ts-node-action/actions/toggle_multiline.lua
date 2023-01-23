@@ -39,7 +39,7 @@ end
 return function(padding)
   padding = padding or {}
 
-  return function(node)
+  local function action(node)
     local fn
     if helpers.multiline_node(node) then
       fn = expand_child_nodes
@@ -48,4 +48,6 @@ return function(padding)
     end
     return fn(node), { cursor = {}, format = true }
   end
+
+  return { { action, name = "Toggle Multiline" } }
 end

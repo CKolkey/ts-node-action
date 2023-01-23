@@ -101,7 +101,7 @@ return function(user_formats)
     end
   end
 
-  return function(node)
+  local function action(node)
     local text = helpers.node_text(node)
 
     for i, format in ipairs(formats) do
@@ -114,4 +114,6 @@ return function(user_formats)
       end
     end
   end
+
+  return { { action, name = "Cycle Case" } }
 end
