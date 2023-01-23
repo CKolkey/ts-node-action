@@ -1,4 +1,4 @@
-*ts-node-action.txt*        For NVIM v0.8.0       Last change: 2023 January 19
+*ts-node-action.txt*        For NVIM v0.8.0       Last change: 2023 January 23
 
 ==============================================================================
 Table of Contents                           *ts-node-action-table-of-contents*
@@ -305,7 +305,7 @@ overridden on a per-filetype basis. Check out the implementations under
 `lua/filetypes/` to see how!
 
 >
-    local actions = require("ts-node-actions.actions")
+    local actions = require("ts-node-action.actions")
 <
 
 
