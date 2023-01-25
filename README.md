@@ -9,6 +9,7 @@ A framework for running functions on Tree-sitter nodes, and updating the buffer 
   - [Writing Your Own Actions](https://github.com/CKolkey/ts-node-action#writing-your-own-node-actions)
 - [API](https://github.com/CKolkey/ts-node-action#writing-your-own-node-actions)
   - [Helpers](https://github.com/CKolkey/ts-node-action#helpers)
+  - [Null-LS](https://github.com/CKolkey/ts-node-action#null-ls-integration)
 - [Builtin Actions](https://github.com/CKolkey/ts-node-action#builtin-actions)
 - [Contributing](https://github.com/CKolkey/ts-node-action#contributing)
 
