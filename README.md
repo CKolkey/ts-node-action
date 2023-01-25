@@ -2,6 +2,16 @@
 
 A framework for running functions on Tree-sitter nodes, and updating the buffer with the result.
 
+- [Installation](https://github.com/CKolkey/ts-node-action/blob/master/README.md#installation)
+- [Usage](https://github.com/CKolkey/ts-node-action/blob/master/README.md#usage)
+- [Configuration](https://github.com/CKolkey/ts-node-action/blob/master/README.md#configuration)
+  - [Multiple Actions for a Node Tyle](https://github.com/CKolkey/ts-node-action/blob/master/README.md#multiple-actions-for-a-node-type)
+  - [Writing Your Own Actions](https://github.com/CKolkey/ts-node-action#writing-your-own-node-actions)
+- [API](https://github.com/CKolkey/ts-node-action#writing-your-own-node-actions)
+  - [Helpers](https://github.com/CKolkey/ts-node-action#helpers)
+- [Builtin Actions](https://github.com/CKolkey/ts-node-action#builtin-actions)
+- [Contributing](https://github.com/CKolkey/ts-node-action#contributing)
+
 ![cycle case](https://user-images.githubusercontent.com/7228095/210154055-8851210e-e8e1-4ba3-a474-0be373df8d1b.gif)
 
 ![multiline](https://user-images.githubusercontent.com/7228095/210153839-5009dbed-db7a-4b1c-b5c9-879b90f32a64.gif)
