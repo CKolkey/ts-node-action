@@ -230,125 +230,18 @@ NOTE: The order of formats can be important, as some identifiers are the same fo
 
 Builtin actions are all higher-order functions so they can easily have options overridden on a per-filetype basis. Check out the implementations under `lua/filetypes/` to see how!
 
-```lua
-local actions = require("ts-node-action.actions")
-```
-
-**Global** _(Applies to all filetypes)_
-```lua
-{
-  ["true"]          = actions.toggle_boolean(),
-  ["false"]         = actions.toggle_boolean(),
-  ["identifier"]    = actions.cycle_case(),
-  ["variable_name"] = actions.cycle_case(),
-  ["string"]        = actions.cycle_quotes(),
-}
-```
-
-**Ruby**
-```lua
-{
-  ["true"]              = actions.toggle_boolean(),
-  ["false"]             = actions.toggle_boolean(),
-  ["array"]             = actions.toggle_multiline(),
-  ["hash"]              = actions.toggle_multiline(),
-  ["argument_list"]     = actions.toggle_multiline(),
-  ["method_parameters"] = actions.toggle_multiline(),
-  ["identifier"]        = actions.cycle_case(),
-  ["constant"]          = actions.cycle_case(),
-  ["block"]             = actions.toggle_block(),
-  ["do_block"]          = actions.toggle_block(),
-  ["binary"]            = actions.toggle_operator(),
-  ["if"]                = actions.handle_conditional(),
-  ["unless"]            = actions.handle_conditional(),
-  ["if_modifier"]       = actions.multiline_conditional(),
-  ["unless_modifier"]   = actions.multiline_conditional(),
-  ["conditional"]       = actions.expand_ternary(),
-  ["pair"]              = actions.toggle_hash_style(),
-}
-```
-
-**JSON**
-```lua
-{
-  ["object"] = actions.toggle_multiline(),
-  ["array"]  = actions.toggle_multiline(),
-}
-```
-
-**Lua**
-```lua
-{
-  ["table_constructor"] = actions.toggle_multiline(),
-  ["arguments"]         = actions.toggle_multiline(),
-  ["true"]              = actions.toggle_boolean(),
-  ["false"]             = actions.toggle_boolean(),
-  ["identifier"]        = actions.cycle_case(),
-}
-```
-
-**Javascript** & **Typescript** & **TypescriptReact** & **JavascriptReact** & **Svelte**
-```lua
-{
-  ["true"]                = actions.toggle_boolean(),
-  ["false"]               = actions.toggle_boolean(),
-  ["identifier"]          = actions.cycle_case(),
-  ["property_identifier"] = actions.cycle_case(),
-  ["binary_expression"]   = actions.toggle_operator(),
-  ["object"]              = actions.toggle_multiline(),
-  ["array"]               = actions.toggle_multiline(),
-  ["statement_block"]     = actions.toggle_multiline(),
-  ["object_pattern"]      = actions.toggle_multiline(),
-  ["object_type"]         = actions.toggle_multiline(),
-  ["formal_parameters"]   = actions.toggle_multiline(),
-  ["argument_list"]       = actions.toggle_multiline(),
-  ["method_parameters"]   = actions.toggle_multiline(),
-}
-```
-
-**Python**
-```lua
-{
-  ["dictionary"]    = actions.toggle_multiline(),
-  ["list"]          = actions.toggle_multiline(),
-  ["argument_list"] = actions.toggle_multiline(),
-  ["parameters"]    = actions.toggle_multiline(),
-  ["true"]          = actions.toggle_boolean(),
-  ["false"]         = actions.toggle_boolean(),
-  ["identifier"]    = actions.cycle_case(),
-}
-```
-
-**PHP**
-```lua
-{
-  ["array_creation_expression"] = actions.toggle_multiline(),
-  ["formal_parameters"]         = actions.toggle_multiline(),
-  ["arguments"]                 = actions.toggle_multiline(),
-  ["subscript_expression"]      = actions.toggle_multiline(),
-  ["true"]                      = actions.toggle_boolean(),
-  ["false"]                     = actions.toggle_boolean(),
-  ["name"]                      = actions.cycle_case(),
-  ["encapsed_string"]           = actions.cycle_quotes(),
-  ["boolean"]                   = actions.toggle_boolean(),
-  ["binary_expression"]         = actions.toggle_operator(),
-}
-```
-
-**Rust**
-```lua
-{
-  ["field_declaration_list"] = actions.toggle_multiline(),
-  ["parameters"]             = actions.toggle_multiline(),
-  ["enum_variant_list"]      = actions.toggle_multiline(),
-  ["block"]                  = actions.toggle_multiline(),
-  ["array_expression"]       = actions.toggle_multiline(),
-  ["tuple_expression"]       = actions.toggle_multiline(),
-  ["tuple_pattern"]          = actions.toggle_multiline(),
-  ["boolean_literal"]        = actions.toggle_boolean(),
-  ["identifier"]             = actions.cycle_case(),
-}
-```
+|  | (*) | Ruby | js/ts/tsx/jsx | Lua | Python | PHP | Rust | JSON | HTML |
+|---|---|---|---|---|---|---|---|---|---|
+| `toggle_boolean()` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |
+| `cycle_case()` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |
+| `cycle_quotes()` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |  |
+| `toggle_multiline()` |  | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |
+| `toggle_operator()` |  | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |  |
+| `toggle_block()` |  | ✅ |  |  |  |  |  |  |  |
+| if/else <-> ternery |  | ✅ |  |  |  |  |  |  |  |
+| if block/postfix |  | ✅ |  |  |  |  |  |  |  |
+| `toggle_hash_style()` |  | ✅ |  |  |  |  |  |  |  |
+| `conceal_string()` |  |  | ✅ |  |  |  |  |  | ✅ |
 
 ## Contributing
 
