@@ -20,6 +20,7 @@ local padding = {
 
 return {
   ["property_identifier"] = actions.cycle_case(),
+  ["string_fragment"]     = actions.conceal_string(),
   ["binary_expression"]   = actions.toggle_operator(operators),
   ["object"]              = actions.toggle_multiline(padding),
   ["array"]               = actions.toggle_multiline(padding),
