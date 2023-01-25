@@ -9,6 +9,7 @@ Table of Contents                           *ts-node-action-table-of-contents*
   - Configuration                               |ts-node-action-configuration|
   - Writing your own Node Actions|ts-node-action-writing-your-own-node-actions|
   - API                                                   |ts-node-action-api|
+  - null-ls Integration                   |ts-node-action-null-ls-integration|
   - Helpers                                           |ts-node-action-helpers|
   - Builtin Actions                           |ts-node-action-builtin-actions|
   - Contributing                                 |ts-node-action-contributing|
@@ -223,6 +224,13 @@ node your cursor is currently on.
 
 <hr>
 
+`require("ts-node-action").debug()`
+Prints some helpful information about the current node, as well as the loaded node actions for all filetypes
+
+<hr>
+
+NULL-LS INTEGRATION                       *ts-node-action-null-ls-integration*
+
 `require("ts-node-action").available_actions()` Exposes the function assigned
 to the node your cursor is currently on, as well as its name. This is mainly
 designed for `null-ls` integration, which might look something like this:
@@ -242,9 +250,6 @@ designed for `null-ls` integration, which might look something like this:
 This will present the available node action(s) for the node under your cursor alongside your `lsp`/`null-ls` code actions.
 
 <hr>
-
-`require("ts-node-action").debug()` Prints some helpful information about the
-current node, as well as the loaded node actions for all filetypes
 
 HELPERS                                               *ts-node-action-helpers*
 
