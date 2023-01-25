@@ -233,10 +233,13 @@ A function that takes a _table_ of standardized strings as it's argument, and re
 
 ### standardize
 A function that takes a _string_ in this format, and returns a table of strings, all lower case, no special chars.
-ie: standardize("ts_node_action") -> { "ts", "node", "action" }
+ie: 
+```  
+    standardize("ts_node_action") -> { "ts", "node", "action" }
     standardize("tsNodeAction")   -> { "ts", "node", "action" }
     standardize("TsNodeAction")   -> { "ts", "node", "action" }
     standardize("TS_NODE_ACTION") -> { "ts", "node", "action" }
+```
 
 NOTE: The order of formats can be important, as some identifiers are the same for multiple formats.
   Take the string 'action' for example. This is a match for both snake_case _and_ camel_case. It's
