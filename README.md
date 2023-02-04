@@ -257,7 +257,7 @@ Builtin actions are all higher-order functions so they can easily have options o
 | `toggle_multiline()` |  | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |
 | `toggle_operator()` |  | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |  |
 | `toggle_block()` |  | ✅ |  |  |  |  |  |  |  |
-| if/else <-> ternery |  | ✅ |  |  |  |  |  |  |  |
+| if/else <-> ternery |  | ✅ |  |  | ✅ |  |  |  |  |
 | if block/postfix |  | ✅ |  |  |  |  |  |  |  |
 | `toggle_hash_style()` |  | ✅ |  |  |  |  |  |  |  |
 | `conceal_string()` |  |  | ✅ |  |  |  |  |  | ✅ |

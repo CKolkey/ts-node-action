@@ -3,12 +3,15 @@ local helpers = require("ts-node-action.helpers")
 local function collapse_child_nodes(padding)
   return function(node)
     local replacement = {}
+    local prev_text
 
     for child, _ in node:iter_children() do
       if child:named_child_count() > 0 then
+        prev_text = nil
         table.insert(replacement, collapse_child_nodes(padding)(child))
       else
-        table.insert(replacement, helpers.padded_node_text(child, padding))
+        prev_text = helpers.padded_node_text(child, padding, prev_text)
+        table.insert(replacement, prev_text)
       end
     end
 

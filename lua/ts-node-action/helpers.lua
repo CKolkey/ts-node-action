@@ -22,14 +22,48 @@ end
 -- is a format string. The following would add a space after commas:
 -- { [","] = "%s " }
 --
+-- The prev_text is used for rare cases where the padding of an unnamed node
+-- is different depending on the text of the previous node.  For example, in
+-- python, `is` and `not` are separate unnamed nodes, even when seen
+-- together as `is not`. So we can write a padding rule that includes the
+-- previous node's text as:
+-- {
+--   ["is"]  = " %s ",
+--   ["not"] = {
+--     [""]   = " %s ",
+--     ["is"] = "%s ",
+--   },
+-- }
+-- The ["is"] key under "not" overrides the format to remove the space when the
+-- previous text is "is".
+-- A [""] key is a catch-all for any non-nil prev_text.
+-- A ["nil"] key will match when prev_text = nil.
+-- See filetypes/python.lua for more info.
+--
 -- @param node tsnode
 -- @param padding table
+-- @param prev_text string|nil The [presumed padded] text of the previous node.
 -- @return string
-function M.padded_node_text(node, padding)
+function M.padded_node_text(node, padding, prev_text)
   local text = M.node_text(node)
 
   if padding[text] then
-    text = string.format(padding[text], text)
+    local cfg = padding[text]
+
+    if type(cfg) == "table" then
+      prev_text = prev_text and vim.trim(prev_text)
+
+      if cfg[prev_text] then
+        text = string.format(cfg[prev_text], text)
+      elseif cfg["nil"] and prev_text == nil then
+        text = string.format(cfg["nil"], text)
+      elseif cfg[""] then
+        text = string.format(cfg[""], text)
+      end
+
+    else
+      text = string.format(cfg, text)
+    end
   end
 
   return text

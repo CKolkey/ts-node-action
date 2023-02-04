@@ -50,9 +50,9 @@ end
 -- @param node tsnode
 -- @return nil
 local function do_action(action, node)
-  local replacement, opts = action(node)
+  local replacement, opts, start_node = action(node)
   if replacement then
-    replace_node(node, replacement, opts or {})
+    replace_node(start_node or node, replacement, opts or {})
   else
     info("Action returned nil")
   end
