@@ -26,15 +26,13 @@ end
 local function inline_if(if_statement)
   local condition   = if_statement:named_child(0)
   local consequence = if_statement:named_child(1):named_child(0)
-  local replacement = {}
   local lhs, rhs = block_text_lhs_rhs(consequence)
   if lhs == nil then
     return
   end
-  table.insert(
-    replacement,
+  local replacement = {
     lhs .. rhs .. " if " .. txt(condition) .. " else None"
-  )
+  }
   local cursor_col = string.len(lhs .. rhs) + 1
   return replacement, { cursor = { col = cursor_col }, format = true }
 end
@@ -43,7 +41,6 @@ local function inline_ifelse(if_statement)
   local condition   = if_statement:named_child(0)
   local consequence = if_statement:named_child(1):named_child(0)
   local alternative = if_statement:named_child(2):named_child(0):named_child(0)
-  local replacement = {}
   local lhs, conseq_text = block_text_lhs_rhs(consequence)
   if lhs == nil then
     return
@@ -52,10 +49,9 @@ local function inline_ifelse(if_statement)
   if lhs ~= lhs2 or alter_text == nil then
     return
   end
-  table.insert(
-    replacement,
+  local replacement = {
     lhs .. conseq_text .. " if " .. txt(condition) .. " else " .. alter_text
-  )
+  }
   local cursor_col = string.len(lhs .. conseq_text) + 1
   return replacement, { cursor = { col = cursor_col }, format = true }
 end
@@ -69,17 +65,29 @@ local function inline_if_stmt(if_statement)
 end
 
 local function expand_if(conditional_expression)
-  local assignment  = conditional_expression:parent()
-  local identifier  = assignment:named_child(0)
+  local parent       = conditional_expression:parent()
+  local parent_type  = parent:type()
+  local _, start_col = parent:start()
+  local lhs
+  if parent_type == "return_statement" then
+    lhs = "return "
+  elseif parent_type == "assignment" then
+    lhs = txt(parent:named_child(0)) .. " = "
+  else
+    return
+  end
   local condition   = conditional_expression:named_child(1)
   local consequence = conditional_expression:named_child(0)
   local alternative = conditional_expression:named_child(2)
-  local replacement = {}
-  table.insert(replacement, "if " .. txt(condition) .. ":")
-  table.insert(replacement, " " .. txt(identifier) .. " = " .. txt(consequence))
-  table.insert(replacement, "else:")
-  table.insert(replacement, " " .. txt(identifier) .. " = " .. txt(alternative))
-  return replacement, { cursor = {}, format = true }, assignment
+  local else_indent = string.rep(" ", start_col)
+  local body_indent = else_indent .. string.rep(" ", 4)
+  local replacement = {
+    "if " .. txt(condition) .. ":",
+    body_indent .. lhs .. txt(consequence),
+    else_indent .. "else:",
+    body_indent .. lhs .. txt(alternative),
+  }
+  return replacement, { cursor = {}, format = true }, parent
 end
 
 -- Special cases:
