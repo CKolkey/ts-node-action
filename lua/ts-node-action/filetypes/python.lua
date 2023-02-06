@@ -148,6 +148,41 @@ local function inline_ifelse(if_statement)
   return replacement, { cursor = { col = cursor_col }, format = true }
 end
 
+-- The if/conditional_expression that we are expanding can find itself on
+-- the same row as an inlined for or if statement.
+-- For example:
+--
+-- `for x in range(10): x = 1 if x > 5 else x + 1`
+-- `if x > 0: x = 1 if x > 5 else x + 1`
+--
+-- Contrived, hopefully, but this handles it, by detecting if there is a
+-- for/if statement on the same row as our current parent.
+--
+-- private
+-- @param parent tsnode
+-- @param parent_type string
+-- @param start_row number
+-- @return tsnode, string
+-- @return nil
+local function find_real_row_parent(parent, parent_type, start_row)
+
+  while parent ~= nil and
+    parent_type ~= "if_statement" and
+    parent_type ~= "for_statement" do
+    parent      = parent:parent()
+    parent_type = parent:type()
+    if select(1, parent:start()) ~= start_row then
+      return nil
+    end
+  end
+
+  if parent_type == "if_statement" or parent_type == "for_statement" then
+    return parent, parent_type
+  end
+
+  return nil
+end
+
 -- public
 -- @param if_statement tsnode
 -- @return string, table, tsnode
@@ -158,20 +193,28 @@ local function expand_if(conditional_expression)
   local lhs
   local cond_order = {1, 0, 2}
 
+  -- We detect if it's safe to expand an inline if/else surrounded by parens
+  -- and remove them by skipping to it's parent, because the parent is
+  -- replaced by this action, with the expanded if/else.
+  if parent_type == "parenthesized_expression" then
+    local paren_parent      = parent:parent()
+    local paren_parent_type = paren_parent:type()
+    if paren_parent_type == "return_statement" or
+       paren_parent_type == "assignment" then
+      parent      = paren_parent
+      parent_type = paren_parent_type
+    end
+  end
+
   if parent_type == "return_statement" then
     lhs = "return "
   elseif parent_type == "assignment" then
     local identifiers = {}
 
     -- handle multiple assignments, eg: x = y = z = 1
-    while parent_type == "assignment" do
-      table.insert(
-        identifiers,
-        1,
-        helpers.node_text(parent:named_child(0))
-      )
+    while parent:type() == "assignment" do
+      table.insert(identifiers, 1, helpers.node_text(parent:named_child(0)))
       parent = parent:parent()
-      parent_type = parent:type()
     end
 
     lhs = table.concat(identifiers, " = ") .. " = "
@@ -188,22 +231,45 @@ local function expand_if(conditional_expression)
   local condition    = conditional_expression:named_child(cond_order[1])
   local consequence  = conditional_expression:named_child(cond_order[2])
   local alternative  = conditional_expression:named_child(cond_order[3])
-  local _, start_col = parent:start()
-  local else_indent  = string.rep(" ", start_col)
-  local body_indent  = else_indent .. string.rep(" ", 4)
-  local replacement  = {
-    "if " .. helpers.node_text(condition) .. ":",
+  local start_row, start_col = parent:start()
+  local row_parent = find_real_row_parent(parent, parent_type, start_row)
+  local cursor = {}
+  -- if we are embedded after an inlined if/for statement, we need to expand
+  -- to the next line and adjust the cursor/indent accordingly
+  if row_parent then
+    local _, row_start_col = row_parent:start()
+    -- cursor position is relative to the node being replaced (parent)
+    cursor = { row = 1, col = row_start_col - start_col + 4  }
+    start_col = row_start_col + 4
+  end
+  local ifelse_indent = string.rep(" ", start_col)
+  local body_indent   = ifelse_indent .. string.rep(" ", 4)
+
+  local replacement   = {
+    ifelse_indent .. "if " .. helpers.node_text(condition) .. ":",
     body_indent .. lhs .. helpers.node_text(consequence),
   }
+  if row_parent then
+    table.insert(replacement, 1, "")
+  end
+
   if alternative and
     (alternative:type() ~= "none" or parent_type ~= "expression_statement") then
-    table.insert(replacement, else_indent .. "else:")
+    table.insert(replacement, ifelse_indent .. "else:")
     table.insert(
       replacement,
       body_indent .. lhs .. helpers.node_text(alternative)
     )
+  elseif parent_type == "expression_statement" then
+    table.insert(replacement, ifelse_indent .. "else:")
+    table.insert(replacement, body_indent .. lhs .. " None")
   end
-  return replacement, { cursor = {}, format = true }, parent
+
+  return replacement, {
+    cursor = cursor,
+    format = true,
+    whitespace = {},
+  }, parent
 end
 
 -- public
@@ -287,6 +353,6 @@ return {
   ["true"]                     = actions.toggle_boolean(boolean_override),
   ["false"]                    = actions.toggle_boolean(boolean_override),
   ["comparison_operator"]      = actions.toggle_operator(),
-  ["conditional_expression"]   = { { expand_if, name = "Expand Ternary" } },
-  ["if_statement"]             = { { inline_if_stmt, name = "Inline If/Else" } },
+  ["conditional_expression"]   = { { expand_if, name = "Expand Conditional" } },
+  ["if_statement"]             = { { inline_if_stmt, name = "Inline Conditional" } },
 }

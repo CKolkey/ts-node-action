@@ -19,6 +19,15 @@ local function replace_node(node, replacement, opts)
     start_row, start_col, end_row, end_col, replacement
   )
 
+  if opts.whitespace then
+    vim.cmd(
+      "silent! " ..
+      (start_row + (opts.whitespace.start_row or 0)) .. "," ..
+      (end_row   + (opts.whitespace.end_row   or 1)) ..
+      "s/\\s\\+$//g"
+    )
+  end
+
   if opts.cursor then
     vim.api.nvim_win_set_cursor(
       vim.api.nvim_get_current_win(),
@@ -50,9 +59,9 @@ end
 -- @param node tsnode
 -- @return nil
 local function do_action(action, node)
-  local replacement, opts, start_node = action(node)
+  local replacement, opts, target_node = action(node)
   if replacement then
-    replace_node(start_node or node, replacement, opts or {})
+    replace_node(target_node or node, replacement, opts or {})
   else
     info("Action returned nil")
   end
