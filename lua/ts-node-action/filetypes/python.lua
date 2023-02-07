@@ -25,22 +25,26 @@ local node_types_to_parenthesize = {
 --  - `return 1` is `return` and the right hand side is `1`.
 --  - `x = 1` is `x = ` and the right hand side is `1`.
 --  - `x = y = z = 1` is `x = y = z = ` and the right hand side is `1`.
+--  - `print(3)` is `print` and the right hand side is `(3)`.
 --
 -- private
 -- @param node tsnode
--- @return string, string|nil
+-- @return string|nil, string|nil, string
 local function node_text_lhs_rhs(node)
-  local lhs = nil
-  local rhs = nil
+  local lhs  = nil
+  local rhs  = nil
+  local type = node:type()
 
-  if node:type() == "return_statement" then
+  if type == "return_statement" then
     lhs = "return "
     rhs = helpers.node_text(node:named_child(0))
-  elseif node:type() == "expression_statement" then
+
+  elseif type == "expression_statement" then
     local child = node:named_child(0)
     local identifiers = {}
+    type = child:type()
 
-    if child:type() == "assignment" then
+    if type == "assignment" then
       -- handle multiple assignments, eg: x = y = z = 1
       while child:type() == "assignment" do
         table.insert(identifiers, helpers.node_text(child:named_child(0)))
@@ -49,20 +53,24 @@ local function node_text_lhs_rhs(node)
 
       lhs = table.concat(identifiers, " = ") .. " = "
       rhs = helpers.node_text(child)
-    elseif child:type() == "call" then
+    elseif type == "call" then
       lhs = helpers.node_text(child:named_child(0))
       rhs = helpers.node_text(child:named_child(1))
     end
-  end
+ end
 
-  return lhs, rhs
+  return lhs, rhs, type
 end
 
 -- private
 -- @param node tsnode
--- @param child_types table
+-- @param child_types string|table
 -- @return boolean
 local function has_descendent_of_type(node, child_types)
+
+  if type(child_types) == "string" then
+    child_types = { [child_types] = true }
+  end
 
   for i = 0, node:named_child_count() - 1 do
     local child = node:named_child(i)
@@ -77,75 +85,6 @@ local function has_descendent_of_type(node, child_types)
   end
 
   return false
-end
-
--- private
--- @param if_statement tsnode
--- @return string, table, tsnode
--- @return nil
-local function inline_if(if_statement)
-  local condition   = if_statement:named_child(0)
-  local consequence = if_statement:named_child(1):named_child(0)
-  local lhs, rhs    = node_text_lhs_rhs(consequence)
-
-  if lhs == nil then
-    return
-  elseif has_descendent_of_type(consequence, node_types_to_parenthesize) and
-    rhs:sub(1, 1) ~= "(" then
-    rhs = "(" .. rhs .. ")"
-  end
-
-  local parent_type = if_statement:parent():type()
-  local replacement
-  local cursor = {}
-
-  if parent_type == "block" or parent_type == "module" then
-    replacement = {
-      "if " .. helpers.node_text(condition) .. ": " .. lhs .. rhs
-    }
-  else
-    replacement = {
-      lhs .. rhs .. " if " .. helpers.node_text(condition) .. " else None"
-    }
-    cursor["col"] = string.len(lhs .. rhs) + 1
-  end
-
-  return replacement, { cursor = cursor, format = true }
-end
-
--- private
--- @param if_statement tsnode
--- @return string, table, tsnode
--- @return nil
-local function inline_ifelse(if_statement)
-  local condition   = if_statement:named_child(0)
-  local consequence = if_statement:named_child(1):named_child(0)
-  local alternative = if_statement:named_child(2):named_child(0):named_child(0)
-
-  local lhs, cons_text = node_text_lhs_rhs(consequence)
-  if lhs == nil then
-    return
-  elseif has_descendent_of_type(consequence, node_types_to_parenthesize) and
-    cons_text:sub(1, 1) ~= "(" then
-    cons_text = "(" .. cons_text .. ")"
-  end
-
-  local lhs2, alt_text = node_text_lhs_rhs(alternative)
-  if lhs ~= lhs2 or alt_text == nil then
-    return
-  elseif has_descendent_of_type(alternative, node_types_to_parenthesize) and
-    alt_text:sub(1, 1) ~= "(" then
-    alt_text = "(" .. alt_text .. ")"
-  end
-
-  local replacement = {
-    lhs .. cons_text ..
-    " if " .. helpers.node_text(condition) ..
-    " else " .. alt_text
-  }
-  local cursor_col = string.len(lhs .. cons_text) + 1
-
-  return replacement, { cursor = { col = cursor_col }, format = true }
 end
 
 -- The if/conditional_expression that we are expanding can find itself on
@@ -183,6 +122,30 @@ local function find_real_row_parent(parent, parent_type, start_row)
   return nil
 end
 
+-- We detect if it's safe to expand an inline if/else surrounded by parens
+-- and remove them by skipping to it's parent, because the parent is
+-- replaced by this action, with the expanded if/else.
+--
+-- Cases considered safe:
+-- `x = (conditional_expression)`
+-- `return (conditional_expression)`
+--
+-- @param parent tsnode
+-- @param parent_type string
+-- @return tsnode, string
+local function skip_parens_by_reparenting(parent, parent_type)
+  if parent_type == "parenthesized_expression" then
+    local paren_parent      = parent:parent()
+    local paren_parent_type = paren_parent:type()
+    if paren_parent_type == "assignment" or
+      paren_parent_type == "return_statement" then
+      parent      = paren_parent
+      parent_type = paren_parent_type
+    end
+  end
+  return parent, parent_type
+end
+
 -- public
 -- @param if_statement tsnode
 -- @return string, table, tsnode
@@ -193,30 +156,17 @@ local function expand_if(conditional_expression)
   local lhs
   local cond_order = {1, 0, 2}
 
-  -- We detect if it's safe to expand an inline if/else surrounded by parens
-  -- and remove them by skipping to it's parent, because the parent is
-  -- replaced by this action, with the expanded if/else.
-  if parent_type == "parenthesized_expression" then
-    local paren_parent      = parent:parent()
-    local paren_parent_type = paren_parent:type()
-    if paren_parent_type == "return_statement" or
-       paren_parent_type == "assignment" then
-      parent      = paren_parent
-      parent_type = paren_parent_type
-    end
-  end
+  parent, parent_type = skip_parens_by_reparenting(parent, parent_type)
 
   if parent_type == "return_statement" then
     lhs = "return "
   elseif parent_type == "assignment" then
     local identifiers = {}
-
     -- handle multiple assignments, eg: x = y = z = 1
     while parent:type() == "assignment" do
       table.insert(identifiers, 1, helpers.node_text(parent:named_child(0)))
       parent = parent:parent()
     end
-
     lhs = table.concat(identifiers, " = ") .. " = "
   elseif parent_type == "expression_statement" then
     lhs = ""
@@ -234,8 +184,8 @@ local function expand_if(conditional_expression)
   local start_row, start_col = parent:start()
   local row_parent = find_real_row_parent(parent, parent_type, start_row)
   local cursor = {}
-  -- if we are embedded after an inlined if/for statement, we need to expand
-  -- to the next line and adjust the cursor/indent accordingly
+  -- when we are embedded on the end of an inlined if/for statement, we need
+  -- to expand on to the next line and shift the cursor/indent
   if row_parent then
     local _, row_start_col = row_parent:start()
     -- cursor position is relative to the node being replaced (parent)
@@ -245,31 +195,107 @@ local function expand_if(conditional_expression)
   local ifelse_indent = string.rep(" ", start_col)
   local body_indent   = ifelse_indent .. string.rep(" ", 4)
 
-  local replacement   = {
+  local replacement = {
     ifelse_indent .. "if " .. helpers.node_text(condition) .. ":",
     body_indent .. lhs .. helpers.node_text(consequence),
   }
-  if row_parent then
-    table.insert(replacement, 1, "")
+
+  if alternative then
+    table.insert(replacement, ifelse_indent .. "else:")
+    table.insert(replacement, body_indent .. lhs .. helpers.node_text(alternative))
   end
 
-  if alternative and
-    (alternative:type() ~= "none" or parent_type ~= "expression_statement") then
-    table.insert(replacement, ifelse_indent .. "else:")
-    table.insert(
-      replacement,
-      body_indent .. lhs .. helpers.node_text(alternative)
-    )
-  elseif parent_type == "expression_statement" then
-    table.insert(replacement, ifelse_indent .. "else:")
-    table.insert(replacement, body_indent .. lhs .. " None")
+  if row_parent then
+    table.insert(replacement, 1, "")
   end
 
   return replacement, {
     cursor = cursor,
     format = true,
-    whitespace = {},
+    strip_whitespace = {},
   }, parent
+end
+
+-- private
+-- @param if_statement tsnode
+-- @return string, table, tsnode
+-- @return nil
+local function inline_if(if_statement)
+  local condition   = if_statement:named_child(0)
+  local consequence = if_statement:named_child(1):named_child(0)
+  -- if there are siblings, return, b/c we can't inline multiple statements
+  if consequence:next_named_sibling() then
+    return
+  end
+
+  local lhs, rhs = node_text_lhs_rhs(consequence)
+  if lhs == nil then
+    return
+  elseif has_descendent_of_type(consequence, node_types_to_parenthesize) and
+    rhs:sub(1, 1) ~= "(" then
+    rhs = "(" .. rhs .. ")"
+  end
+
+  local parent_type = if_statement:parent():type()
+  local replacement
+  local cursor = {}
+
+  if parent_type == "block" or parent_type == "module" then
+    replacement = {
+      "if " .. helpers.node_text(condition) .. ": " .. lhs .. rhs
+    }
+  else
+    replacement = {
+      lhs .. rhs .. " if " .. helpers.node_text(condition) .. " else None"
+    }
+    cursor["col"] = string.len(lhs .. rhs) + 1
+  end
+
+  return replacement, { cursor = cursor, format = true }
+end
+
+-- private
+-- @param if_statement tsnode
+-- @return string, table, tsnode
+-- @return nil
+local function inline_ifelse(if_statement)
+  local condition   = if_statement:named_child(0)
+  local consequence = if_statement:named_child(1):named_child(0)
+  local alternative = if_statement:named_child(2):named_child(0):named_child(0)
+  -- if there are siblings, return, b/c we can't inline multiple statements
+  if consequence:next_named_sibling() or
+    alternative:next_named_sibling() then
+    return
+  end
+
+  local cons_lhs, cons_rhs, cons_type = node_text_lhs_rhs(consequence)
+  if cons_lhs == nil then
+    return
+  elseif has_descendent_of_type(consequence, node_types_to_parenthesize) and
+    cons_rhs:sub(1, 1) ~= "(" then
+    cons_rhs = "(" .. cons_rhs .. ")"
+  end
+
+  local alt_lhs, alt_rhs, alt_type = node_text_lhs_rhs(alternative)
+  if cons_type ~= alt_type or alt_rhs == nil then
+    return
+  elseif has_descendent_of_type(alternative, node_types_to_parenthesize) and
+    alt_rhs:sub(1, 1) ~= "(" then
+    alt_rhs = "(" .. alt_rhs .. ")"
+  end
+
+  local cond_text = helpers.node_text(condition)
+
+  local replacement = cons_lhs .. cons_rhs .. " if " .. cond_text .. " else "
+  if alt_type == "call" then
+    replacement = replacement .. alt_lhs .. alt_rhs
+  else
+    replacement = replacement .. alt_rhs
+  end
+
+  local cursor_col = string.len(cons_lhs .. cons_rhs) + 1
+
+  return replacement, { cursor = { col = cursor_col }, format = true }
 end
 
 -- public
