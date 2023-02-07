@@ -379,6 +379,7 @@ return {
   ["true"]                     = actions.toggle_boolean(boolean_override),
   ["false"]                    = actions.toggle_boolean(boolean_override),
   ["comparison_operator"]      = actions.toggle_operator(),
+  ["integer"]                  = actions.toggle_int_readability(),
   ["conditional_expression"]   = { { expand_if, name = "Expand Conditional" } },
   ["if_statement"]             = { { inline_if_stmt, name = "Inline Conditional" } },
 }

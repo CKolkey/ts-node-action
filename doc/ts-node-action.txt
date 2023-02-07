@@ -1,4 +1,4 @@
-*ts-node-action.txt*       For NVIM v0.8.0       Last change: 2023 February 03
+*ts-node-action.txt*       For NVIM v0.8.0       Last change: 2023 February 06
 
 ==============================================================================
 Table of Contents                           *ts-node-action-table-of-contents*
@@ -349,17 +349,18 @@ Builtin actions are all higher-order functions so they can easily have options
 overridden on a per-filetype basis. Check out the implementations under
 `lua/filetypes/` to see how!
 
-│                       │(*)│Ruby│js/ts/tsx/jsx│Lua│Python│PHP│Rust│JSON│HTML│
-│toggle_boolean()       │✅│✅ │✅          │✅│✅   │✅│✅ │    │    │
-│cycle_case()           │✅│✅ │✅          │✅│✅   │✅│✅ │    │    │
-│cycle_quotes()         │✅│✅ │✅          │✅│✅   │✅│    │    │    │
-│toggle_multiline()     │   │✅ │✅          │✅│✅   │✅│✅ │✅ │    │
-│toggle_operator()      │   │✅ │✅          │✅│✅   │✅│    │    │    │
-│toggle_block()         │   │✅ │             │   │      │   │    │    │    │
-│if/else <-> ternery    │   │✅ │             │   │      │   │    │    │    │
-│if block/postfix       │   │✅ │             │   │      │   │    │    │    │
-│toggle_hash_style()    │   │✅ │             │   │      │   │    │    │    │
-│conceal_string()       │   │    │✅          │   │      │   │    │    │✅ │
+│                            │(*)│Ruby│js/ts/tsx/jsx│Lua│Python│PHP│Rust│JSON│HTML│
+│toggle_boolean()            │✅│✅ │✅          │✅│✅   │✅│✅ │    │    │
+│cycle_case()                │✅│✅ │✅          │✅│✅   │✅│✅ │    │    │
+│cycle_quotes()              │✅│✅ │✅          │✅│✅   │✅│    │    │    │
+│toggle_multiline()          │   │✅ │✅          │✅│✅   │✅│✅ │✅ │    │
+│toggle_operator()           │   │✅ │✅          │✅│✅   │✅│    │    │    │
+│toggle_int_readability()    │   │✅ │✅          │   │✅   │✅│✅ │✅ │    │
+│toggle_block()              │   │✅ │             │   │      │   │    │    │    │
+│if/else <-> ternery         │   │✅ │             │   │      │   │    │    │    │
+│if block/postfix            │   │✅ │             │   │      │   │    │    │    │
+│toggle_hash_style()         │   │✅ │             │   │      │   │    │    │    │
+│conceal_string()            │   │    │✅          │   │      │   │    │    │✅ │
 
 
 CONTRIBUTING                                     *ts-node-action-contributing*

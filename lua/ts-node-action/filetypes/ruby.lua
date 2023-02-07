@@ -168,6 +168,7 @@ return {
   ["hash"]              = actions.toggle_multiline(padding),
   ["argument_list"]     = actions.toggle_multiline(padding),
   ["method_parameters"] = actions.toggle_multiline(padding),
+  ["integer"]           = actions.toggle_int_readability(),
   ["block"]             = { { toggle_block, name = "Toggle Block" } },
   ["do_block"]          = { { toggle_block, name = "Toggle Block" } },
   ["if"]                = { { handle_conditional, name = "Handle Conditional" } },

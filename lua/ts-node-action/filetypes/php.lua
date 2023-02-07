@@ -38,4 +38,5 @@ return {
   ["encapsed_string"]           = actions.cycle_quotes(),
   ["boolean"]                   = actions.toggle_boolean(),
   ["binary_expression"]         = actions.toggle_operator(operators),
+  ["integer"]                   = actions.toggle_int_readability(),
 }

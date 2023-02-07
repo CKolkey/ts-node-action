@@ -22,4 +22,5 @@ return {
   ["tuple_expression"]       = actions.toggle_multiline(padding),
   ["tuple_pattern"]          = actions.toggle_multiline(padding),
   ["boolean_literal"]        = actions.toggle_boolean(),
+  ["integer_literal"]        = actions.toggle_int_readability(),
 }
