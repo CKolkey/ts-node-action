@@ -35,4 +35,31 @@ function M.padded_node_text(node, padding)
   return text
 end
 
+-- Prints out a node's tree, showing each child's index, type, text, and ID
+--
+-- @param node tsnode
+-- @return nil
+function M.debug_print_tree(node)
+  local tree  = {}
+  local index = 1
+  for child, id in node:iter_children() do
+    tree[tostring(index)] = { type = child:type(), text = M.node_text(child), id = id }
+    index = index + 1
+  end
+  vim.pretty_print(tree)
+end
+
+-- Dissassembles a node tree into it's named and unnamed parts
+--
+-- @param node tsnode
+-- @return table
+function M.destructure_node(node)
+  local structure = {}
+  for child, id in node:iter_children() do
+    structure[id or child:type()] = vim.trim(M.node_text(child))
+  end
+
+  return structure
+end
+
 return M
