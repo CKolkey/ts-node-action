@@ -45,3 +45,9 @@ _G.SpecHelper = {
     return Language:new(lang)
   end
 }
+
+-- Overload real implementation to allow specifying a non-buffer source for function
+require("ts-node-action.helpers").node_text = function(node)
+  local source = SpecHelper.strings[node:id()]
+  return vim.treesitter.query.get_node_text(node, source)
+end

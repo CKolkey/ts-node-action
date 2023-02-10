@@ -9,6 +9,6 @@ TREESITTER="$(pwd)/spec/support/treesitter/"
 SET_PLENARY="vim.opt.rtp:prepend('$PLENARY');"
 SET_TREESITTER="vim.opt.rtp:prepend('$TREESITTER');"
 SET_PLUGIN="vim.opt.rtp:prepend('.');"
-CMD="require('plenary.test_harness').test_directory_command(vim.loop.cwd() .. '/spec/filetypes')"
+CMD="require('plenary.test_harness').test_directory_command(vim.loop.cwd() .. '/spec/filetypes',  { sequential = true })"
 
-TS_NODE_ACTION_ENV_TEST=1 nvim -u NONE --clean --headless -c "lua $SET_PLENARY $SET_TREESITTER $SET_PLUGIN $CMD"
+nvim -u NONE --clean --headless -c "lua $SET_PLENARY $SET_TREESITTER $SET_PLUGIN $CMD"

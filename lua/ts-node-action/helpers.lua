@@ -5,14 +5,7 @@ local M = {}
 -- @param node tsnode
 -- @return string
 function M.node_text(node)
-  local source
-  if vim.fn.environ()["TS_NODE_ACTION_ENV_TEST"] then
-    source = SpecHelper.strings[node:id()]
-  else
-    source = vim.api.nvim_get_current_buf()
-  end
-
-  return vim.treesitter.query.get_node_text(node, source)
+  return vim.treesitter.query.get_node_text(node, vim.api.nvim_get_current_buf())
 end
 
 -- Determine if a node spans multiple lines
