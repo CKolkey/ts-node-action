@@ -20,13 +20,7 @@ local function toggle_block(node)
   local structure = helpers.destructure_node(node)
   local replacement
 
-  if helpers.multiline_node(node) then
-    if structure.parameters then
-      replacement = { "do " .. structure.parameters, structure.body, "end" }
-    else
-      replacement = { "do", structure.body, "end" }
-    end
-  else
+  if helpers.node_is_multiline(node) then
     if string.find(structure.body, "\n") then
       print("(TS:Action) Cannot collapse multi-line block")
       return
@@ -36,6 +30,12 @@ local function toggle_block(node)
       replacement = "{ " .. structure.parameters .. " " .. structure.body .. " }"
     else
       replacement = "{ " .. structure.body .. " }"
+    end
+  else
+    if structure.parameters then
+      replacement = { "do " .. structure.parameters, structure.body, "end" }
+    else
+      replacement = { "do", structure.body, "end" }
     end
   end
 

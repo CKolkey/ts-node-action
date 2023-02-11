@@ -12,9 +12,9 @@ end
 --
 -- @param node tsnode
 -- @return boolean
-function M.multiline_node(node)
+function M.node_is_multiline(node)
   local start_row, _, end_row, _ = node:range()
-  return start_row == end_row
+  return start_row ~= end_row
 end
 
 -- Adds whitespace to some unnamed nodes for nicer formatting
