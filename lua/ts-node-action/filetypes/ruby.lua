@@ -17,147 +17,109 @@ local padding = {
 local identifier_formats = { "snake_case", "pascal_case", "screaming_snake_case" }
 
 local function toggle_block(node)
-  local block_params
-  local block_body = ""
+  local structure = helpers.destructure_node(node)
   local replacement
 
-  for child, _ in node:iter_children() do
-    local text = helpers.node_text(child)
-    if child:type() == "block_parameters" then
-      block_params = " " .. text
-    end
-
-    if child:type() == "block_body" or child:type() == "body_statement" then
-      block_body = text
-    end
-  end
-
   if helpers.multiline_node(node) then
-    if block_params then
-      replacement = { "do" .. block_params, block_body, "end" }
+    if structure.parameters then
+      replacement = { "do " .. structure.parameters, structure.body, "end" }
     else
-      replacement = { "do", block_body, "end" }
+      replacement = { "do", structure.body, "end" }
     end
   else
-    if string.find(block_body, "\n") then
+    if string.find(structure.body, "\n") then
       print("(TS:Action) Cannot collapse multi-line block")
       return
     end
 
-    if block_params then
-      replacement = "{" .. block_params .. " " .. block_body .. " }"
+    if structure.parameters then
+      replacement = "{ " .. structure.parameters .. " " .. structure.body .. " }"
     else
-      replacement = "{ " .. block_body .. " }"
+      replacement = "{ " .. structure.body .. " }"
     end
   end
 
   return replacement, { cursor = {}, format = true }
 end
 
-local function inline_conditional(node)
-  local body
-  local condition
+local function inline_conditional(structure)
+  local replacement = {
+    structure.consequence,
+    structure["if"] or structure["unless"],
+    structure.condition
+  }
 
-  for child, _ in node:iter_children() do
-    local text = helpers.node_text(child)
-    if child:type() == "then" then
-      body = text:gsub("^%s+", "")
-    end
-
-    if child:type() ~= "if" and child:type() ~= "then" and child:type() ~= "end" then
-      condition = text
-    end
-  end
-
-  local replacement = body .. " " .. helpers.node_text(node:child(0)) .. " " .. condition
-  return replacement, { cursor = { col = #body + 1 } }
+  return table.concat(replacement, " "), { cursor = { col = #structure.consequence + 1 } }
 end
 
-local function collapse_ternary(node)
-  local replacement = {}
-  for child, _ in node:iter_children() do
-    if child:type() == "call" then
-      table.insert(replacement, helpers.node_text(child) .. " ? ")
-    end
+local function collapse_ternary(structure)
+  local replacement = {
+    structure.condition,
+    " ? ",
+    structure.consequence,
+    " : ",
+    vim.trim(string.gsub(structure.alternative, "else\n", ""))
+  }
 
-    if child:type() == "then" then
-      table.insert(replacement, vim.trim(helpers.node_text(child)) .. " : ")
-    end
-
-    if child:type() == "else" then
-      table.insert(replacement, vim.trim(helpers.node_text(child):gsub("else", "")))
-    end
-  end
-
-  return table.concat(replacement), { cursor = { col = #replacement[1] - 2 } }
+  return table.concat(replacement), { cursor = { col = #replacement[1] + 1 } }
 end
 
 local function handle_conditional(node)
+  local structure = helpers.destructure_node(node)
   local fn
-  if node:named_child_count() > 2 then
+  if structure.alternative then
     fn = collapse_ternary
   else
     fn = inline_conditional
   end
 
-  return fn(node)
+  return fn(structure)
 end
 
 local function expand_ternary(node)
-  local replacement = {}
+  local structure = helpers.destructure_node(node)
+  local replacement = {
+    "if " .. structure.condition,
+    structure.consequence,
+    "else",
+    structure.alternative,
+    "end"
+  }
 
-  for child, _ in node:iter_children() do
-    if child:type() == "call" then
-      table.insert(replacement, "if " .. helpers.node_text(child))
-    elseif child:named() then
-      table.insert(replacement, helpers.node_text(child))
-    end
-  end
-
-  table.insert(replacement, 3, "else")
-  table.insert(replacement, "end")
   return replacement, { cursor = {}, format = true }
 end
 
 local function multiline_conditional(node)
-  local replacement = {}
-  local capture_body = true
-  local body
-  local condition
+  local structure = helpers.destructure_node(node)
+  local replacement = {
+    (structure["if"] or structure["unless"]) .. " " .. structure.condition,
+    structure.body,
+    "end"
+  }
 
-  for child, _ in node:iter_children() do
-    if child:type() == "if" or child:type() == "unless" then
-      table.insert(replacement, helpers.node_text(child) .. " ")
-      capture_body = false
-    end
-
-    if capture_body then
-      body = helpers.node_text(child)
-    end
-
-    if not capture_body then
-      condition = helpers.node_text(child)
-    end
-  end
-
-  replacement = { replacement[1] .. condition, "  " .. body, "end" }
   return replacement, { cursor = {}, format = true }
 end
 
 local function toggle_hash_style(node)
-  local replacement = {}
-  local toggle = { ["=>"] = ": ", [":"] = " => " }
+  local styles    = { ["=>"] = ": ", [":"] = " => " }
+  local structure = helpers.destructure_node(node)
 
-  for child, _ in node:iter_children() do
-    local text = helpers.node_text(child)
-    if child:type() == "=>" or child:type() == ":" then
-      table.insert(replacement, toggle[text])
-    else
-      table.insert(replacement, text)
-    end
+  -- Not handling non string/symbol keys
+  if not structure.key:sub(1):match([[^"']]) and not structure.key:sub(1):match("%a") then
+    return
   end
 
-  return table.concat(replacement)
+  -- Fixes for symbol/string/int keys keys
+  if structure[":"] and structure.key:sub(1):match("^%a") then
+    structure.key = ":" .. structure.key
+  elseif structure.key:sub(1, 1) == ":" then
+    structure.key = structure.key:sub(2)
+  end
+
+  local replacement = structure.key .. styles[structure[":"] or structure["=>"]] .. structure.value
+  local opts        = { cursor = { col = structure[":"] and #structure.key + 1 or #structure.key } }
+
+  return replacement, opts
 end
 
 return {
