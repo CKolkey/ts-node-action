@@ -12,10 +12,21 @@ end
 --
 -- @param node tsnode
 -- @return boolean
+-- @deprecated
+function M.multiline_node(node)
+  print("(TS-NODE-ACTION) helpers.multiline_node() is deprecated! Update your calls to helpers.node_is_multiline()")
+  return not M.node_is_multiline(node)
+end
+
+-- Determine if a node spans multiple lines
+--
+-- @param node tsnode
+-- @return boolean
 function M.node_is_multiline(node)
   local start_row, _, end_row, _ = node:range()
   return start_row ~= end_row
 end
+
 
 -- Adds whitespace to some unnamed nodes for nicer formatting
 -- `padding` is a table where the key is the text of the unnamed node, and the value
