@@ -1,10 +1,56 @@
-local Language = {}
-Language.__index = Language
+local Buffer = {}
+Buffer.__index = Buffer
+
+-- @param lang string
+-- @return self
+function Buffer:new(lang)
+  local buffer = {}
+  buffer.lang  = lang
+
+  return setmetatable(buffer, self)
+end
+
+function Buffer:setup(cursor)
+  self.handle = vim.api.nvim_create_buf(false, true)
+
+  vim.treesitter.start(self.handle, self.lang)
+  vim.api.nvim_buf_set_option(self.handle, "filetype", self.lang)
+  vim.api.nvim_buf_set_option(self.handle, "indentexpr", "nvim_treesitter#indent()")
+
+  require("nvim-treesitter.ts_utils").get_node_at_cursor = function()
+    return vim.treesitter.get_parser(self.handle, self.lang)
+        :parse()[1]
+        :root()
+        :named_descendant_for_range(cursor[1] - 1, cursor[2], cursor[1] - 1, cursor[2])
+  end
+end
+
+function Buffer:write(text)
+  vim.api.nvim_buf_set_lines(self.handle, 0, -1, false, text)
+end
+
+function Buffer:read()
+  return vim.api.nvim_buf_get_lines(self.handle, 0, -1, false)
+end
+
+function Buffer:teardown()
+  vim.api.nvim_buf_delete(self.handle, { force = true })
+end
+
+function Buffer:run_action()
+  vim.api.nvim_buf_call(self.handle, require("ts-node-action").node_action)
+end
+
+-- SpecHelper
+local SpecHelper = {}
+SpecHelper.__index = SpecHelper
+
+_G.SpecHelper = SpecHelper
 
 -- Builds language helper for lang
 -- @param lang string
 -- @return self
-function Language:new(lang)
+function SpecHelper:new(lang)
   local language   = {}
   language.lang    = lang
   language.actions = require("ts-node-action.filetypes")[lang]
@@ -12,42 +58,21 @@ function Language:new(lang)
   return setmetatable(language, self)
 end
 
--- Parses text into a treesitter node for given language
---
--- @param text string
--- @param cursor table|nil
--- @return tsnode
-function Language:build_node(text, cursor)
-  cursor = cursor or { 0, 1, 0, 1 } -- { start_row, start_col, end_row, end_col }
-
-  local tree_root = vim.treesitter.get_string_parser(text, self.lang):parse()[1]:root()
-  local node      = tree_root:named_descendant_for_range(unpack(cursor))
-
-  -- get_node_text() helper needs to be able to get the text from somewhere,
-  -- and since we don't have a buffer, this is alright for now
-  SpecHelper.strings[node:id()] = text
-
-  return node
-end
-
--- Runs a node action on node, returning result
---
--- @param node tsnode
--- @return table|string
-function Language:run_action(node)
-  local result, _ = self.actions[node:type()][1][1](node)
-  return result
-end
-
-_G.SpecHelper = {
-  strings = {},
-  for_lang = function(lang)
-    return Language:new(lang)
+-- Runs full integration test for text
+-- @param text string|table
+-- @param cursor table
+-- @return table
+function SpecHelper:call(text, cursor)
+  if type(text) ~= "table" then
+    text = { text }
   end
-}
 
--- Overload real implementation to allow specifying a non-buffer source for function
-require("ts-node-action.helpers").node_text = function(node)
-  local source = SpecHelper.strings[node:id()]
-  return vim.treesitter.query.get_node_text(node, source)
+  local buf = Buffer:new(self.lang)
+  buf:setup(cursor or { 1, 1 }) -- row, col
+  buf:write(text)
+  buf:run_action()
+  local result = buf:read()
+  buf:teardown()
+
+  return result
 end
