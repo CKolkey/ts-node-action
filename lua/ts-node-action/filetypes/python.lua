@@ -186,22 +186,28 @@ local function expand_if(conditional_expression)
   local cursor = {}
   -- when we are embedded on the end of an inlined if/for statement, we need
   -- to expand on to the next line and shift the cursor/indent
+  local if_indent   = ""
+  local else_indent = ""
   if row_parent then
     local _, row_start_col = row_parent:start()
     -- cursor position is relative to the node being replaced (parent)
-    cursor = { row = 1, col = row_start_col - start_col + 4  }
+    cursor    = { row = 1, col = row_start_col - start_col + 4  }
     start_col = row_start_col + 4
+
+    if_indent   = string.rep(" ", row_start_col + 4)
+    else_indent = if_indent
+  else
+    else_indent = string.rep(" ", start_col)
   end
-  local ifelse_indent = string.rep(" ", start_col)
-  local body_indent   = ifelse_indent .. string.rep(" ", 4)
+  local body_indent = else_indent .. string.rep(" ", 4)
 
   local replacement = {
-    ifelse_indent .. "if " .. helpers.node_text(condition) .. ":",
+    if_indent .. "if " .. helpers.node_text(condition) .. ":",
     body_indent .. lhs .. helpers.node_text(consequence),
   }
 
   if alternative then
-    table.insert(replacement, ifelse_indent .. "else:")
+    table.insert(replacement, else_indent .. "else:")
     table.insert(replacement, body_indent .. lhs .. helpers.node_text(alternative))
   end
 
@@ -211,7 +217,7 @@ local function expand_if(conditional_expression)
 
   return replacement, {
     cursor = cursor,
-    format = true,
+    format = false,
     strip_whitespace = {},
   }, parent
 end
@@ -251,7 +257,7 @@ local function inline_if(if_statement)
     cursor["col"] = string.len(lhs .. rhs) + 1
   end
 
-  return replacement, { cursor = cursor, format = true }
+  return replacement, { cursor = cursor, format = false }
 end
 
 -- private
@@ -295,7 +301,7 @@ local function inline_ifelse(if_statement)
 
   local cursor_col = string.len(cons_lhs .. cons_rhs) + 1
 
-  return replacement, { cursor = { col = cursor_col }, format = true }
+  return replacement, { cursor = { col = cursor_col }, format = false }
 end
 
 -- public
