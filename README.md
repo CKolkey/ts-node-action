@@ -184,7 +184,7 @@ This will present the available node action(s) for the node under your cursor al
 Returns the text of the specified node.
 <hr>
 
-`require("ts-node-action.helpers").multiline_node(node)`
+`require("ts-node-action.helpers").node_is_multiline(node)`
 ```
 @node: tsnode
 @return: boolean
