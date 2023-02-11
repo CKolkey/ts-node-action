@@ -74,5 +74,9 @@ function SpecHelper:call(text, cursor)
   local result = buf:read()
   buf:teardown()
 
-  return result
+  if result[2] then
+    return result
+  else
+    return result[1]
+  end
 end
