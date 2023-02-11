@@ -26,6 +26,10 @@ function Buffer:setup(cursor)
 end
 
 function Buffer:write(text)
+  if type(text) ~= "table" then
+    text = { text }
+  end
+
   vim.api.nvim_buf_set_lines(self.handle, 0, -1, false, text)
 end
 
@@ -61,12 +65,8 @@ end
 -- Runs full integration test for text
 -- @param text string|table
 -- @param cursor table
--- @return table
+-- @return table|string
 function SpecHelper:call(text, cursor)
-  if type(text) ~= "table" then
-    text = { text }
-  end
-
   local buf = Buffer:new(self.lang)
   buf:setup(cursor or { 1, 1 }) -- row, col
   buf:write(text)
