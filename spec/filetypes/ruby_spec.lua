@@ -16,6 +16,34 @@ describe("integer", function()
   end)
 end)
 
+describe("if", function()
+  it("expands ternary to multiline expression", function()
+    assert.are.same(
+      {
+        [[if greet?]],
+        [[  puts "hello"]],
+        [[else]],
+        [[  puts "booooo"]],
+        [[end]],
+      },
+      Helper:call({ [[greet? ? puts "hello" : puts "booooo"]] }, { 1, 7 })
+    )
+  end)
+
+  it("inlines to ternary statement", function()
+    assert.are.same(
+      { [[greet? ? puts "hello" : puts "booooo"]] },
+      Helper:call({
+        [[if greet?]],
+        [[  puts "hello"]],
+        [[else]],
+        [[  puts "booooo"]],
+        [[end]],
+      })
+    )
+  end)
+end)
+
 describe("if_modifier", function()
   it("expands from one line to three", function()
     assert.are.same(
@@ -24,7 +52,7 @@ describe("if_modifier", function()
         [[  puts "hello"]],
         [[end]],
       },
-      Helper:call({ [[puts "hello" if greet?]], }, { 0, 12 })
+      Helper:call({ [[puts "hello" if greet?]], }, { 1, 13 })
     )
   end)
 
@@ -46,7 +74,7 @@ describe("if_modifier", function()
         [[  puts "hello"]],
         [[end]],
       },
-      Helper:call({ [[puts "hello" if greet? && 1 == 2 || something * 3 <= 10]], }, { 0, 12 })
+      Helper:call({ [[puts "hello" if greet? && 1 == 2 || something * 3 <= 10]], }, { 1, 13 })
     )
   end)
 
@@ -71,7 +99,7 @@ describe("unless_modifier", function()
         [[  puts "hello"]],
         [[end]],
       },
-      Helper:call({ [[puts "hello" unless rude?]] }, { 0, 12 })
+      Helper:call({ [[puts "hello" unless rude?]] }, { 1, 13 })
     )
   end)
 
@@ -93,34 +121,34 @@ describe("unless_modifier", function()
         [[  puts "hello"]],
         [[end]],
       },
-      Helper:call({ [[puts "hello" unless rude? && 1 == 2 || something * 3 <= 10]], }, { 0, 12 })
+      Helper:call({ [[puts "hello" unless rude? && 1 == 2 || something * 3 <= 10]], }, { 1, 13 })
     )
   end)
 end)
 
 describe("binary", function()
   it("flips == into !=", function()
-    assert.are.same({ "1 != 1" }, Helper:call({ "1 == 1" }, { 0, 2 }))
+    assert.are.same({ "1 != 1" }, Helper:call({ "1 == 1" }, { 1, 3 }))
   end)
 
   it("flips != into ==", function()
-    assert.are.same({ "1 == 1" }, Helper:call({ "1 != 1" }, { 0, 2 }))
+    assert.are.same({ "1 == 1" }, Helper:call({ "1 != 1" }, { 1, 3 }))
   end)
 
   it("flips > into <", function()
-    assert.are.same({ "1 < 1" }, Helper:call({ "1 > 1" }, { 0, 2 }))
+    assert.are.same({ "1 < 1" }, Helper:call({ "1 > 1" }, { 1, 3 }))
   end)
 
   it("flips < into >", function()
-    assert.are.same({ "1 > 1" }, Helper:call({ "1 < 1" }, { 0, 2 }))
+    assert.are.same({ "1 > 1" }, Helper:call({ "1 < 1" }, { 1, 3 }))
   end)
 
   it("flips >= into <=", function()
-    assert.are.same({ "1 <= 1" }, Helper:call({ "1 >= 1" }, { 0, 2 }))
+    assert.are.same({ "1 <= 1" }, Helper:call({ "1 >= 1" }, { 1, 3 }))
   end)
 
   it("flips <= into >=", function()
-    assert.are.same({ "1 >= 1" }, Helper:call({ "1 <= 1" }, { 0, 2 }))
+    assert.are.same({ "1 >= 1" }, Helper:call({ "1 <= 1" }, { 1, 3 }))
   end)
 end)
 

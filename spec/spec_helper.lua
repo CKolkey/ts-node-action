@@ -30,16 +30,18 @@ function Buffer:setup()
 end
 
 -- Fakes cursor location by just returning the node at where the cursor should be
--- 1-indexed { row, col }
+-- 1-indexed { row, col }, like vim.fn.getpos(".")
 --
 -- @param pos table
 -- @return Buffer
 function Buffer:set_cursor(pos)
+  local row = pos[1] - 1
+  local col = pos[2] - 1
   local fake_get_node_at_cursor = function()
     return vim.treesitter.get_parser(self.handle, self.lang)
         :parse()[1]
         :root()
-        :named_descendant_for_range(pos[1], pos[2], pos[1], pos[2])
+        :named_descendant_for_range(row, col, row, col)
   end
 
   require("nvim-treesitter.ts_utils").get_node_at_cursor = fake_get_node_at_cursor
@@ -102,7 +104,7 @@ end
 function SpecHelper:call(text, pos)
   local buffer = Buffer:new(self.lang, self.buf_opts)
   local result = buffer:setup()
-      :set_cursor(pos or { 0, 0 })
+      :set_cursor(pos or { 1, 1 })
       :write(text)
       :run_action()
       :read()
