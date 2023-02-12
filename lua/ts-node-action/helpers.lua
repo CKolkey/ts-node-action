@@ -27,7 +27,6 @@ function M.node_is_multiline(node)
   return start_row ~= end_row
 end
 
-
 -- Adds whitespace to some unnamed nodes for nicer formatting
 -- `padding` is a table where the key is the text of the unnamed node, and the value
 -- is a format string. The following would add a space after commas:
@@ -57,6 +56,7 @@ function M.debug_print_tree(node)
     tree[tostring(index)] = { type = child:type(), text = M.node_text(child), id = id }
     index = index + 1
   end
+
   vim.pretty_print(tree)
 end
 
