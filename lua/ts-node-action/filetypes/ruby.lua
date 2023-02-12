@@ -43,6 +43,10 @@ local function toggle_block(node)
 end
 
 local function inline_conditional(structure)
+  if structure.consequence:match("\n") then
+    return
+  end
+
   local replacement = {
     structure.consequence,
     structure["if"] or structure["unless"],
