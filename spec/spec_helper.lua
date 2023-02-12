@@ -39,7 +39,7 @@ function Buffer:set_cursor(pos)
     return vim.treesitter.get_parser(self.handle, self.lang)
         :parse()[1]
         :root()
-        :named_descendant_for_range(pos[1] - 1, pos[2], pos[1] - 1, pos[2])
+        :named_descendant_for_range(pos[1], pos[2], pos[1], pos[2])
   end
 
   require("nvim-treesitter.ts_utils").get_node_at_cursor = fake_get_node_at_cursor
@@ -93,7 +93,7 @@ function SpecHelper:new(lang, buf_opts)
 end
 
 -- Runs full integration test for text
--- Cursor (pos) is 1-indexed, { row, col }. Defaults to first line, first col if empty
+-- Cursor (pos) is 0-indexed, { row, col }. Defaults to first line, first col if empty
 -- Returns full buffer text as a table, one string per line.
 --
 -- @param text string|table
@@ -102,7 +102,7 @@ end
 function SpecHelper:call(text, pos)
   local buffer = Buffer:new(self.lang, self.buf_opts)
   local result = buffer:setup()
-      :set_cursor(pos or { 1, 1 })
+      :set_cursor(pos or { 0, 0 })
       :write(text)
       :run_action()
       :read()
