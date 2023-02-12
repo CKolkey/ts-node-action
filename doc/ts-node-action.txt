@@ -1,4 +1,4 @@
-*ts-node-action.txt*       For NVIM v0.8.0       Last change: 2023 February 09
+*ts-node-action.txt*       For NVIM v0.8.0       Last change: 2023 February 11
 
 ==============================================================================
 Table of Contents                           *ts-node-action-table-of-contents*
@@ -266,7 +266,7 @@ Returns the text of the specified node.
 
 <hr>
 
-`require("ts-node-action.helpers").multiline_node(node)`
+`require("ts-node-action.helpers").node_is_multiline(node)`
 
 >
     @node: tsnode

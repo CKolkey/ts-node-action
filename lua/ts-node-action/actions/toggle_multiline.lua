@@ -44,10 +44,10 @@ return function(padding)
 
   local function action(node)
     local fn
-    if helpers.multiline_node(node) then
-      fn = expand_child_nodes
-    else
+    if helpers.node_is_multiline(node) then
       fn = collapse_child_nodes(padding)
+    else
+      fn = expand_child_nodes
     end
     return fn(node), { cursor = {}, format = true }
   end
