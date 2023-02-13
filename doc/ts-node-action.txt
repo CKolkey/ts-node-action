@@ -1,4 +1,4 @@
-*ts-node-action.txt*       For NVIM v0.8.0       Last change: 2023 February 11
+*ts-node-action.txt*       For NVIM v0.8.0       Last change: 2023 February 13
 
 ==============================================================================
 Table of Contents                           *ts-node-action-table-of-contents*
@@ -12,6 +12,7 @@ Table of Contents                           *ts-node-action-table-of-contents*
   - null-ls Integration                   |ts-node-action-null-ls-integration|
   - Helpers                                           |ts-node-action-helpers|
   - Builtin Actions                           |ts-node-action-builtin-actions|
+  - Testing                                           |ts-node-action-testing|
   - Contributing                                 |ts-node-action-contributing|
 
 ==============================================================================
@@ -30,6 +31,7 @@ with the result.
     - Helpers <https://github.com/CKolkey/ts-node-action#helpers>
     - Null-LS <https://github.com/CKolkey/ts-node-action#null-ls-integration>
 - Builtin Actions <https://github.com/CKolkey/ts-node-action#builtin-actions>
+- Testing <https://github.com/CKolkey/ts-node-action#testing>
 - Contributing <https://github.com/CKolkey/ts-node-action#contributing>
 
 
@@ -362,6 +364,13 @@ overridden on a per-filetype basis. Check out the implementations under
 │toggle_hash_style()         │   │✅ │             │   │      │   │    │    │    │
 │conceal_string()            │   │    │✅          │   │      │   │    │    │✅ │
 
+
+TESTING                                               *ts-node-action-testing*
+
+To run the test suite, clone the repo and run `./run_spec`. It should pull all
+dependencies into `spec/support/` on first run, then execute the tests.
+
+This is still a little WIP.
 
 CONTRIBUTING                                     *ts-node-action-contributing*
 

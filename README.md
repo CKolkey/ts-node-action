@@ -11,6 +11,7 @@ A framework for running functions on Tree-sitter nodes, and updating the buffer 
   - [Helpers](https://github.com/CKolkey/ts-node-action#helpers)
   - [Null-LS](https://github.com/CKolkey/ts-node-action#null-ls-integration)
 - [Builtin Actions](https://github.com/CKolkey/ts-node-action#builtin-actions)
+- [Testing](https://github.com/CKolkey/ts-node-action#testing)
 - [Contributing](https://github.com/CKolkey/ts-node-action#contributing)
 
 ![cycle case](https://user-images.githubusercontent.com/7228095/210154055-8851210e-e8e1-4ba3-a474-0be373df8d1b.gif)
@@ -172,8 +173,6 @@ require "null-ls".register({
 This will present the available node action(s) for the node under your cursor alongside your `lsp`/`null-ls` code actions.
 <hr>
 
-
-
 ## Helpers
 
 `require("ts-node-action.helpers").node_text(node)`
@@ -233,8 +232,8 @@ A function that takes a _table_ of standardized strings as it's argument, and re
 
 ### standardize
 A function that takes a _string_ in this format, and returns a table of strings, all lower case, no special chars.
-ie: 
-```  
+ie:
+```
     standardize("ts_node_action") -> { "ts", "node", "action" }
     standardize("tsNodeAction")   -> { "ts", "node", "action" }
     standardize("TsNodeAction")   -> { "ts", "node", "action" }
@@ -262,6 +261,12 @@ Builtin actions are all higher-order functions so they can easily have options o
 | if block/postfix |  | ✅ |  |  |  |  |  |  |  |
 | `toggle_hash_style()` |  | ✅ |  |  |  |  |  |  |  |
 | `conceal_string()` |  |  | ✅ |  |  |  |  |  | ✅ |
+
+## Testing
+To run the test suite, clone the repo and run `./run_spec`. It should pull all dependencies into `spec/support/` on
+first run, then execute the tests.
+
+This is still a little WIP.
 
 ## Contributing
 
