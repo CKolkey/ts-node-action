@@ -78,14 +78,16 @@ local node_types_to_parenthesize = {
 -- @param node tsnode
 -- @return string
 local function collapse_child_nodes(padding_override)
+
   local function action(node)
-    if helpers.multiline_node(node) then
+    if not helpers.node_is_multiline(node) then
       return helpers.node_text(node)
     end
     local tbl = actions.toggle_multiline(padding_override)
     local replacement = tbl[1][1](node)
     return replacement
   end
+
   return action
 end
 
@@ -221,10 +223,11 @@ end
 -- @param if_statement tsnode
 -- @return string, table, tsnode
 -- @return nil
-local function expand_if(conditional_expression)
+local function expand_if(conditional_expression, padding_override)
   local parent      = conditional_expression:parent()
   local parent_type = parent:type()
   local cond_order  = {1, 0, 2}
+  local fn_collapse = collapse_child_nodes(padding_override)
 
   parent, parent_type = skip_parens_by_reparenting(parent, parent_type)
 
@@ -235,7 +238,7 @@ local function expand_if(conditional_expression)
     local identifiers = {}
     -- handle multiple assignments, eg: x = y = z = 1
     while parent:type() == "assignment" do
-      table.insert(identifiers, 1, helpers.node_text(parent:named_child(0)))
+      table.insert(identifiers, 1, fn_collapse(parent:named_child(0)))
       parent = parent:parent()
     end
     lhs = table.concat(identifiers, " = ") .. " = "
@@ -271,15 +274,15 @@ local function expand_if(conditional_expression)
   local body_indent = else_indent .. string.rep(" ", 4)
 
   local replacement = {
-    if_indent .. "if " .. helpers.node_text(condition) .. ":",
-    body_indent .. lhs .. helpers.node_text(consequence),
+    if_indent .. "if " .. fn_collapse(condition) .. ":",
+    body_indent .. lhs .. fn_collapse(consequence),
   }
 
   if alternative then
     table.insert(replacement, else_indent .. "else:")
     table.insert(
       replacement,
-      body_indent .. lhs .. helpers.node_text(alternative)
+      body_indent .. lhs .. fn_collapse(alternative)
     )
   end
 
@@ -288,6 +291,18 @@ local function expand_if(conditional_expression)
   end
 
   return replacement, { cursor = cursor, strip_whitespace = {},  }, parent
+end
+
+local function expand_if_expr(padding_override)
+  padding_override = padding_override or padding
+
+  -- @param conditional_expression tsnode
+  -- @return string, table, tsnode
+  local function action(conditional_expression)
+    return expand_if(conditional_expression, padding_override)
+  end
+
+  return action
 end
 
 -- @param if_statement tsnode
@@ -412,7 +427,7 @@ local function inline_if_stmt(padding_override)
   -- @param if_statement tsnode
   -- @return string, table, tsnode
   local function action(if_statement)
-    if helpers.multiline_node(if_statement) == false then
+    if helpers.node_is_multiline(if_statement) then
       local fn
       if if_statement:named_child_count() == 3 then
         fn = inline_ifelse
@@ -421,7 +436,8 @@ local function inline_if_stmt(padding_override)
       end
       return fn(if_statement, padding_override)
     else
-      return expand_if(if_statement)
+      -- `if True: print(1)`
+      return expand_if(if_statement, padding_override)
     end
   end
 
@@ -443,6 +459,6 @@ return {
   ["false"]                    = actions.toggle_boolean(boolean_override),
   ["comparison_operator"]      = actions.toggle_operator(),
   ["integer"]                  = actions.toggle_int_readability(),
-  ["conditional_expression"]   = { { expand_if, name = "Expand Conditional" } },
+  ["conditional_expression"]   = { { expand_if_expr(padding), name = "Expand Conditional" } },
   ["if_statement"]             = { { inline_if_stmt(padding), name = "Inline Conditional" } },
 }
