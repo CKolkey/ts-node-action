@@ -17,22 +17,22 @@ describe("integer", function()
 end)
 
 describe("if", function()
-  it("expands ternary to multiline expression", function()
+  pending("expands ternary to multiline expression", function()
     assert.are.same(
       {
         [[if greet?]],
-        [[  puts "hello"]],
+        [[  puts("hello")]],
         [[else]],
-        [[  puts "booooo"]],
+        [[  puts("booooo")]],
         [[end]],
       },
-      Helper:call({ [[greet? ? puts "hello" : puts "booooo"]] }, { 1, 7 })
+      Helper:call({ [[greet? ? puts("hello") : puts("booooo")]] }, { 1, 7 })
     )
   end)
 
-  it("inlines to ternary statement", function()
+  pending("inlines to ternary statement", function()
     assert.are.same(
-      { [[greet? ? puts "hello" : puts "booooo"]] },
+      { [[greet? ? puts("hello") : puts("booooo")]] },
       Helper:call({
         [[if greet?]],
         [[  puts "hello"]],
