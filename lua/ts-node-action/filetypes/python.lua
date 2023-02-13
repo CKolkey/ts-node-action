@@ -106,10 +106,11 @@ local function node_text_lhs_rhs(node, padding_override)
   local rhs   = nil
   local type  = node:type()
   local child = node:named_child(0)
-  local fn_collapse = collapse_child_nodes(padding_override)
+  local collapse = collapse_child_nodes(padding_override)
+
   if type == "return_statement" then
     lhs = "return "
-    rhs = fn_collapse(child)
+    rhs = collapse(child)
 
   elseif type == "expression_statement" then
     local identifiers = {}
@@ -118,20 +119,20 @@ local function node_text_lhs_rhs(node, padding_override)
     if type == "assignment" then
       -- handle multiple assignments, eg: x = y = z = 1
       while child:type() == "assignment" do
-        table.insert(identifiers, fn_collapse(child:named_child(0)))
+        table.insert(identifiers, collapse(child:named_child(0)))
         child = child:named_child(1)
       end
 
       lhs = table.concat(identifiers, " = ") .. " = "
-      rhs = fn_collapse(child)
+      rhs = collapse(child)
     elseif type == "call" then
-      lhs   = fn_collapse(child:named_child(0))
+      lhs   = collapse(child:named_child(0))
       child = child:named_child(1)
-      rhs   = fn_collapse(child)
+      rhs   = collapse(child)
     elseif type == "boolean_operator" or
            type == "parenthesized_expression" then
       lhs = ""
-      rhs = fn_collapse(child)
+      rhs = collapse(child)
     end
   end
 
@@ -227,7 +228,6 @@ local function expand_if(conditional_expression, padding_override)
   local parent      = conditional_expression:parent()
   local parent_type = parent:type()
   local cond_order  = {1, 0, 2}
-  local fn_collapse = collapse_child_nodes(padding_override)
 
   parent, parent_type = skip_parens_by_reparenting(parent, parent_type)
 
@@ -238,7 +238,7 @@ local function expand_if(conditional_expression, padding_override)
     local identifiers = {}
     -- handle multiple assignments, eg: x = y = z = 1
     while parent:type() == "assignment" do
-      table.insert(identifiers, 1, fn_collapse(parent:named_child(0)))
+      table.insert(identifiers, 1, helpers.node_text(parent:named_child(0)))
       parent = parent:parent()
     end
     lhs = table.concat(identifiers, " = ") .. " = "
@@ -273,24 +273,26 @@ local function expand_if(conditional_expression, padding_override)
   end
   local body_indent = else_indent .. string.rep(" ", 4)
 
+  local collapse    = collapse_child_nodes(padding_override)
   local replacement = {
-    if_indent .. "if " .. fn_collapse(condition) .. ":",
-    body_indent .. lhs .. fn_collapse(consequence),
+    if_indent .. "if " .. collapse(condition) .. ":",
+    body_indent .. lhs .. collapse(consequence),
   }
 
   if alternative then
     table.insert(replacement, else_indent .. "else:")
-    table.insert(
-      replacement,
-      body_indent .. lhs .. fn_collapse(alternative)
-    )
+    table.insert(replacement, body_indent .. lhs .. collapse(alternative))
   end
 
   if row_parent then
     table.insert(replacement, 1, "")
   end
 
-  return replacement, { cursor = cursor, strip_whitespace = {},  }, parent
+  return replacement, {
+    cursor = cursor,
+    strip_whitespace = {},
+    format = true,
+  }, parent
 end
 
 local function expand_if_expr(padding_override)
@@ -326,42 +328,30 @@ local function inline_if(if_statement, padding_override)
     rhs = "(" .. rhs .. ")"
   end
 
-  local parent_type = if_statement:parent():type()
-  local replacement
-  local cursor = {}
-
   local cond_text = collapse_child_nodes(padding_override)(condition)
-
-  if parent_type == "block" or parent_type == "module" then
-    replacement = { "if " .. cond_text .. ": " .. lhs .. rhs }
-  else
-    replacement = { lhs .. rhs .. " if " .. cond_text .. " else None" }
-    cursor["col"] = string.len(lhs .. rhs) + 1
-  end
-
-  return replacement, { cursor = cursor }
+  local replacement = { "if " .. cond_text .. ": " .. lhs .. rhs }
+  return replacement, { cursor = {} }
 end
 
--- As long as there isn't an assignment or return on the left/right side,
--- we can freely inline/expand these:
-local mixed_match_body_types = {
-  ["call"]                     = true,
-  ["boolean_operator"]         = true,
-  ["parenthesized_expression"] = true,
-}
+
 -- @param cons_type string
 -- @param alt_type string
 -- @return boolean
-local function compatible_body_types(cons_type, alt_type)
+local function body_types_are_inlineable(cons_type, alt_type)
   -- strict match
   if cons_type == "assignment" or alt_type == "assignment" then
     return cons_type == alt_type
   elseif cons_type == "return_statement" or alt_type == "return_statement" then
     return cons_type == alt_type
   end
-
-  return mixed_match_body_types[cons_type] and
-         mixed_match_body_types[alt_type]
+  -- these do not depend on a common lhs and can be freely mixed
+  local mixable_match_body_types = {
+    ["call"]                     = true,
+    ["boolean_operator"]         = true,
+    ["parenthesized_expression"] = true,
+  }
+  return mixable_match_body_types[cons_type] and
+         mixable_match_body_types[alt_type]
 end
 
 
@@ -392,11 +382,11 @@ local function inline_ifelse(if_statement, padding_override)
     cons_rhs = "(" .. cons_rhs .. ")"
   end
 
-  local alt_lhs, alt_rhs, alt_type, alt_child = node_text_lhs_rhs(
+  local alt_lhs, alt_rhs, alt_type, _ = node_text_lhs_rhs(
     alt_expr,
     padding_override
   )
-  if not compatible_body_types(cons_type, alt_type) or alt_rhs == nil then
+  if not body_types_are_inlineable(cons_type, alt_type) or alt_rhs == nil then
     return
   end
   if (has_descendent_of_type(alt_expr, node_types_to_parenthesize) or
@@ -408,15 +398,15 @@ local function inline_ifelse(if_statement, padding_override)
   local cond_text = collapse_child_nodes(padding_override)(condition)
 
   local replacement = cons_lhs .. cons_rhs .. " if " .. cond_text .. " else "
-  if alt_type == "call" then
-    replacement = replacement .. alt_lhs .. alt_rhs
-  else
+  if alt_type == "assignment" or alt_type == "return_statement" then
     replacement = replacement .. alt_rhs
+  else
+    replacement = replacement .. alt_lhs .. alt_rhs
   end
 
-  local cursor_col = string.len(cons_lhs .. cons_rhs) + 1
+  local cursor = { col = string.len(cons_lhs .. cons_rhs) + 1 }
 
-  return replacement, { cursor = { col = cursor_col } }
+  return replacement, { cursor = cursor }
 end
 
 -- @param padding_override table
@@ -436,7 +426,8 @@ local function inline_if_stmt(padding_override)
       end
       return fn(if_statement, padding_override)
     else
-      -- `if True: print(1)`
+      -- an if_statement of the form `if True: print(1)`
+      -- and this knows how to expand it
       return expand_if(if_statement, padding_override)
     end
   end
