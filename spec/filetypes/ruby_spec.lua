@@ -1,4 +1,4 @@
-dofile("./spec/spec_helper.lua")
+dofile("spec/spec_helper.lua")
 
 local Helper = SpecHelper:new("ruby")
 
@@ -17,7 +17,7 @@ describe("integer", function()
 end)
 
 describe("if", function()
-  pending("expands ternary to multiline expression", function()
+  it("expands ternary to multiline expression", function()
     assert.are.same(
       {
         [[if greet?]],
@@ -30,7 +30,7 @@ describe("if", function()
     )
   end)
 
-  pending("inlines to ternary statement", function()
+  it("inlines to ternary statement", function()
     assert.are.same(
       { [[greet? ? puts("hello") : puts("booooo")]] },
       Helper:call({
@@ -218,4 +218,173 @@ describe("array", function()
       })
     )
   end)
+end)
+
+describe("hash", function()
+  it("expands single line hash to multiple lines", function()
+    assert.are.same(
+      {
+        "{",
+        "  a: 1,",
+        "  b: 2,",
+        "  c: 3",
+        "}"
+      },
+      Helper:call({ "{ a: 1, b: 2, c: 3 }" })
+    )
+  end)
+
+  it("collapses multi-line hash to single lines", function()
+    assert.are.same(
+      { "{ a: 1, b: 2, c: 3 }" },
+      Helper:call({
+        "{",
+        "  a: 1,",
+        "  b: 2,",
+        "  c: 3",
+        "}"
+      })
+    )
+  end)
+
+  it("doesn't expand children", function()
+    assert.are.same(
+      {
+        "{",
+        "  a: 1,",
+        "  b: ['foo', 'bar'],",
+        "  c: { d: 3, e: 4 }",
+        "}"
+      },
+      Helper:call({ "{ a: 1, b: ['foo', 'bar'], c: { d: 3, e: 4 } }" })
+    )
+  end)
+
+  it("collapses nested children", function()
+    assert.are.same(
+      { "{ a: 1, b: ['foo', 'bar'], c: { d: 3, e: 4 } }" },
+      Helper:call({
+        "{",
+        "  a: 1,",
+        "  b: [",
+        "    'foo',",
+        "    'bar'",
+        "  ],",
+        "  c: { ",
+        "    d: 3,",
+        "    e: 4",
+        "  }",
+        "}"
+      })
+    )
+  end)
+end)
+
+describe("block", function()
+  it("collapses a multi-line block into one line (with param)", function()
+    assert.are.same(
+      { "[1, 2, 3].each { |n| print n }" },
+      Helper:call({
+        "[1, 2, 3].each do |n|",
+        "  print n",
+        "end"
+      }, { 1, 16 })
+    )
+  end)
+
+  it("collapses a multi-line block into one line (without param)", function()
+    assert.are.same(
+      { "[1, 2, 3].each { print n }" },
+      Helper:call({
+        "[1, 2, 3].each do",
+        "  print n",
+        "end"
+      }, { 1, 16 })
+    )
+  end)
+
+  it("collapses a multi-line block into one line (with destructured param)", function()
+    assert.are.same(
+      { "[1, 2, 3].each { |(a, b), c| print n }" },
+      Helper:call({
+        "[1, 2, 3].each do |(a, b), c|",
+        "  print n",
+        "end"
+      }, { 1, 16 })
+    )
+  end)
+end)
+
+describe("do_block", function()
+  it("expands a single-line block into multi line (with param)", function()
+    assert.are.same(
+      {
+        "[1, 2, 3].each do |n|",
+        "  print n",
+        "end"
+      },
+      Helper:call({ "[1, 2, 3].each { |n| print n }" }, { 1, 16 })
+    )
+  end)
+
+  it("expands a single-line block into multi line (without param)", function()
+    assert.are.same(
+      {
+        "[1, 2, 3].each do",
+        "  print n",
+        "end"
+      },
+      Helper:call({ "[1, 2, 3].each { print n }" }, { 1, 16 })
+    )
+  end)
+
+  it("expands a single-line block into multi line (with destructured param)", function()
+    assert.are.same(
+      {
+        "[1, 2, 3].each do |(a, b), c|",
+        "  print n",
+        "end"
+      },
+      Helper:call({ "[1, 2, 3].each { |(a, b), c| print n }" }, { 1, 16 })
+    )
+  end)
+end)
+
+describe("pair", function()
+  it("converts old style hashes into new style", function()
+    assert.are.same(
+      { "{ a: 1 }" },
+      Helper:call({ "{ :a => 1 }" }, { 1, 6 })
+    )
+  end)
+
+  it("converts new style hashes into old style", function()
+    assert.are.same(
+      { "{ :a => 1 }" },
+      Helper:call({ "{ a: 1 }" }, { 1, 4 })
+    )
+  end)
+
+  it("doesn't change non-string/symbol keys", function()
+    assert.are.same(
+      { "{ [1, 2] => 1 }" },
+      Helper:call({ "{ [1, 2] => 1 }" }, { 1, 10 })
+    )
+  end)
+end)
+
+describe("argument_list", function()
+
+end)
+
+describe("method_parameters", function()
+
+end)
+
+describe("constant", function()
+
+end)
+
+describe("identifier", function()
+
 end)
