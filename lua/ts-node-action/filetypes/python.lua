@@ -452,9 +452,9 @@ local function inline_if_statement(padding_override)
         return
       end
       -- undecided on whether/how to inline if there are comments
-      if #struct.comments > 0 then
-        return
-      end
+      -- if #struct.comments > 0 then
+      --   return
+      -- end
 
       local fn
       if #struct.alternative ~= 0 then
@@ -484,9 +484,9 @@ local function expand_conditional_expression(padding_override)
   local function action(conditional_expression)
     local struct = destructure_conditional_expression(conditional_expression)
     -- undecided on whether/how to inline if there are comments
-    if #struct.comments > 0 then
-      return
-    end
+    -- if #struct.comments > 0 then
+    --   return
+    -- end
     return expand_cond_expr(struct, padding_override)
   end
 

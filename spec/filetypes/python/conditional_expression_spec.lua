@@ -167,20 +167,30 @@ describe("conditional_expression", function()
     )
   end)
 
-  it("doesn't expand a multiline expr with comments", function()
-    local text = {
-      [[return [ # a]],
-      [[    3, # b]],
-      [[    4, # c]],
-      [[    5 # d]],
-      [[] if foo(x, # e]],
-      [[         y) else { # f]],
-      [[    4, # g]],
-      [[    5, # h]],
-      [[    6 # i]],
-      [[} # j]],
-    }
-    assert.are.same(text, text, { 5, 3 })
+  it("expand a multiline expr with comments", function()
+    assert.are.same(
+      {
+        [[if foo(x, y):]],
+        [=[    return [3, 4, 5]]=],
+        [[else:]],
+        [[    return {4, 5, 6} # j]],
+      },
+      Helper:call(
+        {
+          [[return [ # a]],
+          [[    3, # b]],
+          [[    4, # c]],
+          [[    5 # d]],
+          [[] if foo(x, # e]],
+          [[         y) else { # f]],
+          [[    4, # g]],
+          [[    5, # h]],
+          [[    6 # i]],
+          [[} # j]],
+        },
+        { 5, 3 }
+      )
+    )
   end)
 
   it("doesn't expand a condition inside a fn call", function()
