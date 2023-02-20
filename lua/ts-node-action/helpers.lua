@@ -47,7 +47,7 @@ end
 -- The ["is"] key under "not" overrides the format to remove the space when the
 -- previous text is "is".
 -- A [""] key is a catch-all for any non-nil prev_text.
--- A ["nil"] key will match when prev_text = nil.
+-- A ["nil"] key will match when prev_text == nil.
 -- See filetypes/python.lua for more info.
 --
 -- @param node tsnode

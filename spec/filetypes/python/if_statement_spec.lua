@@ -142,4 +142,128 @@ describe("if_statement", function()
     )
   end)
 
+  it("if inlines with a single assignment", function()
+    assert.are.same(
+      { [[if foo(y): x = 1]] },
+      Helper:call({
+        [[if foo(y):]],
+        [[    x = 1]],
+      })
+    )
+  end)
+
+  it("if inlines with a multi assignment", function()
+    assert.are.same(
+      { [[if foo(a): x = y = z = 1]] },
+      Helper:call({
+        [[if foo(a):]],
+        [[    x = y = z = 1]],
+      })
+    )
+  end)
+
+  it("if inlines with a return", function()
+    assert.are.same(
+      { [[if foo(y): return 1]] },
+      Helper:call({
+        [[if foo(y):]],
+        [[    return 1]],
+      })
+    )
+  end)
+
+  it("if inlines with function calls", function()
+    assert.are.same(
+      { [[if foo(y): bar()]] },
+      Helper:call({
+        [[if foo(y):]],
+        [[    bar()]],
+      })
+    )
+  end)
+
+  it("if expands with a single assignment", function()
+    assert.are.same(
+      {
+        [[if foo(y):]],
+        [[    x = 1]],
+      },
+      Helper:call({
+        [[if foo(y): x = 1]],
+      })
+    )
+  end)
+
+  it("if expands with a multi assignment", function()
+    assert.are.same(
+      {
+        [[if foo(a):]],
+        [[    x = y = z = 1]],
+      },
+      Helper:call({
+        [[if foo(a): x = y = z = 1]],
+      })
+    )
+  end)
+
+  it("if expands with a return", function()
+    assert.are.same(
+      {
+        [[if foo(y):]],
+        [[    return 1]],
+      },
+      Helper:call({
+        [[if foo(y): return 1]],
+      })
+    )
+  end)
+
+  it("if expands with function calls", function()
+    assert.are.same(
+      {
+        [[if foo(y):]],
+        [[    bar()]],
+      },
+      Helper:call({
+        [[if foo(y): bar()]],
+      })
+    )
+  end)
+
+  it("if/else doesn't expand when there are comments", function()
+    assert.are.same(
+      {
+        [[if foo(y):]],
+        [[    # comment]],
+        [[    x = 1]],
+        [[else:]],
+        [[    # comment]],
+        [[    x = 2]],
+      },
+      Helper:call({
+        [[if foo(y):]],
+        [[    # comment]],
+        [[    x = 1]],
+        [[else:]],
+        [[    # comment]],
+        [[    x = 2]],
+      })
+    )
+  end)
+
+  it("if doesn't expand when there are comments", function()
+    assert.are.same(
+      {
+        [[if foo(y):]],
+        [[    # comment]],
+        [[    x = 1]],
+      },
+      Helper:call({
+        [[if foo(y):]],
+        [[    # comment]],
+        [[    x = 1]],
+      })
+    )
+  end)
+
 end)

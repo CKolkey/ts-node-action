@@ -3,7 +3,7 @@ local actions = require("ts-node-action.actions")
 
 -- Special cases:
 -- Because "is" and "not" are valid by themselves, they are seen as separate
--- unnamed nodes by TS.  This means that without special handling, a config of:
+-- nodes by TS.  This means that without special handling, a config of:
 -- {
 --   ["is"]  = " %s ",
 --   ["not"] = " %s "
@@ -55,7 +55,6 @@ local boolean_override = {
   ["False"] = "True",
 }
 
-
 -- When inlined, these nodes must be parenthesized to avoid changing the
 -- meaning of the code and to avoid syntax errors.
 -- eg: x = lambda y: y + 1 if y else 0
@@ -73,7 +72,7 @@ local node_types_to_parenthesize = {
   ["lambda"] = true,
 }
 
-local function parenthesize_if_necessary(node, text)
+local function parenthesize_if_needed(node, text)
   if node_types_to_parenthesize[node:type()] and
     text:sub(1, 1) ~= "(" then
     return "(" .. text .. ")"
@@ -124,12 +123,11 @@ local function node_text_lhs_rhs(node, padding_override)
   if type == "return_statement" then
     lhs = "return "
     rhs = collapse(child)
-
   elseif type == "expression_statement" then
-    local identifiers = {}
     type = child:type()
 
     if type == "assignment" then
+      local identifiers = {}
       -- handle multiple assignments, eg: x = y = z = 1
       while child:type() == "assignment" do
         table.insert(identifiers, collapse(child:named_child(0)))
@@ -167,7 +165,7 @@ end
 -- @param start_row number
 -- @return tsnode, string
 -- @return nil
-local function find_real_row_parent(parent, parent_type, start_row)
+local function find_row_parent(parent, parent_type, start_row)
 
   while parent ~= nil and
     parent_type ~= "if_statement" and
@@ -213,13 +211,82 @@ local function skip_parens_by_reparenting(parent, parent_type)
   return parent, parent_type
 end
 
+-- @param parent tsnode
+-- @param children table
+-- @param comments table
+-- @return nil (mutates children and comments)
+local function collect_named_children(parent, children, comments)
+  for child in parent:iter_children() do
+    if child:named() then
+      if child:type() == "comment" then
+        table.insert(comments, child)
+      else
+        table.insert(children, child)
+      end
+    end
+  end
+end
+
+
+-- @param if_statement tsnode
+-- @return table
+local function destructure_if_statement(if_statement)
+  local condition
+  local consequence = {}
+  local alternative = {}
+  local comments    = {}
+
+  for child in if_statement:iter_children() do
+    if child:named() then
+      local child_type = child:type()
+
+      if child_type == "comment" then
+        table.insert(comments, child)
+      elseif child_type == "block" then
+        collect_named_children(child, consequence, comments)
+      elseif child_type == "else_clause" then
+        local block = {}
+        collect_named_children(child, block, comments)
+        collect_named_children(block[1], alternative, comments)
+      else
+        condition = child
+      end
+
+    end
+  end
+
+  return {
+    node        = if_statement,
+    condition   = condition,
+    consequence = consequence,
+    alternative = alternative,
+    comments    = comments
+  }
+end
+
+-- @param node tsnode
+-- @return table
+local function destructure_conditional_expression(conditional_expression)
+  local comments = {}
+  local children = {}
+
+  collect_named_children(conditional_expression, children, comments)
+
+  return {
+    node        = conditional_expression,
+    condition   = children[2],
+    consequence = { children[1] }, -- as a table for consistency
+    alternative = { children[3] }, -- which allows for sharing
+    comments    = comments,
+  }
+end
+
 -- @param if_statement tsnode
 -- @return string, table, tsnode
 -- @return nil
-local function expand_if(conditional_expression, padding_override)
-  local parent      = conditional_expression:parent()
+local function expand_cond_expr(struct, padding_override)
+  local parent      = struct.node:parent()
   local parent_type = parent:type()
-  local cond_order  = {1, 0, 2}
 
   parent, parent_type = skip_parens_by_reparenting(parent, parent_type)
 
@@ -238,17 +305,14 @@ local function expand_if(conditional_expression, padding_override)
     lhs = ""
   elseif parent_type == "block" or parent_type == "module" then
     lhs = ""
-    parent = conditional_expression
-    cond_order = {0, 1, 2}
+    parent = struct.node
   else
+    -- parent context is not yet supported, eg: y = 3 or (4 if x > 0 else 5)
     return
   end
 
-  local condition   = conditional_expression:named_child(cond_order[1])
-  local consequence = conditional_expression:named_child(cond_order[2])
-  local alternative = conditional_expression:named_child(cond_order[3])
   local start_row, start_col = parent:start()
-  local row_parent = find_real_row_parent(parent, parent_type, start_row)
+  local row_parent = find_row_parent(parent, parent_type, start_row)
   local cursor = {}
   -- when we are embedded on the end of an inlined if/for statement, we need
   -- to expand on to the next line and shift the cursor/indent
@@ -267,13 +331,16 @@ local function expand_if(conditional_expression, padding_override)
 
   local collapse    = collapse_child_nodes(padding_override)
   local replacement = {
-    if_indent .. "if " .. collapse(condition) .. ":",
-    body_indent .. lhs .. collapse(consequence),
+    if_indent .. "if " .. collapse(struct.condition) .. ":",
+    body_indent .. lhs .. collapse(struct.consequence[1]),
   }
 
-  if alternative then
+  if #struct.alternative > 0 then
     table.insert(replacement, else_indent .. "else:")
-    table.insert(replacement, body_indent .. lhs .. collapse(alternative))
+    table.insert(
+      replacement,
+      body_indent .. lhs .. collapse(struct.alternative[1])
+    )
   end
 
   if row_parent then
@@ -282,42 +349,28 @@ local function expand_if(conditional_expression, padding_override)
 
   return replacement, {
     cursor = cursor,
-    strip_whitespace = {},
+    trim_whitespace = {},
     format = true,
   }, parent
 end
 
-local function expand_if_expr(padding_override)
-  padding_override = padding_override or padding
-
-  -- @param conditional_expression tsnode
-  -- @return string, table, tsnode
-  local function action(conditional_expression)
-    return expand_if(conditional_expression, padding_override)
-  end
-
-  return action
-end
-
--- @param if_statement tsnode
+-- @param struct table { node, condition, consequence, alternative, comments }
 -- @param padding_override table
 -- @return string, table, tsnode
 -- @return nil
-local function inline_if(if_statement, padding_override)
-  local condition = if_statement:named_child(0)
-  local cons_expr = if_statement:named_child(1):named_child(0)
-  -- we can't inline multiple statements
-  if cons_expr:next_named_sibling() then
-    return
-  end
+local function inline_if(struct, padding_override)
 
-  local lhs, rhs, _, child = node_text_lhs_rhs(cons_expr, padding_override)
+  local lhs, rhs, _, child = node_text_lhs_rhs(
+    struct.consequence[1],
+    padding_override
+  )
   if lhs == nil then
     return
   end
-  rhs = parenthesize_if_necessary(child, rhs)
+  rhs = parenthesize_if_needed(child, rhs)
 
-  local cond_text = collapse_child_nodes(padding_override)(condition)
+  local cond_text = collapse_child_nodes(padding_override)(struct.condition)
+
   local replacement = { "if " .. cond_text .. ": " .. lhs .. rhs }
   return replacement, { cursor = {} }
 end
@@ -344,39 +397,32 @@ local function body_types_are_inlineable(cons_type, alt_type, cons_lhs, alt_lhs)
          mixable_match_body_types[alt_type]
 end
 
--- @param if_statement tsnode
+-- @param struct table { node, condition, consequence, alternative, comments }
 -- @param padding_override table
 -- @return string, table, tsnode
 -- @return nil
-local function inline_ifelse(if_statement, padding_override)
-  local condition = if_statement:named_child(0)
-  local cons_expr = if_statement:named_child(1):named_child(0)
-  local alt_expr  = if_statement:named_child(2):named_child(0):named_child(0)
-  -- we can't inline multiple statements
-  if cons_expr:next_named_sibling() or alt_expr:next_named_sibling() then
-    return
-  end
+local function inline_ifelse(struct, padding_override)
 
   local cons_lhs, cons_rhs, cons_type, cons_child = node_text_lhs_rhs(
-    cons_expr,
+    struct.consequence[1],
     padding_override
   )
   if cons_lhs == nil then
     return
   end
-  cons_rhs = parenthesize_if_necessary(cons_child, cons_rhs)
+  cons_rhs = parenthesize_if_needed(cons_child, cons_rhs)
 
   local alt_lhs, alt_rhs, alt_type, alt_child = node_text_lhs_rhs(
-    alt_expr,
+    struct.alternative[1],
     padding_override
   )
   if alt_rhs == nil or
     not body_types_are_inlineable(cons_type, alt_type, cons_lhs, alt_lhs) then
     return
   end
-  alt_rhs = parenthesize_if_necessary(alt_child, alt_rhs)
+  alt_rhs = parenthesize_if_needed(alt_child, alt_rhs)
 
-  local cond_text = collapse_child_nodes(padding_override)(condition)
+  local cond_text = collapse_child_nodes(padding_override)(struct.condition)
 
   local replacement = cons_lhs .. cons_rhs .. " if " .. cond_text .. " else "
   if alt_type == "assignment" or alt_type == "return_statement" then
@@ -392,28 +438,59 @@ end
 
 -- @param padding_override table
 -- @return function
-local function inline_if_stmt(padding_override)
+local function inline_if_statement(padding_override)
   padding_override = padding_override or padding
 
   -- @param if_statement tsnode
   -- @return string, table, tsnode
   local function action(if_statement)
+    local struct = destructure_if_statement(if_statement)
+
     if helpers.node_is_multiline(if_statement) then
+      -- we can't inline multiple statements within a block
+      if #struct.consequence > 1 or #struct.alternative > 1 then
+        return
+      end
+      -- undecided on whether/how to inline if there are comments
+      if #struct.comments > 0 then
+        return
+      end
+
       local fn
-      if if_statement:named_child_count() == 3 then
+      if #struct.alternative ~= 0 then
         fn = inline_ifelse
-      elseif if_statement:named_child_count() == 2 then
+      else
         fn = inline_if
       end
-      return fn(if_statement, padding_override)
+      return fn(struct, padding_override)
     else
       -- an if_statement of the form `if True: print(1)`
       -- and this knows how to expand it
-      return expand_if(if_statement, padding_override)
+      return expand_cond_expr(struct, padding_override)
     end
+
   end
 
-  return action
+  return { action, name = "Inline Conditional" }
+end
+
+-- @param padding_override table
+-- @return function
+local function expand_conditional_expression(padding_override)
+  padding_override = padding_override or padding
+
+  -- @param conditional_expression tsnode
+  -- @return string, table, tsnode
+  local function action(conditional_expression)
+    local struct = destructure_conditional_expression(conditional_expression)
+    -- undecided on whether/how to inline if there are comments
+    if #struct.comments > 0 then
+      return
+    end
+    return expand_cond_expr(struct, padding_override)
+  end
+
+  return { action, name = "Expand Conditional" }
 end
 
 return {
@@ -431,6 +508,6 @@ return {
   ["false"]                    = actions.toggle_boolean(boolean_override),
   ["comparison_operator"]      = actions.toggle_operator(),
   ["integer"]                  = actions.toggle_int_readability(),
-  ["conditional_expression"]   = { { expand_if_expr(padding), name = "Expand Conditional" } },
-  ["if_statement"]             = { { inline_if_stmt(padding), name = "Inline Conditional" } },
+  ["conditional_expression"]   = { expand_conditional_expression(padding), },
+  ["if_statement"]             = { inline_if_statement(padding), },
 }

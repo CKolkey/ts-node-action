@@ -89,6 +89,38 @@ describe("conditional_expression", function()
     )
   end)
 
+  it("expands when after a for_statement", function()
+    assert.are.same(
+      {
+        [[for x in range(10):]],
+        [[    if x % 2 == 0:]],
+        [[        print(x)]],
+        [[    else:]],
+        [[        print(x + 1)]],
+      },
+      Helper:call(
+        { [[for x in range(10): print(x) if x % 2 == 0 else print(x + 1)]] },
+        { 1, 30 }
+      )
+    )
+  end)
+
+  it("expands when after an if_statement", function()
+    assert.are.same(
+      {
+        [[if x % 2 == 0:]],
+        [[    if x > 10:]],
+        [[        print(x)]],
+        [[    else:]],
+        [[        print(x + 1)]],
+      },
+      Helper:call(
+        { [[if x % 2 == 0: print(x) if x > 10 else print(x + 1)]] },
+        { 1, 25 }
+      )
+    )
+  end)
+
   it("expands with multiline parenthesized_expression", function()
     assert.are.same(
       {
@@ -133,6 +165,50 @@ describe("conditional_expression", function()
         { 5, 3 }
       )
     )
+  end)
+
+  it("doesn't expand a multiline expr with comments", function()
+    local text = {
+      [[return [ # a]],
+      [[    3, # b]],
+      [[    4, # c]],
+      [[    5 # d]],
+      [[] if foo(x, # e]],
+      [[         y) else { # f]],
+      [[    4, # g]],
+      [[    5, # h]],
+      [[    6 # i]],
+      [[} # j]],
+    }
+    assert.are.same(text, text, { 5, 3 })
+  end)
+
+  it("doesn't expand a condition inside a fn call", function()
+    local text = {
+      [[foo("param1", 4 if foo() > 100 else 5)]],
+    }
+    assert.are.same(text, Helper:call(text, { 1, 17 }))
+  end)
+
+  it("doesn't expand a condition inside a lambda inside a fn call", function()
+    local text = {
+      [[foo("param1", lambda x: 4 if foo() > 100 else 5)]],
+    }
+    assert.are.same(text, Helper:call(text, { 1, 26 }))
+  end)
+
+  it("doesn't expand inside a list comprehension", function()
+    local text = {
+      [[foo([x for x in range(10) if x % 2 == 0])]],
+    }
+    assert.are.same(text, Helper:call(text, { 1, 27 }))
+  end)
+
+  it("doesn't expand inside a list", function()
+    local text = {
+      [=[return [0, 123 if foo() > 100 else 456]]=],
+    }
+    assert.are.same(text, Helper:call(text, { 1, 16 }))
   end)
 
 end)

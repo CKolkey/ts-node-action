@@ -218,4 +218,43 @@ describe("array", function()
       })
     )
   end)
+
+  it("collapses multi-line array and skips embedded comments", function()
+    assert.are.same(
+      { "[1, 2, 3]" },
+      Helper:call({
+        "[ # a",
+        "  1, # b",
+        "  2, # c",
+        "=begin",
+        "a multiline comment here",
+        "and one more line",
+        "=end",
+        "  3 # d",
+        "]"
+      })
+    )
+  end)
+
+  it("collapses child arrays and skips embedded comments", function()
+    assert.are.same(
+      { "[1, 2, [3, 4, 5]]" },
+      Helper:call({
+        "[",
+        "  1,",
+        "  2,",
+        "  [ # a",
+        "    3, # b",
+        "    4, # c",
+        "=begin",
+        "a multiline comment here",
+        "and one more line",
+        "=end",
+        "    5 # d",
+        "  ]",
+        "]"
+      })
+    )
+  end)
+
 end)
