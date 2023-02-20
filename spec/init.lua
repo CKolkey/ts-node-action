@@ -5,8 +5,8 @@ local function ensure_installed(repo)
   vim.opt.rtp:prepend(install_path)
 
   if not vim.loop.fs_stat(install_path) then
-    print("* Downloading " .. name .. " to '" .. install_path .. "'")
-    vim.fn.system({ "git", "clone", "git@github.com:" .. repo .. ".git", "--branch=master", install_path })
+    print("* Downloading " .. name .. " to '" .. install_path .. "/'")
+    vim.fn.system({ "git", "clone", "git@github.com:" .. repo .. ".git", install_path })
   end
 end
 

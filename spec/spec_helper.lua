@@ -95,7 +95,7 @@ function SpecHelper:new(lang, buf_opts)
 end
 
 -- Runs full integration test for text
--- Cursor (pos) is 0-indexed, { row, col }. Defaults to first line, first col if empty
+-- Cursor (pos) is 1-indexed, { row, col }. Defaults to first line, first col if empty
 -- Returns full buffer text as a table, one string per line.
 --
 -- @param text string|table
