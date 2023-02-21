@@ -5,13 +5,20 @@ local function collapse_child_nodes(padding)
 
   local function collapse(node)
     local replacement = {}
+    local text
     local prev_text
 
     for child, _ in node:iter_children() do
       if child:named_child_count() > 0 then
+        text = collapse(child)
+        if text == nil then
+          return
+        end
+        table.insert(replacement, text)
         prev_text = nil
-        table.insert(replacement, collapse(child))
-      elseif child:type() ~= "comment" then
+      elseif child:type() == "comment" then
+        return
+      else
         prev_text = helpers.padded_node_text(child, padding, prev_text)
         table.insert(replacement, prev_text)
       end

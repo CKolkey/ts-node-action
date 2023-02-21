@@ -230,33 +230,25 @@ describe("if_statement", function()
     )
   end)
 
-  it("if/else inlines even when there are comments", function()
-    assert.are.same(
-      {
-        [[x = 1 if foo(y) else 2]],
-      },
-      Helper:call({
-        [[if foo(y):]],
-        [[    # comment]],
-        [[    x = 1]],
-        [[else:]],
-        [[    # comment]],
-        [[    x = 2]],
-      })
-    )
+  it("if/else doesn't inline when there are comments", function()
+    local text = {
+      [[if foo(y):]],
+      [[    # comment]],
+      [[    x = 1]],
+      [[else:]],
+      [[    # comment]],
+      [[    x = 2]]
+    }
+    assert.are.same(text, Helper:call(text))
   end)
 
-  it("if inlines even when there are comments", function()
-    assert.are.same(
-      {
-        [[if foo(y): x = 1 # c]],
-      },
-      Helper:call({
-        [[if foo(y): # a]],
-        [[    # b]],
-        [[    x = 1 # c]],
-      })
-    )
+  it("if doesn't inline when there are comments", function()
+    local text = {
+      [[if foo(y):]],
+      [[    # comment]],
+      [[    x = 1]],
+    }
+    assert.are.same(text, Helper:call(text))
   end)
 
 end)

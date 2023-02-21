@@ -219,10 +219,8 @@ describe("array", function()
     )
   end)
 
-  it("collapses multi-line array and skips embedded comments", function()
-    assert.are.same(
-      { "[1, 2, 3]" },
-      Helper:call({
+  it("doesn't collapse multi-line array with embedded comments", function()
+    local text = {
         "[ # a",
         "  1, # b",
         "  2, # c",
@@ -232,29 +230,27 @@ describe("array", function()
         "=end",
         "  3 # d",
         "]"
-      })
-    )
+      }
+    assert.are.same(text, Helper:call(text))
   end)
 
-  it("collapses child arrays and skips embedded comments", function()
-    assert.are.same(
-      { "[1, 2, [3, 4, 5]]" },
-      Helper:call({
-        "[",
-        "  1,",
-        "  2,",
-        "  [ # a",
-        "    3, # b",
-        "    4, # c",
-        "=begin",
-        "a multiline comment here",
-        "and one more line",
-        "=end",
-        "    5 # d",
-        "  ]",
-        "]"
-      })
-    )
+  it("doesn't collapse array with nested child comments", function()
+    local text = {
+      "[",
+      "  1,",
+      "  2,",
+      "  [ # a",
+      "    3, # b",
+      "    4, # c",
+      "=begin",
+      "a multiline comment here",
+      "and one more line",
+      "=end",
+      "    5 # d",
+      "  ]",
+      "]"
+    }
+    assert.are.same(text, Helper:call(text))
   end)
 
 end)

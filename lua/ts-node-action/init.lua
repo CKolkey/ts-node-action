@@ -19,15 +19,6 @@ local function replace_node(node, replacement, opts)
     start_row, start_col, end_row, end_col, replacement
   )
 
-  if opts.trim_whitespace then
-    vim.cmd(
-      "silent! keeppatterns " ..
-      (start_row + (opts.trim_whitespace.start_row or 1)) .. "," ..
-      (end_row   + (opts.trim_whitespace.end_row   or 2)) ..
-      "s/\\s\\+$//g"
-    )
-  end
-
   if opts.cursor then
     vim.api.nvim_win_set_cursor(
       vim.api.nvim_get_current_win(),
