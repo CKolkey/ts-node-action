@@ -113,7 +113,8 @@ This function can return one or two values:
 - The first being the text to replace the node with. The replacement text can be either a `"string"` or
 `{ "table", "of", "strings" }`. With a table of strings, each string will be on it's own line.
 
-- The second (optional) returned value is a table of options. Supported keys are: `cursor`, `callback`, and `format`
+- The second (optional) returned value is a table of options. Supported keys are: `cursor`, `callback`, `format`, and
+  `target`.
 
 Here's how that can look.
 
@@ -121,7 +122,8 @@ Here's how that can look.
 {
   cursor   = { row = 0, col = 0 },
   callback = function() ... end,
-  format   = true
+  format   = true,
+  target   = <tsnode>
 }
 ```
 
@@ -135,6 +137,9 @@ cursor has been positioned.
 
 #### `format`
 Boolean value. If `true`, will run `=` operator on new buffer text. Requires `indentexpr` to be set.
+
+#### `target`
+TSNode. If present, this node will be used as the target for replacement instead of the node under your cursor.
 
 Here's a simplified example of how a node-action function gets called:
 ```lua
