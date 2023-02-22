@@ -11,14 +11,12 @@ local function ensure_installed(repo)
 end
 
 if os.getenv("CI") then
-  vim.opt.runtimepath:append "."
+  vim.opt.runtimepath:prepend(".")
   vim.cmd([[runtime! plugin/plenary.vim]])
   vim.cmd([[runtime! plugin/nvim-treesitter.lua]])
-
   require("nvim-treesitter.configs").setup({ indent = { enable = true } })
 else
   ensure_installed("nvim-lua/plenary.nvim")
   ensure_installed("nvim-treesitter/nvim-treesitter")
+  require('plenary.test_harness').test_directory('spec/filetypes')
 end
-
-require('plenary.test_harness').test_directory('spec/filetypes')
