@@ -58,8 +58,7 @@ jobs:
         with:
           path: |
             ~/.local/share/nvim/site/pack/nvim-treesitter/start/parser/
-            ~/AppData/Local/nvim/pack/nvim-treesitter/start/nvim-treesitter/parser/
-          key: ${{ matrix.os }}-parsers-v1-${{ hashFiles('~/.local/share/nvim/site/pack/nvim-treesitter/start/lockfile.json') }}
+          key: ${{ matrix.os }}-parsers-v1-${{ hashFile('~/.local/share/nvim/site/pack/nvim-treesitter/start/lockfile.json') }}
 
       - name: Compile parsers Unix like
 
