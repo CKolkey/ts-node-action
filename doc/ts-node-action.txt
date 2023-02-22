@@ -139,7 +139,7 @@ This function can return one or two values:
     either a `"string"` or `{ "table", "of", "strings" }`. With a table of strings,
     each string will be on it’s own line.
 - The second (optional) returned value is a table of options. Supported keys are:
-    `cursor`, `callback`, and `format`
+    `cursor`, `callback`, `format`, and `target`.
 
 Here’s how that can look.
 
@@ -147,7 +147,8 @@ Here’s how that can look.
     {
       cursor   = { row = 0, col = 0 },
       callback = function() ... end,
-      format   = true
+      format   = true,
+      target   = <tsnode>
     }
 <
 
@@ -169,6 +170,12 @@ FORMAT
 
 Boolean value. If `true`, will run `=` operator on new buffer text. Requires
 `indentexpr` to be set.
+
+
+TARGET
+
+TSNode. If present, this node will be used as the target for replacement
+instead of the node under your cursor.
 
 Here’s a simplified example of how a node-action function gets called:
 
