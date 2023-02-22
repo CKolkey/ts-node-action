@@ -49,22 +49,22 @@ jobs:
           wget https://github.com/neovim/neovim/releases/download/${NVIM_TAG}/nvim-linux64.tar.gz
           tar -zxf nvim-linux64.tar.gz
           sudo ln -s $(pwd)/nvim-linux64/bin/nvim /usr/local/bin
-          rm -rf $(pwd)/nvim-linux64/lib/nvim/parser
-          mkdir -p ~/.local/share/nvim/site/pack/nvim-treesitter/start
-          ln -s $(pwd) ~/.local/share/nvim/site/pack/nvim-treesitter/start
+          # rm -rf $(pwd)/nvim-linux64/lib/nvim/parser
+          # mkdir -p ~/.local/share/nvim/site/pack/nvim-treesitter/start
+          # ln -s $(pwd) ~/.local/share/nvim/site/pack/nvim-treesitter/start
       - name: Setup Parsers Cache
         id: parsers-cache
         uses: actions/cache@v3
         with:
           path: |
-            ./parser/
+            ~/.local/share/nvim/site/pack/nvim-treesitter/start/parser/
             ~/AppData/Local/nvim/pack/nvim-treesitter/start/nvim-treesitter/parser/
-          key: ${{ matrix.os }}-parsers-v1-${{ hashFiles('./lockfile.json', './lua/nvim-treesitter/parsers.lua', './lua/nvim-treesitter/install.lua', './lua/nvim-treesitter/shell_selectors.lua') }}
+          key: ${{ matrix.os }}-parsers-v1-${{ hashFiles('~/.local/share/nvim/site/pack/nvim-treesitter/start/lockfile.json') }}
 
       - name: Compile parsers Unix like
 
         run: |
-          nvim --headless -c "TSInstallSync all" -c "q"
+          nvim --headless -c "TSInstallSync ruby" -c "q"
       # - name: Tests
       #   run: |
       #     nvim -n -u NORC --headless --clean -c "lua require('plenary.test_harness').test_directory('./spec/filetypes')"
