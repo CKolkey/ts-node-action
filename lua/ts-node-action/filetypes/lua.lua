@@ -1,4 +1,5 @@
 local actions = require("ts-node-action.actions")
+local helpers = require("ts-node-action.helpers")
 
 local padding = {
   [","]   = "%s ",
@@ -25,11 +26,47 @@ local quote_override = {
   { '[[', ']]' },
 }
 
+local function toggle_function(node)
+  local struct = helpers.destructure_node(node)
+  if struct.body:match("\n") then
+    return
+  end
+
+  if helpers.node_is_multiline(node) then
+    return "function" .. struct.parameters .. " " .. struct.body .. " end"
+  else
+    return { "function" .. struct.parameters, struct.body, "end" }, { format = true, cursor = {} }
+  end
+end
+
+local function toggle_named_function(node)
+  local struct = helpers.destructure_node(node)
+  if struct.body:match("\n") then
+    return
+  end
+
+  if helpers.node_is_multiline(node) then
+    return (struct["local"] and "local " or "")
+        .. "function "
+        .. struct.name
+        .. struct.parameters .. " "
+        .. struct.body .. " end"
+  else
+    return {
+      (struct["local"] and "local " or "") .. "function " .. struct.name .. struct.parameters,
+      struct.body,
+      "end"
+    }, { format = true, cursor = { col = struct["local"] and 6 or 0 } }
+  end
+end
+
 return {
-  ["false"]             = actions.toggle_boolean(),
-  ["true"]              = actions.toggle_boolean(),
-  ["table_constructor"] = actions.toggle_multiline(padding),
-  ["arguments"]         = actions.toggle_multiline(padding),
-  ["binary_expression"] = actions.toggle_operator(operator_override),
-  ["string"]            = actions.cycle_quotes(quote_override)
+  ["false"]                = actions.toggle_boolean(),
+  ["true"]                 = actions.toggle_boolean(),
+  ["table_constructor"]    = actions.toggle_multiline(padding),
+  ["arguments"]            = actions.toggle_multiline(padding),
+  ["binary_expression"]    = actions.toggle_operator(operator_override),
+  ["string"]               = actions.cycle_quotes(quote_override),
+  ["function_definition"]  = { { toggle_function, "Toggle Function" } },
+  ["function_declaration"] = { { toggle_named_function, "Toggle Function" } }
 }
