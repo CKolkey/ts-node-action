@@ -54,8 +54,6 @@ local function do_action(action, node)
   local replacement, opts = action(node)
   if replacement then
     replace_node(node, replacement, opts or {})
-  else
-    info("Action returned nil")
   end
 end
 
