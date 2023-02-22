@@ -1,14 +1,9 @@
 local M = {}
 
--- private
--- @param replacement string|table
--- @param opts table
--- @param opts.cursor table|nil
--- @param opts.cursor.row number|nil
--- @param opts.cursor.col number|nil
--- @param opts.callback function|nil
--- @param opts.format boolean|nil
--- @param opts.target tsnode|nil
+--- @private
+--- @param replacement string|table
+--- @param opts { cursor: { col: number, row: number }, callback: function, format: boolean, target: TSNode }
+--- All opts fields are optional
 local function replace_node(node, replacement, opts)
   if type(replacement) ~= "table" then
     replacement = { replacement }
@@ -39,17 +34,17 @@ local function replace_node(node, replacement, opts)
   end
 end
 
--- @private
--- @param message string
--- @return nil
+--- @private
+--- @param message string
+--- @return nil
 local function info(message)
   vim.notify(message, vim.log.levels.INFO, { title = "Node Action", icon = " " })
 end
 
--- @private
--- @param action function
--- @param node tsnode
--- @return nil
+--- @private
+--- @param action function
+--- @param node TSNode
+--- @return nil
 local function do_action(action, node)
   local replacement, opts = action(node)
   if replacement then
@@ -57,9 +52,9 @@ local function do_action(action, node)
   end
 end
 
--- @private
--- @param node tsnode
--- @return function|nil
+--- @private
+--- @param node TSNode
+--- @return function|nil
 local function find_action(node)
   local type = node:type()
   if M.node_actions[vim.o.filetype] and M.node_actions[vim.o.filetype][type] then
@@ -71,8 +66,8 @@ end
 
 M.node_actions = require("ts-node-action.filetypes")
 
--- @param opts? table
--- @return nil
+--- @param opts? table
+--- @return nil
 function M.setup(opts)
   M.node_actions = vim.tbl_deep_extend("force", M.node_actions, opts or {})
 

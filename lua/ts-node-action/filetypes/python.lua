@@ -55,7 +55,7 @@ local boolean_override = {
   ["False"] = "True",
 }
 
--- @param node tsnode
+--- @param node TSNode
 local function node_trim_whitespace(node)
   local start_row, _, end_row, _ = node:range()
   vim.cmd(
@@ -94,12 +94,12 @@ end
 -- multiline node because it will include the "\n", which is invalid for the
 -- replacement text.
 --
--- @param padding_override table
--- @return function
+--- @param padding_override table
+--- @return function
 local function collapse_child_nodes(padding_override)
 
-  -- @param node tsnode
-  -- @return string
+  --- @param node TSNode
+  --- @return string
   local function action(node)
     if not helpers.node_is_multiline(node) then
       return helpers.node_text(node)
@@ -120,8 +120,8 @@ end
 --  - `x = y = z = 1` is `x = y = z = ` and the right hand side is `1`.
 --  - `print(3)`      is ""       and the right hand side is `print(3)`.
 --
--- @param node tsnode
--- @return string|nil, string|nil, string
+--- @param node TSNode
+--- @return string|nil, string|nil, string
 local function node_text_lhs_rhs(node, padding_override)
   local lhs   = nil
   local rhs   = nil
@@ -169,11 +169,11 @@ end
 -- Contrived, hopefully, but this handles it, by detecting if there is a
 -- for/if statement on the same row as our current parent.
 --
--- @param parent tsnode
--- @param parent_type string
--- @param start_row number
--- @return tsnode, string
--- @return nil
+--- @param parent TSNode
+--- @param parent_type string
+--- @param start_row number
+--- @return TSNode, string
+--- @return nil
 local function find_row_parent(parent, parent_type, start_row)
 
   while parent ~= nil and
@@ -204,9 +204,9 @@ end
 -- `x = (conditional_expression)`
 -- `return (conditional_expression)`
 --
--- @param parent tsnode
--- @param parent_type string
--- @return tsnode, string
+--- @param parent TSNode
+--- @param parent_type string
+--- @return TSNode, string
 local function skip_parens_by_reparenting(parent, parent_type)
   if parent_type == "parenthesized_expression" then
     local paren_parent      = parent:parent()
@@ -220,9 +220,9 @@ local function skip_parens_by_reparenting(parent, parent_type)
   return parent, parent_type
 end
 
--- @param node tsnode
--- @param comments table
--- @return nil (mutates comments)
+--- @param node TSNode
+--- @param comments table
+--- @return nil (mutates comments)
 local function deep_collect_comments(node, comments)
   for child in node:iter_children() do
     if child:named() then
@@ -235,10 +235,10 @@ local function deep_collect_comments(node, comments)
   end
 end
 
--- @param parent tsnode
--- @param children table
--- @param comments table
--- @return nil (mutates children and comments)
+--- @param parent TSNode
+--- @param children table
+--- @param comments table
+--- @return nil (mutates children and comments)
 local function collect_named_children(parent, children, comments)
   for child in parent:iter_children() do
     if child:named() then
@@ -253,8 +253,8 @@ local function collect_named_children(parent, children, comments)
 end
 
 
--- @param if_statement tsnode
--- @return table
+--- @param if_statement TSNode
+--- @return table
 local function destructure_if_statement(if_statement)
   local condition
   local consequence = {}
@@ -289,16 +289,16 @@ local function destructure_if_statement(if_statement)
   }
 end
 
--- @param node tsnode
--- @return table
-local function destructure_conditional_expression(conditional_expression)
+--- @param node TSNode
+--- @return table
+local function destructure_conditional_expression(node)
   local comments = {}
   local children = {}
 
-  collect_named_children(conditional_expression, children, comments)
+  collect_named_children(node, children, comments)
 
   return {
-    node        = conditional_expression,
+    node        = node,
     condition   = children[2],
     consequence = { children[1] }, -- as a table for consistency
     alternative = { children[3] }, -- which allows for sharing
@@ -306,9 +306,9 @@ local function destructure_conditional_expression(conditional_expression)
   }
 end
 
--- @param if_statement tsnode
--- @return string, table, tsnode
--- @return nil
+--- @param stmt table
+--- @return string, table, TSNode
+--- @return nil
 local function expand_cond_expr(stmt, padding_override)
   local parent      = stmt.node:parent()
   local parent_type = parent:type()
@@ -382,10 +382,10 @@ local function expand_cond_expr(stmt, padding_override)
   }
 end
 
--- @param stmt table { node, condition, consequence, alternative, comments }
--- @param padding_override table
--- @return string, table, tsnode
--- @return nil
+--- @param stmt table { node, condition, consequence, alternative, comments }
+--- @param padding_override table
+--- @return string, table, TSNode
+--- @return nil
 local function inline_if(stmt, padding_override)
 
   local lhs, rhs, _, child = node_text_lhs_rhs(
@@ -403,11 +403,11 @@ local function inline_if(stmt, padding_override)
   return replacement, { cursor = {} }
 end
 
--- @param cons_type string
--- @param alt_type string
--- @param cons_lhs string
--- @param alt_lhs string
--- @return boolean
+--- @param cons_type string
+--- @param alt_type string
+--- @param cons_lhs string
+--- @param alt_lhs string
+--- @return boolean
 local function body_types_are_inlineable(cons_type, alt_type, cons_lhs, alt_lhs)
   -- strict match
   if cons_type == "assignment" or alt_type == "assignment" then
@@ -425,10 +425,10 @@ local function body_types_are_inlineable(cons_type, alt_type, cons_lhs, alt_lhs)
          mixable_match_body_types[alt_type]
 end
 
--- @param stmt table { node, condition, consequence, alternative, comments }
--- @param padding_override table
--- @return string, table, tsnode
--- @return nil
+--- @param stmt table { node, condition, consequence, alternative, comments }
+--- @param padding_override table
+--- @return string, table, TSNode
+--- @return nil
 local function inline_ifelse(stmt, padding_override)
 
   local cons_lhs, cons_rhs, cons_type, cons_child = node_text_lhs_rhs(
@@ -461,13 +461,13 @@ local function inline_ifelse(stmt, padding_override)
   }
 end
 
--- @param padding_override table
--- @return function
+--- @param padding_override table
+--- @return function
 local function inline_if_statement(padding_override)
   padding_override = padding_override or padding
 
-  -- @param if_statement tsnode
-  -- @return string, table, tsnode
+  --- @param if_statement TSNode
+  --- @return string, table, TSNode
   local function action(if_statement)
     local stmt = destructure_if_statement(if_statement)
     -- we can't inline multiple statements within a block
@@ -497,13 +497,13 @@ local function inline_if_statement(padding_override)
   return { action, name = "Inline Conditional" }
 end
 
--- @param padding_override table
--- @return function
+--- @param padding_override table
+--- @return function
 local function expand_conditional_expression(padding_override)
   padding_override = padding_override or padding
 
-  -- @param conditional_expression tsnode
-  -- @return string, table, tsnode
+  --- @param conditional_expression TSNode
+  --- @return string, table, TSNode
   local function action(conditional_expression)
     local stmt = destructure_conditional_expression(conditional_expression)
     if #stmt.comments > 0 then

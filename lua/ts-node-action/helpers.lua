@@ -2,16 +2,16 @@ local M = {}
 
 -- Returns node text as a string
 --
--- @param node tsnode
--- @return string
+--- @param node TSNode
+--- @return string
 function M.node_text(node)
   return vim.treesitter.query.get_node_text(node, vim.api.nvim_get_current_buf())
 end
 
 -- Determine if a node spans multiple lines
 --
--- @param node tsnode
--- @return boolean
+--- @param node TSNode
+--- @return boolean
 function M.node_is_multiline(node)
   local start_row, _, end_row, _ = node:range()
   return start_row ~= end_row
@@ -40,10 +40,10 @@ end
 -- A ["nil"] key will match when prev_text == nil.
 -- See filetypes/python.lua for more info.
 --
--- @param node tsnode
--- @param padding table
--- @param context string|nil The [presumed padded] text of the previous node.
--- @return string
+--- @param node TSNode
+--- @param padding table
+--- @param context string|nil The [presumed padded] text of the previous node.
+--- @return string
 function M.padded_node_text(node, padding, context)
   local text = M.node_text(node)
 
@@ -71,8 +71,8 @@ end
 
 -- Prints out a node's tree, showing each child's index, type, text, and ID
 --
--- @param node tsnode
--- @return nil
+--- @param node TSNode
+--- @return nil
 function M.debug_print_tree(node)
   local tree  = {}
   local index = 1
@@ -86,8 +86,8 @@ end
 
 -- Dissassembles a node tree into it's named and unnamed parts
 --
--- @param node tsnode
--- @return table
+--- @param node TSNode
+--- @return table
 function M.destructure_node(node)
   local structure = {}
   for child, id in node:iter_children() do
