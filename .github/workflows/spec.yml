@@ -48,5 +48,7 @@ jobs:
         run: |
           nvim --headless -c "TSInstallSync ruby python lua javascript" -c "q"
       - name: Tests
+        env:
+          ci: "1"
         run: |
-          nvim -n -u NORC --headless --clean -c "lua require('plenary.test_harness').test_directory('./spec/filetypes')"
+          nvim --headless --noplugin -u spec/init.lua -c "PlenaryBustedDirectory ./spec/ { minimal_init = './spec/init.lua' }"
