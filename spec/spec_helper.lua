@@ -37,14 +37,14 @@ end
 function Buffer:set_cursor(pos)
   local row = pos[1] - 1
   local col = pos[2] - 1
-  local fake_get_node_at_cursor = function()
+  local fake_get_node = function()
     return vim.treesitter.get_parser(self.handle, self.lang)
         :parse()[1]
         :root()
         :named_descendant_for_range(row, col, row, col)
   end
 
-  require("nvim-treesitter.ts_utils").get_node_at_cursor = fake_get_node_at_cursor
+  vim.treesitter.get_node = fake_get_node
 
   return self
 end

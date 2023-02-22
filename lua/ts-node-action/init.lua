@@ -89,8 +89,16 @@ function M.setup(opts)
   )
 end
 
+local function get_node()
+  if vim.treesitter.get_node then
+    return vim.treesitter.get_node()
+  else
+    return require("nvim-treesitter.ts_utils").get_node_at_cursor()
+  end
+end
+
 M.node_action = require("ts-node-action.repeat").set(function()
-  local node = require("nvim-treesitter.ts_utils").get_node_at_cursor()
+  local node = get_node()
   if not node then
     info("No node found at cursor")
     return
@@ -118,7 +126,7 @@ M.node_action = require("ts-node-action.repeat").set(function()
 end)
 
 function M.available_actions()
-  local node = require("nvim-treesitter.ts_utils").get_node_at_cursor()
+  local node = get_node()
   if not node then
     info("No node found at cursor")
     return
@@ -140,7 +148,7 @@ function M.available_actions()
 end
 
 function M.debug()
-  local node = require("nvim-treesitter.ts_utils").get_node_at_cursor()
+  local node = get_node()
   if not node then
     info("No node found at cursor")
     return
@@ -155,7 +163,7 @@ function M.debug()
         named_children = node:named_child_count(),
       },
       plugin = {
-        node_actions = M.node_actions
+        node_actions = M.node_actions,
       }
     }
   ))
