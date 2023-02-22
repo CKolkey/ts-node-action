@@ -44,8 +44,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: |
-            ~/.local/share/nvim/site/pack/nvim-treesitter/start/parser/
-          key: parsers-v1-${{ hashFiles('~/.local/share/nvim/site/pack/nvim-treesitter/start/lockfile.json') }}
+            ~/.local/share/nvim/site/pack/nvim-treesitter/start/nvim-treesitter/parser/
+          key: parsers-v1-${{ hashFiles('~/.local/share/nvim/site/pack/nvim-treesitter/start/nvim-treesitter/lockfile.json') }}
 
       - name: Compile parsers Unix like
 
