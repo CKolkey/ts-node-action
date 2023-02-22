@@ -1,4 +1,4 @@
-*ts-node-action.txt*       For NVIM v0.8.0       Last change: 2023 February 20
+*ts-node-action.txt*       For NVIM v0.8.0       Last change: 2023 February 22
 
 ==============================================================================
 Table of Contents                           *ts-node-action-table-of-contents*
@@ -303,7 +303,7 @@ overridden on a per-filetype basis. Check out the implementations under
 
   toggle_block()                     ✅                                                               
 
-  if/else <-> ternery                ✅                                                               
+  if/else <-> ternery                ✅                              ✅                               
 
   if block/postfix                   ✅                                                               
 
