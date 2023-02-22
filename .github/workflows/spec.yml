@@ -62,8 +62,9 @@ jobs:
           key: ${{ matrix.os }}-parsers-v1-${{ hashFiles('./lockfile.json', './lua/nvim-treesitter/parsers.lua', './lua/nvim-treesitter/install.lua', './lua/nvim-treesitter/shell_selectors.lua') }}
 
       - name: Compile parsers Unix like
-      #   if: ${{ matrix.os != 'windows-latest' && steps.parsers-cache.outputs.cache-hit != 'true' }}
+
         run: |
           nvim --headless -c "TSInstallSync all" -c "q"
       - name: Tests
-        run: PATH=/usr/local/bin:$PATH ./run_spec
+        run: |
+          nvim -n -u NORC --headless --clean -c "lua require('plenary.test_harness').test_directory('./spec/filetypes')"
