@@ -28,7 +28,7 @@ jobs:
       CC: ${{ matrix.cc }}
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      # - uses: actions/setup-node@v3
 
       # - name: Install tree-sitter CLI
         # run: npm i -g tree-sitter-cli
@@ -49,18 +49,18 @@ jobs:
           rm -rf $(pwd)/nvim-linux64/lib/nvim/parser
           mkdir -p ~/.local/share/nvim/site/pack/nvim-treesitter/start
           ln -s $(pwd) ~/.local/share/nvim/site/pack/nvim-treesitter/start
-      - name: Setup Parsers Cache
-        id: parsers-cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ./parser/
-            ~/AppData/Local/nvim/pack/nvim-treesitter/start/nvim-treesitter/parser/
-          key: ${{ matrix.os }}-${{ matrix.cc }}-parsers-v1-${{ hashFiles('./lockfile.json', './lua/nvim-treesitter/parsers.lua', './lua/nvim-treesitter/install.lua', './lua/nvim-treesitter/shell_selectors.lua') }}
+      # - name: Setup Parsers Cache
+      #   id: parsers-cache
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: |
+      #       ./parser/
+      #       ~/AppData/Local/nvim/pack/nvim-treesitter/start/nvim-treesitter/parser/
+      #     key: ${{ matrix.os }}-${{ matrix.cc }}-parsers-v1-${{ hashFiles('./lockfile.json', './lua/nvim-treesitter/parsers.lua', './lua/nvim-treesitter/install.lua', './lua/nvim-treesitter/shell_selectors.lua') }}
 
-      - name: Compile parsers Unix like
-        if: ${{ matrix.os != 'windows-latest' && steps.parsers-cache.outputs.cache-hit != 'true' }}
-        run: |
-          nvim --headless -c "TSInstallSync all" -c "q"
+      # - name: Compile parsers Unix like
+      #   if: ${{ matrix.os != 'windows-latest' && steps.parsers-cache.outputs.cache-hit != 'true' }}
+      #   run: |
+      #     nvim --headless -c "TSInstallSync all" -c "q"
       - name: Tests
         run: PATH=/usr/local/bin:$PATH ./run_spec.sh
