@@ -8,13 +8,13 @@ local M = {}
 -- @param opts.cursor.col number|nil
 -- @param opts.callback function|nil
 -- @param opts.format boolean|nil
+-- @param opts.target tsnode|nil
 local function replace_node(node, replacement, opts)
   if type(replacement) ~= "table" then
     replacement = { replacement }
   end
 
-  local target = opts.target or node
-  local start_row, start_col, end_row, end_col = target:range()
+  local start_row, start_col, end_row, end_col = (opts.target or node):range()
   vim.api.nvim_buf_set_text(
     vim.api.nvim_get_current_buf(),
     start_row, start_col, end_row, end_col, replacement
