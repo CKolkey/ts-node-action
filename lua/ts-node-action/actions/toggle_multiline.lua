@@ -1,19 +1,33 @@
 local helpers = require("ts-node-action.helpers")
 
 local function collapse_child_nodes(padding)
-  return function(node)
+  padding = padding or {}
+
+  local function collapse(node)
     local replacement = {}
+    local child_text
+    local context
 
     for child, _ in node:iter_children() do
       if child:named_child_count() > 0 then
-        table.insert(replacement, collapse_child_nodes(padding)(child))
+        child_text = collapse(child)
+        if child_text == nil then
+          return
+        end
+        table.insert(replacement, child_text)
+        context = nil
+      elseif child:type() == "comment" then
+        return
       else
-        table.insert(replacement, helpers.padded_node_text(child, padding))
+        context = helpers.padded_node_text(child, padding, context)
+        table.insert(replacement, context)
       end
     end
 
     return table.concat(vim.tbl_flatten(replacement))
   end
+
+  return collapse
 end
 
 local function expand_child_nodes(node)

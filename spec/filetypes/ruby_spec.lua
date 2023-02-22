@@ -218,6 +218,51 @@ describe("array", function()
       })
     )
   end)
+
+  it("doesn't collapse multi-line array with embedded comments", function()
+    local text = {
+        "[ # a",
+        "  1, # b",
+        "  2, # c",
+        "=begin",
+        "a multiline comment here",
+        "and one more line",
+        "=end",
+        "  3 # d",
+        "]"
+      }
+    assert.are.same(text, Helper:call(text))
+  end)
+
+  it("doesn't collapse array with nested child comments", function()
+    local text = {
+      "[",
+      "  1,",
+      "  2,",
+      "  [ # a",
+      "    3, # b",
+      "    4, # c",
+      "=begin",
+      "a multiline comment here",
+      "and one more line",
+      "=end",
+      "    5 # d",
+      "  ]",
+      "]"
+    }
+    assert.are.same(text, Helper:call(text))
+  end)
+
+  it("doesn't collapse array with inline comments", function()
+    local text = {
+      "[",
+      "  1, # no comment",
+      "  2,",
+      "]"
+    }
+    assert.are.same(text, Helper:call(text))
+  end)
+
 end)
 
 describe("hash", function()
