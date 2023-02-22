@@ -28,8 +28,8 @@ function M.node_is_multiline(node)
 end
 
 -- Adds whitespace to some unnamed nodes for nicer formatting
--- `padding` is a table where the key is the text of the unnamed node, and the value
--- is a format string. The following would add a space after commas:
+-- `padding` is a table where the key is the text of the unnamed node, and the
+-- value is a format string. The following would add a space after commas:
 -- { [","] = "%s " }
 --
 -- The prev_text is used for rare cases where the padding of an unnamed node
@@ -52,27 +52,27 @@ end
 --
 -- @param node tsnode
 -- @param padding table
--- @param prev_text string|nil The [presumed padded] text of the previous node.
+-- @param context string|nil The [presumed padded] text of the previous node.
 -- @return string
-function M.padded_node_text(node, padding, prev_text)
+function M.padded_node_text(node, padding, context)
   local text = M.node_text(node)
 
   if padding[text] then
-    local cfg = padding[text]
+    local format = padding[text]
 
-    if type(cfg) == "table" then
-      prev_text = prev_text and vim.trim(prev_text)
+    if type(format) == "table" then
+      context = context and vim.trim(context)
 
-      if cfg[prev_text] then
-        text = string.format(cfg[prev_text], text)
-      elseif cfg["nil"] and prev_text == nil then
-        text = string.format(cfg["nil"], text)
-      elseif cfg[""] then
-        text = string.format(cfg[""], text)
+      if format[context] then
+        text = string.format(format[context], text)
+      elseif format["nil"] and context == nil then
+        text = string.format(format["nil"], text)
+      elseif format[""] then
+        text = string.format(format[""], text)
       end
 
     else
-      text = string.format(cfg, text)
+      text = string.format(format, text)
     end
   end
 

@@ -253,4 +253,14 @@ describe("array", function()
     assert.are.same(text, Helper:call(text))
   end)
 
+  it("doesn't collapse array with inline comments", function()
+    local text = {
+      "[",
+      "  1, # no comment",
+      "  2,",
+      "]"
+    }
+    assert.are.same(text, Helper:call(text))
+  end)
+
 end)

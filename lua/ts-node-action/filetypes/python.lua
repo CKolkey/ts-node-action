@@ -378,7 +378,8 @@ local function expand_cond_expr(stmt, padding_override)
     cursor   = cursor,
     callback = callback,
     format   = true,
-  }, parent
+    target   = parent,
+  }
 end
 
 -- @param stmt table { node, condition, consequence, alternative, comments }

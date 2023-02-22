@@ -13,7 +13,8 @@ local function replace_node(node, replacement, opts)
     replacement = { replacement }
   end
 
-  local start_row, start_col, end_row, end_col = node:range()
+  local target = opts.target or node
+  local start_row, start_col, end_row, end_col = target:range()
   vim.api.nvim_buf_set_text(
     vim.api.nvim_get_current_buf(),
     start_row, start_col, end_row, end_col, replacement
@@ -50,9 +51,9 @@ end
 -- @param node tsnode
 -- @return nil
 local function do_action(action, node)
-  local replacement, opts, target_node = action(node)
+  local replacement, opts = action(node)
   if replacement then
-    replace_node(target_node or node, replacement, opts or {})
+    replace_node(node, replacement, opts or {})
   else
     info("Action returned nil")
   end
