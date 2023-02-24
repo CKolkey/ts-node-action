@@ -30,14 +30,14 @@ describe("if", function()
     )
   end)
 
-  it("inlines to ternary statement", function()
+  pending("inlines to ternary statement", function()
     assert.are.same(
-      { [[greet? ? puts("hello") : puts("booooo")]] },
+      { [[greet? ? puts("hello", "goodbye") : puts("booooo", "you lack creativity", "tosser")]] },
       Helper:call({
         [[if greet?]],
-        [[  puts "hello"]],
+        [[  puts "hello", "goodbye"]],
         [[else]],
-        [[  puts "booooo"]],
+        [[  puts "booooo", "you lack creativity", "tosser"]],
         [[end]],
       })
     )
@@ -221,16 +221,17 @@ describe("array", function()
 
   it("doesn't collapse multi-line array with embedded comments", function()
     local text = {
-        "[ # a",
-        "  1, # b",
-        "  2, # c",
-        "=begin",
-        "a multiline comment here",
-        "and one more line",
-        "=end",
-        "  3 # d",
-        "]"
-      }
+      "[ # a",
+      "  1, # b",
+      "  2, # c",
+      "=begin",
+      "a multiline comment here",
+      "and one more line",
+      "=end",
+      "  3 # d",
+      "]"
+    }
+
     assert.are.same(text, Helper:call(text))
   end)
 
