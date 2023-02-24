@@ -1,6 +1,6 @@
 dofile("spec/spec_helper.lua")
 
-local Helper = SpecHelper:new("ruby")
+local Helper = SpecHelper.new("ruby")
 
 describe("integer", function()
   it("adds underscores to long int", function()
