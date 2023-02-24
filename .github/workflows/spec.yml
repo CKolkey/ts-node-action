@@ -1,0 +1,54 @@
+name: Spec
+
+on:
+  push:
+    branches:
+      - "master"
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - "master"
+
+# Cancel any in-progress CI runs for a PR if it is updated
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  check_compilation:
+    strategy:
+      fail-fast: false
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Test Dependencies
+        run: |
+          mkdir -p ~/.local/share/nvim/site/pack/plenary.nvim/start
+          cd ~/.local/share/nvim/site/pack/plenary.nvim/start
+          git clone https://github.com/nvim-lua/plenary.nvim
+
+          mkdir -p ~/.local/share/nvim/site/pack/nvim-treesitter.nvim/start
+          cd ~/.local/share/nvim/site/pack/nvim-treesitter.nvim/start
+          git clone https://github.com/nvim-treesitter/nvim-treesitter
+      - name: Install and prepare Neovim
+        run: |
+          wget https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz
+          tar -zxf nvim-linux64.tar.gz
+          sudo ln -s $(pwd)/nvim-linux64/bin/nvim /usr/local/bin
+      # - name: Setup Parsers Cache
+      #   id: parsers-cache
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: |
+      #       ~/.local/share/nvim/site/pack/nvim-treesitter/start/nvim-treesitter/parser/
+      #     key: parsers-v1-${{ hashFiles('~/.local/share/nvim/site/pack/nvim-treesitter/start/nvim-treesitter/lockfile.json') }}
+
+      - name: Compile parsers
+        run: |
+          nvim --headless -c "TSInstallSync ruby python lua javascript" -c "q"
+      - name: Tests
+        env:
+          ci: "1"
+        run: |
+          nvim --headless --noplugin -u spec/init.lua -c "PlenaryBustedDirectory ./spec/ { minimal_init = './spec/init.lua' }"

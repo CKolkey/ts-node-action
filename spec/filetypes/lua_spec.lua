@@ -1,6 +1,6 @@
 dofile("spec/spec_helper.lua")
 
-local Helper = SpecHelper:new("lua")
+local Helper = SpecHelper.new("lua", { shiftwidth = 4 })
 
 describe("boolean", function()
   it("turns 'true' into 'false'", function()
@@ -17,9 +17,9 @@ describe("table_constructor", function()
     assert.are.same(
       {
         "{",
-        "  1,",
-        "  2,",
-        "  3",
+        "    1,",
+        "    2,",
+        "    3",
         "}"
       },
       Helper:call({ "{ 1, 2, 3 }" })
@@ -31,9 +31,9 @@ describe("table_constructor", function()
       { "{ 1, 2, 3 }" },
       Helper:call({
         "{",
-        "  1,",
-        "  2,",
-        "  3",
+        "    1,",
+        "    2,",
+        "    3",
         "}"
       })
     )
@@ -43,9 +43,9 @@ describe("table_constructor", function()
     assert.are.same(
       {
         "{",
-        "  a = 1,",
-        "  b = 2,",
-        "  ['c'] = 3",
+        "    a = 1,",
+        "    b = 2,",
+        "    ['c'] = 3",
         "}"
       },
       Helper:call({ "{ a = 1, b = 2, ['c'] = 3 }" })
@@ -57,9 +57,9 @@ describe("table_constructor", function()
       { "{ a = 1, b = 2, ['c'] = 3 }" },
       Helper:call({
         "{",
-        "  a = 1,",
-        "  b = 2,",
-        "  ['c'] = 3",
+        "    a = 1,",
+        "    b = 2,",
+        "    ['c'] = 3",
         "}"
       })
     )
@@ -72,7 +72,7 @@ describe("function_definition (anon)", function()
       { "local a = function(a, b, c) return 1 end" },
       Helper:call({
         "local a = function(a, b, c)",
-        "  return 1",
+        "    return 1",
         "end"
       }, { 1, 11 })
     )
@@ -82,7 +82,7 @@ describe("function_definition (anon)", function()
     assert.are.same(
       {
         "local a = function(a, b, c)",
-        "  return 1",
+        "    return 1",
         "end"
       },
       Helper:call({ "local a = function(a, b, c) return 1 end" }, { 1, 11 })
@@ -92,8 +92,8 @@ describe("function_definition (anon)", function()
   it("doesn't collapse function with multi-line body", function()
     local text = {
       "local a = function(a, b, c)",
-      "  local d = a + b + c",
-      "  return d",
+      "    local d = a + b + c",
+      "    return d",
       "end"
     }
 
@@ -108,7 +108,7 @@ describe("function_declaration (named)", function()
       { "local function a(a, b, c) return 1 end" },
       Helper:call({
         "local function a(a, b, c)",
-        "  return 1",
+        "    return 1",
         "end"
       }, { 1, 11 })
     )
@@ -118,7 +118,7 @@ describe("function_declaration (named)", function()
     assert.are.same(
       {
         "local function a(a, b, c)",
-        "  return 1",
+        "    return 1",
         "end"
       },
       Helper:call({ "local function a(a, b, c) return 1 end" }, { 1, 11 })
@@ -128,8 +128,8 @@ describe("function_declaration (named)", function()
   it("doesn't collapse function with multi-line body", function()
     local text = {
       "local function a(a, b, c)",
-      "  local d = a + b + c",
-      "  return d",
+      "    local d = a + b + c",
+      "    return d",
       "end"
     }
 

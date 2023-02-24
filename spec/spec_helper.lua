@@ -1,22 +1,28 @@
+local Buffer = {}
+
 --- @class Buffer
 --- @field lang string The language for this buffer
 --- @field opts table Buffer local settings
-local Buffer = {}
-Buffer.__index = Buffer
 
 --- @param lang string
 --- @param buf_opts table
 --- @return Buffer
-function Buffer:new(lang, buf_opts)
-  local buffer = {}
-  buffer.lang  = lang
-  buffer.opts  = vim.tbl_extend(
-    "keep",
-    { filetype = lang, indentexpr = "nvim_treesitter#indent()" },
-    buf_opts or {}
-  )
+function Buffer.new(lang, buf_opts)
+  local instance = {
+    lang = lang,
+    opts = vim.tbl_extend(
+      "keep",
+      {
+        filetype = lang,
+        indentexpr = "nvim_treesitter#indent()",
+      },
+      buf_opts or {}
+    )
+  }
 
-  return setmetatable(buffer, self)
+  setmetatable(instance, { __index = Buffer })
+
+  return instance
 end
 
 --- @return Buffer
@@ -76,23 +82,27 @@ function Buffer:run_action()
   return self
 end
 
+local SpecHelper = {}
+
+_G.SpecHelper = SpecHelper
+
 --- @class SpecHelper A general wrapper, available in the global scope, for test related helpers
 --- @field lang string The language for this buffer
 --- @field buf_opts table Buffer local settings
-local SpecHelper = {}
-SpecHelper.__index = SpecHelper
-
-_G.SpecHelper = SpecHelper
+--- @field call function
 
 --- @param lang string
 --- @param buf_opts table|nil
 --- @return SpecHelper
-function SpecHelper:new(lang, buf_opts)
-  local language    = {}
-  language.lang     = lang
-  language.buf_opts = buf_opts or {}
+function SpecHelper.new(lang, buf_opts)
+  local instance = {
+    lang     = lang,
+    buf_opts = buf_opts or {}
+  }
 
-  return setmetatable(language, self)
+  setmetatable(instance, { __index = SpecHelper })
+
+  return instance
 end
 
 -- Runs full integration test for text
@@ -102,7 +112,7 @@ end
 --- @param pos table|nil 1-indexed, { row, col }. Defaults to first line, first col if empty
 --- @return table
 function SpecHelper:call(text, pos)
-  local buffer = Buffer:new(self.lang, self.buf_opts)
+  local buffer = Buffer.new(self.lang, self.buf_opts)
   local result = buffer:setup()
       :set_cursor(pos or { 1, 1 })
       :write(text)
