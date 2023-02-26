@@ -688,5 +688,5 @@ return {
   ["integer"]                  = actions.toggle_int_readability(),
   ["conditional_expression"]   = { expand_conditional_expression(padding), },
   ["if_statement"]             = { inline_if_statement(padding), },
-  ["for_in_clause"]            = { { expand_comprehension, name = "Expand Comprehension" } },
+  ["for_in_clause"]            = { { expand_comprehension, name = "Comprehension -> For Loop" } },
 }
