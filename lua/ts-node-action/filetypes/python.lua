@@ -556,11 +556,51 @@ local function get_comprehension_config(type)
   end
 end
 
+local function destructure_comprehension(comprehension)
+  local body
+  local clauses_and_comments  = {}
+  local body_comments = {}
+
+  for child in comprehension:iter_children() do
+    if child:named() then
+      local child_type = child:type()
+      if not body then
+        if child_type == "comment" then
+          table.insert(body_comments, child)
+        else
+          body = child
+        end
+      else
+        table.insert(clauses_and_comments, child)
+      end
+    end
+  end
+
+  return {
+    node = comprehension,
+    body = body,
+    clauses_and_comments = clauses_and_comments,
+    body_comments        = body_comments,
+  }
+end
+
 -- @param stmt tsnode
--- @param padding_override table
 -- @return string, table
 -- @return nil
-local function expand_comprehension(stmt, padding_override)
+local function expand_comprehension(for_in_clause)
+
+  local comprehension = for_in_clause:parent()
+
+  local comp_type = comprehension:type()
+  local comp_init, comp_method = get_comprehension_config(comp_type)
+  if not comp_init then
+    return
+  end
+
+  local stmt = destructure_comprehension(comprehension)
+  if not stmt then
+    return
+  end
 
   local identifiers = {}
   local parent = stmt.node:parent()
@@ -575,8 +615,6 @@ local function expand_comprehension(stmt, padding_override)
     return
   end
 
-  local comp_type = stmt.node:type()
-  local comp_init, comp_method = get_comprehension_config(comp_type)
   local replacement = {
     table.concat(identifiers, " = ") .. " = " .. comp_init,
   }
@@ -633,57 +671,6 @@ local function expand_comprehension(stmt, padding_override)
   }
 end
 
-local function destructure_comprehension(comprehension)
-  local body
-  local clauses_and_comments  = {}
-  local body_comments = {}
-
-  for child in comprehension:iter_children() do
-    if child:named() then
-      local child_type = child:type()
-      if not body then
-        if child_type == "comment" then
-          table.insert(body_comments, child)
-        else
-          body = child
-        end
-      else
-        table.insert(clauses_and_comments, child)
-      end
-    end
-  end
-
-  return {
-    node = comprehension,
-    body = body,
-    clauses_and_comments = clauses_and_comments,
-    body_comments        = body_comments,
-  }
-end
-
-local function expand_for_in_clause(padding_override)
-  padding_override = padding_override or padding
-
-  local function action(node)
-    local comprehension = node:parent()
-
-    local type = comprehension:type()
-    if not get_comprehension_config(type) then
-      return
-    end
-
-    local stmt = destructure_comprehension(comprehension)
-    if not stmt then
-      return
-    end
-
-    return expand_comprehension(stmt, padding_override)
-  end
-
-  return { action, name = "Expand Comprehension" }
-end
-
-
 return {
   ["dictionary"]               = actions.toggle_multiline(padding),
   ["set"]                      = actions.toggle_multiline(padding),
@@ -701,5 +688,5 @@ return {
   ["integer"]                  = actions.toggle_int_readability(),
   ["conditional_expression"]   = { expand_conditional_expression(padding), },
   ["if_statement"]             = { inline_if_statement(padding), },
-  ["for_in_clause"]            = { expand_for_in_clause(padding), },
+  ["for_in_clause"]            = { { expand_comprehension, name = "Expand Comprehension" } },
 }
