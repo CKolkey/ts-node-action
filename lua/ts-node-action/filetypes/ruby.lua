@@ -21,8 +21,7 @@ local function toggle_block(node)
   local replacement
 
   if helpers.node_is_multiline(node) then
-    if string.find(structure.body, "\n") then
-      print("(TS:Action) Cannot collapse multi-line block")
+    if type(structure.body) == "table" then
       return
     end
 
@@ -43,7 +42,8 @@ local function toggle_block(node)
 end
 
 local function inline_conditional(structure)
-  if structure.consequence:match("\n") then
+  if type(structure.consequence) == "table" then
+    P(structure.consequence)
     return
   end
 

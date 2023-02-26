@@ -28,7 +28,7 @@ local quote_override = {
 
 local function toggle_function(node)
   local struct = helpers.destructure_node(node)
-  if struct.body:match("\n") then
+  if type(struct.body) == "table" then
     return
   end
 
@@ -41,7 +41,7 @@ end
 
 local function toggle_named_function(node)
   local struct = helpers.destructure_node(node)
-  if struct.body:match("\n") then
+  if type(struct.body) == "table" then
     return
   end
 
