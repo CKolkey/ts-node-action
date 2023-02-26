@@ -91,14 +91,14 @@ function M.debug_print_tree(node)
   vim.pretty_print(tree)
 end
 
--- Dissassembles a node tree into it's named and unnamed parts
+-- Disassembles a node tree into it's named and unnamed parts
 --
 --- @param node TSNode
 --- @return table
 function M.destructure_node(node)
   local structure = {}
   for child, id in node:iter_children() do
-    structure[id or child:type()] = vim.trim(M.node_text(child))
+    structure[id or child:type()] = M.node_text(child)
   end
 
   return structure
