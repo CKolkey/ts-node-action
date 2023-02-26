@@ -30,16 +30,18 @@ describe("if", function()
     )
   end)
 
-  pending("inlines to ternary statement", function()
+  it("inlines to ternary statement", function()
     assert.are.same(
-      { [[greet? ? puts("hello", "goodbye") : puts("booooo", "you lack creativity", "tosser")]] },
-      Helper:call({
-        [[if greet?]],
-        [[  puts "hello", "goodbye"]],
-        [[else]],
-        [[  puts "booooo", "you lack creativity", "tosser"]],
-        [[end]],
-      })
+      { [[greet? ? puts("hello") : puts("booooo")]] },
+      Helper:call(
+        {
+          [[if greet?]],
+          [[  puts("hello")]],
+          [[else]],
+          [[  puts("booooo")]],
+          [[end]],
+        }
+      )
     )
   end)
 end)
@@ -420,17 +422,396 @@ describe("pair", function()
 end)
 
 describe("argument_list", function()
+  it("expands one positional arg", function()
+    assert.are.same(
+      {
+        "call(",
+        "  a",
+        ")"
+      },
+      Helper:call({ "call(a)" }, { 1, 5 })
+    )
+  end)
 
+  it("expands multiple positional args", function()
+    assert.are.same(
+      {
+        "call(",
+        "  a,",
+        "  b",
+        ")"
+      },
+      Helper:call({ "call(a, b)" }, { 1, 5 })
+    )
+  end)
+
+  it("expands one keyword arg with explicit value", function()
+    assert.are.same(
+      {
+        "call(",
+        [[  arg: "something"]],
+        ")"
+      },
+      Helper:call({ [[call(arg: "something")]] }, { 1, 5 })
+    )
+  end)
+
+  it("expands keyword arg with implicit value", function()
+    assert.are.same(
+      {
+        "call(",
+        "  arg:",
+        ")"
+      },
+      Helper:call({ [[call(arg:)]] }, { 1, 5 })
+    )
+  end)
+
+  it("expands with passed block", function()
+    assert.are.same(
+      {
+        "call(",
+        "  &block",
+        ")"
+      },
+      Helper:call({ [[call(&block)]] }, { 1, 5 })
+    )
+  end)
+
+  it("expands with provided block", function()
+    assert.are.same(
+      {
+        "call(",
+        "  arg",
+        ") { |n| puts n }"
+      },
+      Helper:call({ [[call(arg) { |n| puts n }]] }, { 1, 5 })
+    )
+  end)
+
+  it("expands keyword arg with expression value", function()
+    assert.are.same(
+      {
+        "call(",
+        "  arg: count? ? 1 : 2",
+        ")"
+      },
+      Helper:call({
+        [[call(arg: count? ? 1 : 2)]]
+      }, { 1, 5 })
+    )
+  end)
+
+  it("expands positional arg with expression value", function()
+    assert.are.same(
+      {
+        "call(",
+        "  count? ? 1 : 2",
+        ")"
+      },
+      Helper:call({
+        [[call(count? ? 1 : 2)]]
+      }, { 1, 5 })
+    )
+  end)
+
+  it("expands with a mix of all", function()
+    assert.are.same(
+      {
+        "call(",
+        "  a,",
+        "  b,",
+        "  arg: true,",
+        "  arg2:,",
+        "  &blk",
+        ")"
+      },
+      Helper:call({ [[call(a, b, arg: true, arg2:, &blk)]] }, { 1, 5 })
+    )
+  end)
+
+  it("collapses one positional arg", function()
+    assert.are.same(
+      { "call(a)" },
+      Helper:call({
+        "call(",
+        "  a",
+        ")"
+      }, { 1, 5 })
+    )
+  end)
+
+  it("collapses multiple positional args", function()
+    assert.are.same(
+      { "call(a, b)" },
+      Helper:call({
+        "call(",
+        "  a,",
+        "  b",
+        ")"
+      }, { 1, 5 })
+    )
+  end)
+
+  it("collapses one keyword arg with explicit value", function()
+    assert.are.same(
+      { [[call(arg: "something")]] },
+      Helper:call({
+        "call(",
+        [[  arg: "something"]],
+        ")"
+      }, { 1, 5 })
+    )
+  end)
+
+  it("collapses keyword arg with implicit value", function()
+    assert.are.same(
+      { [[call(arg:)]] },
+      Helper:call({
+        "call(",
+        "  arg:",
+        ")"
+      }, { 1, 5 })
+    )
+  end)
+
+  it("collapses keyword arg with expression value", function()
+    assert.are.same(
+      { [[call(arg: count? ? 1 : 2)]] },
+      Helper:call({
+        "call(",
+        "  arg: count? ? 1 : 2",
+        ")"
+      }, { 1, 5 })
+    )
+  end)
+
+  it("collapses with passed block", function()
+    assert.are.same(
+      { [[call(&block)]] },
+      Helper:call({
+        "call(",
+        "  &block",
+        ")"
+      }, { 1, 5 })
+    )
+  end)
+
+  it("collapses with provided block", function()
+    assert.are.same(
+      { [[call(arg) { |n| puts n }]] },
+      Helper:call({
+        "call(",
+        "  arg",
+        ") { |n| puts n }"
+      }, { 1, 5 })
+    )
+  end)
+
+  it("collapses with a mix of all", function()
+    assert.are.same(
+      { [[call(a, b, arg: true, arg2:, &blk)]] },
+      Helper:call({
+        "call(",
+        "  a,",
+        "  b,",
+        "  arg: true,",
+        "  arg2:,",
+        "  &blk",
+        ")"
+      }, { 1, 5 })
+    )
+  end)
 end)
 
 describe("method_parameters", function()
+  it("expands positional argument", function()
+    assert.are.same({
+      "def something(",
+      "  a,",
+      "  b,",
+      "  c",
+      ")",
+      "  puts a + b + c",
+      "end"
+    },
+      Helper:call({
+        "def something(a, b, c)",
+        "  puts a + b + c",
+        "end"
+      }, { 1, 14 }))
+  end)
 
+  it("expands keyword arg", function()
+    assert.are.same({
+      "def something(",
+      "  a:,",
+      "  b:,",
+      "  c:",
+      ")",
+      "  puts a + b + c",
+      "end"
+    },
+      Helper:call({
+        "def something(a:, b:, c:)",
+        "  puts a + b + c",
+        "end"
+      }, { 1, 14 }))
+  end)
+
+  it("expands block", function()
+    assert.are.same({
+      "def something(",
+      "  &block",
+      ")",
+      "  puts a + b + c",
+      "end"
+    },
+      Helper:call({
+        "def something(&block)",
+        "  puts a + b + c",
+        "end"
+      }, { 1, 14 }))
+  end)
+
+  it("expands keyword arg with default value", function()
+    assert.are.same({
+      "def something(",
+      "  a: 1,",
+      "  b: 2",
+      ")",
+      "  puts a + b + c",
+      "end"
+    },
+      Helper:call({
+        "def something(a: 1, b: 2)",
+        "  puts a + b + c",
+        "end"
+      }, { 1, 14 }))
+  end)
+
+  it("expands positional arg with default value", function()
+    assert.are.same({
+      "def something(",
+      "  a = 1,",
+      "  b = 2",
+      ")",
+      "  puts a + b + c",
+      "end"
+    },
+      Helper:call({
+        "def something(a = 1, b = 2)",
+        "  puts a + b + c",
+        "end"
+      }, { 1, 14 }))
+  end)
+
+  it("collapses positional argument", function()
+    assert.are.same({
+      "def something(a, b, c)",
+      "  puts a + b + c",
+      "end"
+    },
+      Helper:call({
+        "def something(",
+        "  a,",
+        "  b,",
+        "  c",
+        ")",
+        "  puts a + b + c",
+        "end"
+      }, { 1, 14 }))
+  end)
+
+  it("collapses keyword arg", function()
+    assert.are.same({
+      "def something(a:, b:, c:)",
+      "  puts a + b + c",
+      "end"
+    },
+      Helper:call({
+        "def something(",
+        "  a:,",
+        "  b:,",
+        "  c:",
+        ")",
+        "  puts a + b + c",
+        "end"
+      }, { 1, 14 }))
+  end)
+
+  it("collapses block", function()
+    assert.are.same({
+      "def something(&block)",
+      "  puts a + b + c",
+      "end"
+    },
+      Helper:call({
+        "def something(",
+        "  &block",
+        ")",
+        "  puts a + b + c",
+        "end"
+      }, { 1, 14 }))
+  end)
+
+  it("collapses keyword arg with default value", function()
+    assert.are.same({
+      "def something(a: 1, b: 2)",
+      "  puts a + b + c",
+      "end"
+    },
+      Helper:call({
+        "def something(",
+        "  a: 1,",
+        "  b: 2",
+        ")",
+        "  puts a + b + c",
+        "end"
+      }, { 1, 14 }))
+  end)
+
+  it("collapses positional arg with default value", function()
+    assert.are.same({
+      "def something(a = 1, b = 2)",
+      "  puts a + b + c",
+      "end"
+    },
+      Helper:call({
+        "def something(",
+        "  a = 1,",
+        "  b = 2",
+        ")",
+        "  puts a + b + c",
+        "end"
+      }, { 1, 14 }))
+  end)
 end)
 
 describe("constant", function()
+  it("transforms pascal case to screaming snake case (multi-word)", function()
+    assert.are.same({ "TS_NODE_ACTION" }, Helper:call({ "TsNodeAction" }))
+  end)
 
+  it("transforms screaming snake case to snake case (multi-word)", function()
+    assert.are.same({ "ts_node_action" }, Helper:call({ "TS_NODE_ACTION" }))
+  end)
+
+  it("transforms pascal case to screaming snake case (single-word)", function()
+    assert.are.same({ "NODE" }, Helper:call({ "Node" }))
+  end)
+
+  it("transforms screaming snake case to snake case (single-word)", function()
+    assert.are.same({ "node" }, Helper:call({ "NODE" }))
+  end)
 end)
 
 describe("identifier", function()
+  it("transforms snake case to pascal case (multi-word)", function()
+    assert.are.same({ "TsNodeAction" }, Helper:call({ "ts_node_action" }))
+  end)
 
+  it("transforms snake case to pascal case (single-word)", function()
+    assert.are.same({ "Node" }, Helper:call({ "node" }))
+  end)
 end)
