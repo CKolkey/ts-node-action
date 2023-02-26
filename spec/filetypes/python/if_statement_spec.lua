@@ -1,6 +1,6 @@
 dofile("./spec/spec_helper.lua")
 
-local Helper = SpecHelper:new("python")
+local Helper = SpecHelper.new("python", { shiftwidth = 4 })
 
 describe("if_statement", function()
 

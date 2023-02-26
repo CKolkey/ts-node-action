@@ -1,6 +1,6 @@
 dofile("spec/spec_helper.lua")
 
-local Helper = SpecHelper:new("javascript")
+local Helper = SpecHelper.new("javascript", { shiftwidth = 2 })
 
 describe("integer", function()
   it("adds underscores to long int", function()
