@@ -3,7 +3,7 @@ local actions = require("ts-node-action.actions")
 
 local padding = {
   [","]  = "%s ",
-  [":"]  = "%s ",
+  [":"]  = { "%s ", ["next_nil"] = "%s" },
   ["{"]  = "%s ",
   ["=>"] = " %s ",
   ["="]  = " %s ",
@@ -18,13 +18,11 @@ local identifier_formats = { "snake_case", "pascal_case", "screaming_snake_case"
 
 local function toggle_block(node)
   local structure = helpers.destructure_node(node)
+  if type(structure.body) == "table" then return end
+
   local replacement
 
   if helpers.node_is_multiline(node) then
-    if type(structure.body) == "table" then
-      return
-    end
-
     if structure.parameters then
       replacement = "{ " .. structure.parameters .. " " .. structure.body .. " }"
     else
@@ -43,7 +41,6 @@ end
 
 local function inline_conditional(structure)
   if type(structure.consequence) == "table" then
-    P(structure.consequence)
     return
   end
 
@@ -62,7 +59,7 @@ local function collapse_ternary(structure)
     " ? ",
     structure.consequence,
     " : ",
-    vim.trim(string.gsub(structure.alternative, "else\n", ""))
+    structure.alternative[2]
   }
 
   return table.concat(replacement), { cursor = { col = #replacement[1] + 1 } }

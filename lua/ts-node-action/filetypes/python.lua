@@ -16,7 +16,7 @@ local actions = require("ts-node-action.actions")
 -- a normal case.  For unary, we don't want any padding, and generally (always?)
 -- it is preceded by a named node.  When padding, we see these as
 -- prev_text=nil, so we can use that to detect the unary case with a special
--- key "nil", to represent it.
+-- key "prev_nil", to represent it.
 local padding = {
   [","]      = "%s ",
   [":"]      = "%s ",
@@ -28,8 +28,8 @@ local padding = {
   ["and"]    = " %s ",
   ["or"]     = " %s ",
   ["is"]     = " %s ",
-  ["not"]    = { [""] = " %s ", ["is"]  = "%s " },
-  ["in"]     = { [""] = " %s ", ["not"] = "%s " },
+  ["not"]    = { " %s ", ["is"] = "%s " },
+  ["in"]     = { " %s ", ["not"] = "%s " },
   ["=="]     = " %s ",
   ["!="]     = " %s ",
   [">="]     = " %s ",
@@ -37,7 +37,7 @@ local padding = {
   [">"]      = " %s ",
   ["<"]      = " %s ",
   ["+"]      = " %s ",
-  ["-"]      = { [""] = " %s ", ["nil"] = "%s", },
+  ["-"]      = { " %s ", ["prev_nil"] = "%s", },
   ["*"]      = " %s ",
   ["/"]      = " %s ",
   ["//"]     = " %s ",
@@ -58,10 +58,7 @@ local boolean_override = {
 --- @param node TSNode
 local function node_trim_whitespace(node)
   local start_row, _, end_row, _ = node:range()
-  vim.cmd(
-    "silent! keeppatterns " .. (start_row + 1) .. "," .. (end_row + 1) ..
-    "s/\\s\\+$//g"
-  )
+  vim.cmd("silent! keeppatterns " .. (start_row + 1) .. "," .. (end_row + 1) .. "s/\\s\\+$//g")
 end
 
 -- When inlined, these nodes must be parenthesized to avoid changing the
@@ -82,10 +79,10 @@ local node_types_to_parenthesize = {
 }
 
 local function parenthesize_if_needed(node, text)
-  if node_types_to_parenthesize[node:type()] and
-    text:sub(1, 1) ~= "(" then
+  if node_types_to_parenthesize[node:type()] and text:sub(1, 1) ~= "(" then
     return "(" .. text .. ")"
   end
+
   return text
 end
 
@@ -104,8 +101,10 @@ local function collapse_child_nodes(padding_override)
     if not helpers.node_is_multiline(node) then
       return helpers.node_text(node)
     end
+
     local tbl = actions.toggle_multiline(padding_override)
     local replacement = tbl[1][1](node)
+
     return replacement
   end
 
@@ -123,10 +122,10 @@ end
 --- @param node TSNode
 --- @return string|nil, string|nil, string
 local function node_text_lhs_rhs(node, padding_override)
-  local lhs   = nil
-  local rhs   = nil
-  local type  = node:type()
-  local child = node:named_child(0)
+  local lhs      = nil
+  local rhs      = nil
+  local type     = node:type()
+  local child    = node:named_child(0)
   local collapse = collapse_child_nodes(padding_override)
 
   if type == "return_statement" then
@@ -147,10 +146,10 @@ local function node_text_lhs_rhs(node, padding_override)
       rhs = collapse(child)
     elseif type == "call" then
       local identifier = helpers.node_text(child:named_child(0))
-      child = child:named_child(1)
-      rhs   = identifier .. collapse(child)
+      child            = child:named_child(1)
+      rhs              = identifier .. collapse(child)
     elseif type == "boolean_operator" or
-           type == "parenthesized_expression" then
+        type == "parenthesized_expression" then
       rhs = collapse(child)
     end
 
@@ -177,8 +176,8 @@ end
 local function find_row_parent(parent, parent_type, start_row)
 
   while parent ~= nil and
-    parent_type ~= "if_statement" and
-    parent_type ~= "for_statement" do
+      parent_type ~= "if_statement" and
+      parent_type ~= "for_statement" do
     parent = parent:parent()
     if parent == nil then
       return nil
@@ -212,7 +211,7 @@ local function skip_parens_by_reparenting(parent, parent_type)
     local paren_parent      = parent:parent()
     local paren_parent_type = paren_parent:type()
     if paren_parent_type == "assignment" or
-      paren_parent_type == "return_statement" then
+        paren_parent_type == "return_statement" then
       parent      = paren_parent
       parent_type = paren_parent_type
     end
@@ -251,7 +250,6 @@ local function collect_named_children(parent, children, comments)
     end
   end
 end
-
 
 --- @param if_statement TSNode
 --- @return table
@@ -337,18 +335,18 @@ local function expand_cond_expr(stmt, padding_override)
   end
 
   local start_row, start_col = parent:start()
-  local row_parent = find_row_parent(parent, parent_type, start_row)
-  local cursor = {}
+  local row_parent           = find_row_parent(parent, parent_type, start_row)
+  local cursor               = {}
   -- when we are embedded on the end of an inlined if/for statement, we need
   -- to expand on to the next line and shift the cursor/indent
-  local if_indent   = ""
-  local else_indent = ""
+  local if_indent            = ""
+  local else_indent          = ""
   if row_parent then
     local _, row_start_col = row_parent:start()
     -- cursor position is relative to the node being replaced (parent)
-    cursor      = { row = 1, col = row_start_col - start_col + 4  }
-    if_indent   = string.rep(" ", row_start_col + 4)
-    else_indent = if_indent
+    cursor                 = { row = 1, col = row_start_col - start_col + 4 }
+    if_indent              = string.rep(" ", row_start_col + 4)
+    else_indent            = if_indent
   else
     else_indent = string.rep(" ", start_col)
   end
@@ -422,7 +420,7 @@ local function body_types_are_inlineable(cons_type, alt_type, cons_lhs, alt_lhs)
     ["parenthesized_expression"] = true,
   }
   return mixable_match_body_types[cons_type] and
-         mixable_match_body_types[alt_type]
+      mixable_match_body_types[alt_type]
 end
 
 --- @param stmt table { node, condition, consequence, alternative, comments }
@@ -444,17 +442,17 @@ local function inline_ifelse(stmt, padding_override)
     stmt.alternative[1],
     padding_override
   )
-  if alt_rhs == nil or
-    not body_types_are_inlineable(cons_type, alt_type, cons_lhs, alt_lhs) then
+  if alt_rhs == nil or not body_types_are_inlineable(cons_type, alt_type, cons_lhs, alt_lhs) then
     return
   end
+
   alt_rhs = parenthesize_if_needed(alt_child, alt_rhs)
 
   local cond_text = collapse_child_nodes(padding_override)(stmt.condition)
 
   local replacement = cons_lhs .. cons_rhs ..
-    " if " .. cond_text ..
-    " else " .. alt_rhs
+      " if " .. cond_text ..
+      " else " .. alt_rhs
 
   return replacement, {
     cursor = { col = string.len(cons_lhs .. cons_rhs) + 1 },
@@ -462,7 +460,7 @@ local function inline_ifelse(stmt, padding_override)
 end
 
 --- @param padding_override table
---- @return function
+--- @return table
 local function inline_if_statement(padding_override)
   padding_override = padding_override or padding
 
@@ -474,6 +472,7 @@ local function inline_if_statement(padding_override)
     if #stmt.consequence > 1 or #stmt.alternative > 1 then
       return
     end
+
     if #stmt.comments > 0 then
       return
     end
@@ -498,7 +497,7 @@ local function inline_if_statement(padding_override)
 end
 
 --- @param padding_override table
---- @return function
+--- @return table|nil
 local function expand_conditional_expression(padding_override)
   padding_override = padding_override or padding
 
@@ -506,9 +505,8 @@ local function expand_conditional_expression(padding_override)
   --- @return string, table, TSNode
   local function action(conditional_expression)
     local stmt = destructure_conditional_expression(conditional_expression)
-    if #stmt.comments > 0 then
-      return
-    end
+    if #stmt.comments > 0 then return end
+
     return expand_cond_expr(stmt, padding_override)
   end
 
