@@ -1,11 +1,18 @@
 local M = {}
 
--- Returns node text as a string
+-- Returns node text as a string if single-line, or table if multi-line
 --
 --- @param node TSNode
---- @return string
+--- @return table|string|nil
 function M.node_text(node)
-  return vim.treesitter.query.get_node_text(node, vim.api.nvim_get_current_buf())
+  if not node then return end
+
+  local text = vim.trim(vim.treesitter.query.get_node_text(node, 0))
+  if text:match("\n") then
+    return vim.tbl_map(vim.trim, vim.split(text, "\n"))
+  else
+    return text
+  end
 end
 
 -- Determine if a node spans multiple lines
