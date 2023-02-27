@@ -52,11 +52,10 @@ end
 --- @param padding table
 --- @return string|table|nil
 function M.padded_node_text(node, padding)
-  local text = M.node_text(node)
-
-  if not padding[text] then return text end
-
+  local text   = M.node_text(node)
   local format = padding[text]
+
+  if not format then return text end
 
   if type(format) == "table" then
     local context_prev = M.node_text(node:prev_sibling())
