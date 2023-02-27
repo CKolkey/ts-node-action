@@ -16,6 +16,10 @@ local padding = {
 
 local identifier_formats = { "snake_case", "pascal_case", "screaming_snake_case" }
 
+local uncollapsible = {
+  ["conditional"] = true
+}
+
 local function toggle_block(node)
   local structure = helpers.destructure_node(node)
   if type(structure.body) == "table" then return end
@@ -127,10 +131,10 @@ return {
   ["identifier"]        = actions.cycle_case(identifier_formats),
   ["constant"]          = actions.cycle_case(identifier_formats),
   ["binary"]            = actions.toggle_operator(),
-  ["array"]             = actions.toggle_multiline(padding),
-  ["hash"]              = actions.toggle_multiline(padding),
-  ["argument_list"]     = actions.toggle_multiline(padding),
-  ["method_parameters"] = actions.toggle_multiline(padding),
+  ["array"]             = actions.toggle_multiline(padding, uncollapsible),
+  ["hash"]              = actions.toggle_multiline(padding, uncollapsible),
+  ["argument_list"]     = actions.toggle_multiline(padding, uncollapsible),
+  ["method_parameters"] = actions.toggle_multiline(padding, uncollapsible),
   ["integer"]           = actions.toggle_int_readability(),
   ["block"]             = { { toggle_block, name = "Toggle Block" } },
   ["do_block"]          = { { toggle_block, name = "Toggle Block" } },
