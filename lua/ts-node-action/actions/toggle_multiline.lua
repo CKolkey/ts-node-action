@@ -1,7 +1,7 @@
 local helpers = require("ts-node-action.helpers")
 
----@param padding table
----@param uncollapsible table
+---@param padding table Used to specify string formatting for unnamed nodes
+---@param uncollapsible table Used to specify "base" types that shouldn't be collapsed further.
 ---@return function
 local function collapse_child_nodes(padding, uncollapsible)
   return function(node)
@@ -13,7 +13,7 @@ local function collapse_child_nodes(padding, uncollapsible)
         if not child_text then return end -- We found a comment, abort
 
         table.insert(replacement, child_text)
-      elseif child:extra() then -- Bail if there are Comments
+      elseif child:type() == "comment" then -- TODO: use child:extra() when that API gets merged into stable
         return
       else
         table.insert(replacement, helpers.padded_node_text(child, padding))
