@@ -1,12 +1,15 @@
 local helpers = require("ts-node-action.helpers")
 
-local function collapse_child_nodes(padding)
+---@param padding table
+---@param uncollapsible table
+---@return function
+local function collapse_child_nodes(padding, uncollapsible)
   return function(node)
     local replacement = {}
 
     for child, _ in node:iter_children() do
-      if child:named_child_count() > 0 then -- Node is a container
-        local child_text = collapse_child_nodes(padding)(child)
+      if child:named_child_count() > 0 and not uncollapsible[child:type()] then -- Node is a container
+        local child_text = collapse_child_nodes(padding, uncollapsible)(child)
         if not child_text then return end -- We found a comment, abort
 
         table.insert(replacement, child_text)
@@ -21,6 +24,8 @@ local function collapse_child_nodes(padding)
   end
 end
 
+---@param node TSNode
+---@return table
 local function expand_child_nodes(node)
   local replacement = {}
 
@@ -41,13 +46,17 @@ local function expand_child_nodes(node)
   return replacement
 end
 
-return function(padding)
-  padding = padding or {}
+---@param padding table
+---@param uncollapsible table
+---@return table
+return function(padding, uncollapsible)
+  padding       = padding or {}
+  uncollapsible = uncollapsible or {}
 
   local function action(node)
     local fn
     if helpers.node_is_multiline(node) then
-      fn = collapse_child_nodes(padding)
+      fn = collapse_child_nodes(padding, uncollapsible)
     else
       fn = expand_child_nodes
     end
