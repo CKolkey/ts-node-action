@@ -1,5 +1,6 @@
-local helpers = require("ts-node-action.helpers")
-local actions = require("ts-node-action.actions")
+local helpers     = require("ts-node-action.helpers")
+local actions     = require("ts-node-action.actions")
+local import_from = require("ts-node-action.filetypes.python.cycle_import_from")
 
 -- Special cases:
 -- Because "is" and "not" are valid by themselves, they are seen as separate
@@ -515,6 +516,32 @@ local function expand_conditional_expression(padding_override)
   return { action, name = "Expand Conditional" }
 end
 
+local import_formats = { "inline", "block", "single", "block" }
+
+local function cycle_import_from_statement(user_import_formats)
+  user_import_formats = user_import_formats or import_formats
+
+  local function action(import_from_statement)
+
+    local stmt = import_from.destructure(import_from_statement)
+    if #stmt.comments > 0 then
+      return
+    end
+
+    local new_format
+    for i, f in ipairs(user_import_formats) do
+      if f == stmt.format then
+        new_format = user_import_formats[i + 1] or user_import_formats[1]
+        break
+      end
+    end
+
+    return import_from.cycle(stmt, new_format)
+  end
+
+  return { action, name = "Cycle Import" }
+end
+
 return {
   ["dictionary"]               = actions.toggle_multiline(padding),
   ["set"]                      = actions.toggle_multiline(padding),
@@ -532,4 +559,5 @@ return {
   ["integer"]                  = actions.toggle_int_readability(),
   ["conditional_expression"]   = { expand_conditional_expression(padding), },
   ["if_statement"]             = { inline_if_statement(padding), },
+  ["import_from_statement"]    = { cycle_import_from_statement(import_formats), },
 }
