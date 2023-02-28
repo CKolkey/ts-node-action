@@ -1,3 +1,5 @@
+---@alias TSNode userdata
+
 local M = {}
 
 --- @private

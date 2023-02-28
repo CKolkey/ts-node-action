@@ -1,6 +1,6 @@
-local helpers     = require("ts-node-action.helpers")
-local actions     = require("ts-node-action.actions")
-local import_from = require("ts-node-action.filetypes.python.cycle_import_from")
+local helpers = require("ts-node-action.helpers")
+local actions = require("ts-node-action.actions")
+local cycle_import = require("ts-node-action.filetypes.python.cycle_import")
 
 -- Special cases:
 -- Because "is" and "not" are valid by themselves, they are seen as separate
@@ -308,7 +308,7 @@ local function destructure_conditional_expression(node)
 end
 
 --- @param stmt table
---- @return string, table, TSNode
+--- @return string, table
 --- @return nil
 local function expand_cond_expr(stmt, padding_override)
   local parent      = stmt.node:parent()
@@ -385,7 +385,7 @@ end
 
 --- @param stmt table { node, condition, consequence, alternative, comments }
 --- @param padding_override table
---- @return string, table, TSNode
+--- @return string, table
 --- @return nil
 local function inline_if(stmt, padding_override)
 
@@ -428,7 +428,7 @@ end
 
 --- @param stmt table { node, condition, consequence, alternative, comments }
 --- @param padding_override table
---- @return string, table, TSNode
+--- @return string, table
 --- @return nil
 local function inline_ifelse(stmt, padding_override)
 
@@ -463,12 +463,12 @@ local function inline_ifelse(stmt, padding_override)
 end
 
 --- @param padding_override table
---- @return function
+--- @return table
 local function inline_if_statement(padding_override)
-  padding_override = padding_override or padding
+  padding_override = vim.tbl_deep_extend(
+    'force', padding, padding_override or {}
+  )
 
-  --- @param if_statement TSNode
-  --- @return string, table, TSNode
   local function action(if_statement)
     local stmt = destructure_if_statement(if_statement)
     -- we can't inline multiple statements within a block
@@ -499,12 +499,12 @@ local function inline_if_statement(padding_override)
 end
 
 --- @param padding_override table
---- @return function
+--- @return table
 local function expand_conditional_expression(padding_override)
-  padding_override = padding_override or padding
+  padding_override = vim.tbl_deep_extend(
+    'force', padding, padding_override or {}
+  )
 
-  --- @param conditional_expression TSNode
-  --- @return string, table, TSNode
   local function action(conditional_expression)
     local stmt = destructure_conditional_expression(conditional_expression)
     if #stmt.comments > 0 then
@@ -516,31 +516,16 @@ local function expand_conditional_expression(padding_override)
   return { action, name = "Expand Conditional" }
 end
 
-local import_formats = { "inline", "block", "single", "block" }
+-- see python/cycle_import.lua for more config options
+local cycle_import_from_config = {
+  ---@type string[] list of formats to cycle through; uses the provided order
+  formats = { "single", "inline", "expand" },
+}
 
-local function cycle_import_from_statement(user_import_formats)
-  user_import_formats = user_import_formats or import_formats
-
-  local function action(import_from_statement)
-
-    local stmt = import_from.destructure(import_from_statement)
-    if #stmt.comments > 0 then
-      return
-    end
-
-    local new_format
-    for i, f in ipairs(user_import_formats) do
-      if f == stmt.format then
-        new_format = user_import_formats[i + 1] or user_import_formats[1]
-        break
-      end
-    end
-
-    return import_from.cycle(stmt, new_format)
-  end
-
-  return { action, name = "Cycle Import" }
-end
+local cycle_import_config = {
+  ---@type string[] list of formats to cycle through; uses the provided order
+  formats = { "single", "inline" },
+}
 
 return {
   ["dictionary"]               = actions.toggle_multiline(padding),
@@ -559,5 +544,6 @@ return {
   ["integer"]                  = actions.toggle_int_readability(),
   ["conditional_expression"]   = { expand_conditional_expression(padding), },
   ["if_statement"]             = { inline_if_statement(padding), },
-  ["import_from_statement"]    = { cycle_import_from_statement(import_formats), },
+  ["import_from_statement"]    = { cycle_import(cycle_import_from_config), },
+  ["import_statement"]         = { cycle_import(cycle_import_config), },
 }
