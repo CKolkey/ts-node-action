@@ -2,6 +2,7 @@ return {
   ["*"]           = require("ts-node-action.filetypes.global"),
   lua             = require("ts-node-action.filetypes.lua"),
   json            = require("ts-node-action.filetypes.json"),
+  yaml            = require("ts-node-action.filetypes.yaml"),
   ruby            = require("ts-node-action.filetypes.ruby"),
   eruby           = require("ts-node-action.filetypes.ruby"),
   python          = require("ts-node-action.filetypes.python"),
