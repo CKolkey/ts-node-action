@@ -253,20 +253,20 @@ NOTE: The order of formats can be important, as some identifiers are the same fo
 
 Builtin actions are all higher-order functions so they can easily have options overridden on a per-filetype basis. Check out the implementations under `lua/filetypes/` to see how!
 
-|  | (*) | Ruby | js/ts/tsx/jsx | Lua | Python | PHP | Rust | JSON | HTML |
-|---|---|---|---|---|---|---|---|---|---|
-| `toggle_boolean()` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |
-| `cycle_case()` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |
-| `cycle_quotes()` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |  |
-| `toggle_multiline()` |  | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |
-| `toggle_operator()` |  | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |  |
-| `toggle_int_readability()` |  | ✅ | ✅ |  | ✅ | ✅ | ✅ | ✅ |  |
-| `toggle_block()` |  | ✅ |  |  |  |  |  |  |  |
-| if/else <-> ternery |  | ✅ |  |  | ✅ |  |  |  |  |
-| if block/postfix |  | ✅ |  |  |  |  |  |  |  |
-| `toggle_hash_style()` |  | ✅ |  |  |  |  |  |  |  |
-| `conceal_string()` |  |  | ✅ |  |  |  |  |  | ✅ |
-| `cycle_import()` |  |  |  |  | ✅ |  |  |  |  |
+|  | (*) | Ruby | js/ts/tsx/jsx | Lua | Python | PHP | Rust | JSON | HTML | YAML |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `toggle_boolean()` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |  | ✅ |
+| `cycle_case()` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |  |
+| `cycle_quotes()` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |  |  |
+| `toggle_multiline()` |  | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |
+| `toggle_operator()` |  | ✅ | ✅ | ✅ | ✅ | ✅ |  |  |  |  |
+| `toggle_int_readability()` |  | ✅ | ✅ |  | ✅ | ✅ | ✅ | ✅ |  |  |
+| `toggle_block()` |  | ✅ |  |  |  |  |  |  |  |  |
+| if/else <-> ternery |  | ✅ |  |  | ✅ |  |  |  |  |  |
+| if block/postfix |  | ✅ |  |  |  |  |  |  |  |  |
+| `toggle_hash_style()` |  | ✅ |  |  |  |  |  |  |  |  |
+| `conceal_string()` |  |  | ✅ |  |  |  |  |  | ✅ |  |
+| `cycle_import()` |  |  |  |  | ✅ |  |  |  |  |  |
 
 ## Testing
 To run the test suite, clone the repo and run `./run_spec`. It should pull all dependencies into `spec/support/` on
