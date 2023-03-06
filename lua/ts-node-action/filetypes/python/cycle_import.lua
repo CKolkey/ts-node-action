@@ -22,16 +22,20 @@ local function destructure_import_from_statement(import_from_statement)
   local names    = {}
   local comments = {}
 
-  local first_sibling_row
+  local prev_sibling_row = module:start()
+  local siblings_share_line = false
   local sibling  = module:next_named_sibling()
   while sibling do
 
     if sibling:type() == "comment" then
       table.insert(comments, sibling)
     else
-      if not first_sibling_row then
-        first_sibling_row = sibling:start()
+      local sibling_start_row = sibling:start()
+      if sibling_start_row == prev_sibling_row then
+        siblings_share_line = true
       end
+      prev_sibling_row = sibling_start_row
+
       table.insert(names, helpers.node_text(sibling))
     end
 
@@ -39,10 +43,22 @@ local function destructure_import_from_statement(import_from_statement)
   end
 
   local format = "single"
-  if #names > 1 then
-    format = first_sibling_row == module:start() and "inline" or "expand"
-  elseif helpers.node_is_multiline(import_from_statement) then
-    format = "expand"
+  if #names > 1 or helpers.node_is_multiline(import_from_statement) then
+    if siblings_share_line then
+      format = "inline"
+    else
+      format = "expand"
+      local num_children = import_from_statement:child_count()
+      local last_child   = import_from_statement:child(num_children - 1)
+      -- multiline inline ends with a paren sharing the same line
+      -- but if not using parens, then it's ambiguous
+      if not last_child:named() and helpers.node_text(last_child) == ")" then
+        local last_named_child = last_child:prev_named_sibling()
+        if last_child:start() == last_named_child:start() then
+          format = "inline"
+        end
+      end
+    end
   end
 
   return {
@@ -212,7 +228,12 @@ local cycler_types = {
         local eol_length  = use_parens and 1 or 2
 
         if #line > line_length then
+
           line = indent .. (use_parens and prepend .. "(" or prepend)
+          if #line + #names[1] > line_length then
+            table.insert(replacement, use_parens and line or (line .. "\\"))
+            line = indent .. "    "
+          end
 
           for _, name in ipairs(names) do
             if #line + #name + eol_length > line_length then
