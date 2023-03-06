@@ -520,11 +520,23 @@ end
 local cycle_import_from_config = {
   ---@type string[] list of formats to cycle through; uses the provided order
   formats = { "single", "inline", "expand" },
+  ---@type number maximum line length for inline imports
+  line_length            = 80,
+  ---@type boolean include siblings when format differs
+  siblings_of_any_format = true,
+  ---@type boolean use parens for inline imports (otherwise use \)
+  inline_use_parens      = true,
+  ---@type boolean use parens for expanded imports (otherwise use \)
+  expand_use_parens      = true,
 }
 
 local cycle_import_config = {
   ---@type string[] list of formats to cycle through; uses the provided order
   formats = { "single", "inline" },
+  ---@type number maximum line length for inline imports
+  line_length            = 80,
+  ---@type boolean include siblings when format differs
+  siblings_of_any_format = true,
 }
 
 return {
