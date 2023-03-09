@@ -14,16 +14,14 @@ return function(operator_override)
     default_operators, operator_override or {})
 
   local function action(node)
-    local replacement = {}
     for child, _ in node:iter_children() do
-      local text = helpers.node_text(child)
-      if operators[text] then
-        table.insert(replacement, operators[text])
-      else
-        table.insert(replacement, text)
+      if child:named() == false then
+        local text = helpers.node_text(child)
+        if operators[text] then
+          return {operators[text]}, {target = child}
+        end
       end
     end
-    return table.concat(replacement, " ")
   end
 
   return { { action, name = "Toggle Operator" } }
