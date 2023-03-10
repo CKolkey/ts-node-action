@@ -19,7 +19,6 @@ return function(operator_override)
       if operators[text] then
         return operators[text]
       end
-      return
     else
       for child, _ in node:iter_children() do
         if child:named() == false then
