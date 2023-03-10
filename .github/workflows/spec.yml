@@ -46,7 +46,7 @@ jobs:
 
       - name: Compile parsers
         run: |
-          nvim --headless -c "TSInstallSync ruby python lua javascript yaml" -c "q"
+          nvim --headless -c "TSInstallSync ruby python lua javascript julia yaml" -c "q"
       - name: Tests
         env:
           ci: "1"
