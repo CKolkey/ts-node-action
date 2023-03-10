@@ -14,11 +14,19 @@ return function(operator_override)
     default_operators, operator_override or {})
 
   local function action(node)
-    for child, _ in node:iter_children() do
-      if child:named() == false then
-        local text = helpers.node_text(child)
-        if operators[text] then
-          return {operators[text]}, {target = child}
+    if node:child_count() == 0 then
+      local text = helpers.node_text(node)
+      if operators[text] then
+        return operators[text]
+      end
+      return
+    else
+      for child, _ in node:iter_children() do
+        if child:named() == false then
+          local text = helpers.node_text(child)
+          if operators[text] then
+            return operators[text], { target = child }
+          end
         end
       end
     end
