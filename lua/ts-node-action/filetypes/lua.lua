@@ -28,20 +28,21 @@ local quote_override = {
 
 local function toggle_function(node)
   local struct = helpers.destructure_node(node)
-  if struct.body:match("\n") then
+  if type(struct.body) == "table" then
     return
   end
 
   if helpers.node_is_multiline(node) then
-    return "function" .. struct.parameters .. " " .. struct.body .. " end"
+    local body = struct.body and (struct.body .. " ") or ""
+    return "function" .. struct.parameters .. " " .. body .. "end"
   else
-    return { "function" .. struct.parameters, struct.body, "end" }, { format = true, cursor = {} }
+    return { "function" .. struct.parameters, struct.body or "", "end" }, { format = true, cursor = {} }
   end
 end
 
 local function toggle_named_function(node)
   local struct = helpers.destructure_node(node)
-  if struct.body:match("\n") then
+  if type(struct.body) == "table" then
     return
   end
 

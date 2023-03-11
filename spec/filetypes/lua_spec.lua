@@ -99,8 +99,31 @@ describe("function_definition (anon)", function()
 
     assert.are.same(text, Helper:call(text, { 1, 11 }))
   end)
-end)
 
+  it("expands single-line function to multi-line (no-body)", function()
+    assert.are.same(
+      {
+        "local a = function(a, b, c)",
+        "",
+        "end"
+      },
+      Helper:call({ "local a = function(a, b, c) end" }, { 1, 11 })
+    )
+  end)
+
+  it("collapses multi-line function to single-line (no-body)", function()
+    assert.are.same(
+      {
+        "local a = function(a, b, c) end"
+      },
+      Helper:call({
+        "local a = function(a, b, c)",
+        "",
+        "end"
+      }, { 1, 11 })
+    )
+  end)
+end)
 
 describe("function_declaration (named)", function()
   it("collapses multi-line function to single line", function()

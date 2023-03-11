@@ -3,7 +3,7 @@ local actions = require("ts-node-action.actions")
 
 local padding = {
   [","]  = "%s ",
-  [":"]  = "%s ",
+  [":"]  = { "%s ", ["next_nil"] = "%s" },
   ["{"]  = "%s ",
   ["=>"] = " %s ",
   ["="]  = " %s ",
@@ -16,16 +16,17 @@ local padding = {
 
 local identifier_formats = { "snake_case", "pascal_case", "screaming_snake_case" }
 
+local uncollapsible = {
+  ["conditional"] = true
+}
+
 local function toggle_block(node)
   local structure = helpers.destructure_node(node)
+  if type(structure.body) == "table" then return end
+
   local replacement
 
   if helpers.node_is_multiline(node) then
-    if string.find(structure.body, "\n") then
-      print("(TS:Action) Cannot collapse multi-line block")
-      return
-    end
-
     if structure.parameters then
       replacement = "{ " .. structure.parameters .. " " .. structure.body .. " }"
     else
@@ -43,7 +44,7 @@ local function toggle_block(node)
 end
 
 local function inline_conditional(structure)
-  if structure.consequence:match("\n") then
+  if type(structure.consequence) == "table" then
     return
   end
 
@@ -62,7 +63,7 @@ local function collapse_ternary(structure)
     " ? ",
     structure.consequence,
     " : ",
-    vim.trim(string.gsub(structure.alternative, "else\n", ""))
+    structure.alternative[2]
   }
 
   return table.concat(replacement), { cursor = { col = #replacement[1] + 1 } }
@@ -130,10 +131,10 @@ return {
   ["identifier"]        = actions.cycle_case(identifier_formats),
   ["constant"]          = actions.cycle_case(identifier_formats),
   ["binary"]            = actions.toggle_operator(),
-  ["array"]             = actions.toggle_multiline(padding),
-  ["hash"]              = actions.toggle_multiline(padding),
-  ["argument_list"]     = actions.toggle_multiline(padding),
-  ["method_parameters"] = actions.toggle_multiline(padding),
+  ["array"]             = actions.toggle_multiline(padding, uncollapsible),
+  ["hash"]              = actions.toggle_multiline(padding, uncollapsible),
+  ["argument_list"]     = actions.toggle_multiline(padding, uncollapsible),
+  ["method_parameters"] = actions.toggle_multiline(padding, uncollapsible),
   ["integer"]           = actions.toggle_int_readability(),
   ["block"]             = { { toggle_block, name = "Toggle Block" } },
   ["do_block"]          = { { toggle_block, name = "Toggle Block" } },

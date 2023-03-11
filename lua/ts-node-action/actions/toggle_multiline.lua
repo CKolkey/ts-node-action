@@ -1,35 +1,36 @@
 local helpers = require("ts-node-action.helpers")
 
-local function collapse_child_nodes(padding)
-  padding = padding or {}
+---@param padding table Used to specify string formatting for unnamed nodes
+---@param uncollapsible table Used to specify "base" types that shouldn't be collapsed further.
+---@return function
+local function collapse_child_nodes(padding, uncollapsible)
+  uncollapsible = uncollapsible or {}
+  local function can_be_collapsed(child)
+    return child:named_child_count() > 0 and not uncollapsible[child:type()]
+  end
 
-  local function collapse(node)
+  return function(node)
     local replacement = {}
-    local child_text
-    local context
 
     for child, _ in node:iter_children() do
-      if child:named_child_count() > 0 then
-        child_text = collapse(child)
-        if child_text == nil then
-          return
-        end
+      if can_be_collapsed(child) then
+        local child_text = collapse_child_nodes(padding, uncollapsible)(child)
+        if not child_text then return end -- We found a comment, abort
+
         table.insert(replacement, child_text)
-        context = nil
-      elseif child:type() == "comment" then
+      elseif child:type() == "comment" then -- TODO: use child:extra() when that API gets merged into stable
         return
       else
-        context = helpers.padded_node_text(child, padding, context)
-        table.insert(replacement, context)
+        table.insert(replacement, helpers.padded_node_text(child, padding))
       end
     end
 
     return table.concat(vim.tbl_flatten(replacement))
   end
-
-  return collapse
 end
 
+---@param node TSNode
+---@return table
 local function expand_child_nodes(node)
   local replacement = {}
 
@@ -50,13 +51,17 @@ local function expand_child_nodes(node)
   return replacement
 end
 
-return function(padding)
-  padding = padding or {}
+---@param padding table
+---@param uncollapsible table
+---@return table
+return function(padding, uncollapsible)
+  padding       = padding or {}
+  uncollapsible = uncollapsible or {}
 
   local function action(node)
     local fn
     if helpers.node_is_multiline(node) then
-      fn = collapse_child_nodes(padding)
+      fn = collapse_child_nodes(padding, uncollapsible)
     else
       fn = expand_child_nodes
     end

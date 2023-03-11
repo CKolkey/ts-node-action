@@ -3,6 +3,8 @@ local Buffer = {}
 --- @class Buffer
 --- @field lang string The language for this buffer
 --- @field opts table Buffer local settings
+--- @field setup self
+--- @field teardown nil
 
 --- @param lang string
 --- @param buf_opts table
@@ -25,7 +27,7 @@ function Buffer.new(lang, buf_opts)
   return instance
 end
 
---- @return Buffer
+--- @return self
 function Buffer:setup()
   self.handle = vim.api.nvim_create_buf(false, true)
   vim.treesitter.start(self.handle, self.lang)
@@ -39,7 +41,7 @@ end
 
 -- Fakes cursor location by just returning the node at where the cursor should be
 --- @param pos table 1-indexed { row, col }
---- @return Buffer
+--- @return self
 function Buffer:set_cursor(pos)
   local row = pos[1] - 1
   local col = pos[2] - 1
@@ -56,7 +58,7 @@ function Buffer:set_cursor(pos)
 end
 
 --- @param text string|table
---- @return Buffer
+--- @return self
 function Buffer:write(text)
   if type(text) ~= "table" then
     text = { text }
@@ -76,7 +78,7 @@ function Buffer:teardown()
   vim.api.nvim_buf_delete(self.handle, { force = true })
 end
 
---- @return Buffer
+--- @return self
 function Buffer:run_action()
   vim.api.nvim_buf_call(self.handle, require("ts-node-action").node_action)
   return self
@@ -89,7 +91,7 @@ _G.SpecHelper = SpecHelper
 --- @class SpecHelper A general wrapper, available in the global scope, for test related helpers
 --- @field lang string The language for this buffer
 --- @field buf_opts table Buffer local settings
---- @field call function
+--- @field call table
 
 --- @param lang string
 --- @param buf_opts table|nil
