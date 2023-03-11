@@ -1,6 +1,6 @@
 local actions      = require("ts-node-action.actions")
 local helpers      = require("ts-node-action.helpers")
-local pyhelpers    = require("ts-node-action.filetypes.python.helpers")
+local nu           = require("ts-node-action.filetypes.python.node_utils")
 local conditional  = require("ts-node-action.filetypes.python.conditional")
 local cycle_import = require("ts-node-action.filetypes.python.cycle_import")
 
@@ -60,9 +60,9 @@ local boolean_override = {
   ["False"] = "True",
 }
 
---- @param padding_override table
---- @param uncollapsible_override table
---- @return table
+---@param padding_override table
+---@param uncollapsible_override table
+---@return table
 local function inline_if_statement(padding_override, uncollapsible_override)
   padding_override = vim.tbl_deep_extend(
     'force', padding, padding_override or {}
@@ -70,7 +70,7 @@ local function inline_if_statement(padding_override, uncollapsible_override)
   uncollapsible_override = vim.tbl_deep_extend(
     'force', uncollapsible, uncollapsible_override or {}
   )
-  local collapse = pyhelpers.collapse_child_nodes(
+  local collapse = nu.collapse_func(
     padding_override,
     uncollapsible_override
   )
@@ -105,23 +105,27 @@ local function inline_if_statement(padding_override, uncollapsible_override)
   return { action, name = "Inline Conditional" }
 end
 
---- @param padding_override table
---- @param uncollapsible_override table
---- @return table
-local function expand_conditional_expression(padding_override, uncollapsible_override)
+---@param padding_override table
+---@param uncollapsible_override table
+---@return table
+local function expand_conditional_expression(
+  padding_override, uncollapsible_override
+)
   padding_override = vim.tbl_deep_extend(
     'force', padding, padding_override or {}
   )
   uncollapsible_override = vim.tbl_deep_extend(
     'force', uncollapsible, uncollapsible_override or {}
   )
-  local collapse = pyhelpers.collapse_child_nodes(
+  local collapse = nu.collapse_func(
     padding_override,
     uncollapsible_override
   )
 
   local function action(conditional_expression)
-    local stmt = conditional.destructure_conditional_expression(conditional_expression)
+    local stmt = conditional.destructure_conditional_expression(
+      conditional_expression
+    )
     if #stmt.comments > 0 then return end
 
     return conditional.expand_cond_expr(stmt, collapse)

@@ -4,6 +4,17 @@ local Helper = SpecHelper.new("python", { shiftwidth = 4 })
 
 describe("import_statement", function()
 
+  it("doesn't cycle with 1 import (same for both)", function()
+    assert.are.same(
+      {
+        [[import bar]],
+      },
+      Helper:call({
+        [[import bar]],
+      })
+    )
+  end)
+
 
   it("cycles from single to inline", function()
     assert.are.same(
@@ -164,8 +175,5 @@ describe("import_statement", function()
       }, {2, 5})
     )
   end)
-
-
-
 
 end)

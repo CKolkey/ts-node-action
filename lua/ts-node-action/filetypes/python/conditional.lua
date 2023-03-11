@@ -1,5 +1,5 @@
 local helpers = require("ts-node-action.helpers")
-local pyhelpers = require("ts-node-action.filetypes.python.helpers")
+local nu = require("ts-node-action.filetypes.python.node_utils")
 
 local M = {}
 
@@ -137,13 +137,11 @@ end
 ---@param comments table
 ---@return nil (mutates comments)
 local function deep_collect_comments(node, comments)
-  for child in node:iter_children() do
-    if child:named() then
-      if child:type() == "comment" then
-        table.insert(comments, child)
-      else
-        deep_collect_comments(child, comments)
-      end
+  for child in nu.iter_named_children(node) do
+    if child:type() == "comment" then
+      table.insert(comments, child)
+    else
+      deep_collect_comments(child, comments)
     end
   end
 end
@@ -153,14 +151,12 @@ end
 ---@param comments table
 ---@return nil (mutates children and comments)
 local function collect_named_children(parent, children, comments)
-  for child in parent:iter_children() do
-    if child:named() then
-      if child:type() == "comment" then
-        table.insert(comments, child)
-      else
-        table.insert(children, child)
-        deep_collect_comments(child, comments)
-      end
+  for child in nu.iter_named_children(parent) do
+    if child:type() == "comment" then
+      table.insert(comments, child)
+    else
+      table.insert(children, child)
+      deep_collect_comments(child, comments)
     end
   end
 end
@@ -173,22 +169,19 @@ M.destructure_if_statement = function(if_statement)
   local alternative = {}
   local comments    = {}
 
-  for child in if_statement:iter_children() do
-    if child:named() then
-      local child_type = child:type()
+  for child in nu.iter_named_children(if_statement) do
+    local child_type = child:type()
 
-      if child_type == "comment" then
-        table.insert(comments, child)
-      elseif child_type == "block" then
-        collect_named_children(child, consequence, comments)
-      elseif child_type == "else_clause" then
-        local block = {}
-        collect_named_children(child, block, comments)
-        collect_named_children(block[1], alternative, comments)
-      else
-        condition = child
-      end
-
+    if child_type == "comment" then
+      table.insert(comments, child)
+    elseif child_type == "block" then
+      collect_named_children(child, consequence, comments)
+    elseif child_type == "else_clause" then
+      local block = {}
+      collect_named_children(child, block, comments)
+      collect_named_children(block[1], alternative, comments)
+    else
+      condition = child
     end
   end
 
@@ -282,7 +275,7 @@ M.expand_cond_expr = function(stmt, collapse)
   local callback = nil
   if row_parent then
     table.insert(replacement, 1, "")
-    callback = function() pyhelpers.node_trim_whitespace(parent) end
+    callback = function() nu.trim_whitespace(parent) end
   end
 
   return replacement, {
@@ -313,11 +306,11 @@ M.inline_if = function(stmt, collapse)
   return replacement, { cursor = {} }
 end
 
---- @param cons_type string
---- @param alt_type string
---- @param cons_lhs string
---- @param alt_lhs string
---- @return boolean
+---@param cons_type string
+---@param alt_type string
+---@param cons_lhs string
+---@param alt_lhs string
+---@return boolean
 local function body_types_are_inlineable(cons_type, alt_type, cons_lhs, alt_lhs)
   -- strict match
   if cons_type == "assignment" or alt_type == "assignment" then
@@ -335,9 +328,9 @@ local function body_types_are_inlineable(cons_type, alt_type, cons_lhs, alt_lhs)
       mixable_match_body_types[alt_type]
 end
 
---- @param stmt table { node, condition, consequence, alternative, comments }
---- @param collapse function
---- @return string|nil, table|nil
+---@param stmt table { node, condition, consequence, alternative, comments }
+---@param collapse function
+---@return string|nil, table|nil
 M.inline_ifelse = function(stmt, collapse)
 
   local cons_lhs, cons_rhs, cons_type, cons_child = node_text_lhs_rhs(

@@ -1,32 +1,21 @@
 local helpers = require("ts-node-action.helpers")
+local nu = require("ts-node-action.filetypes.python.node_utils")
 
-local ERROR_NS = "TS:NodeAction:Python:CycleImport - "
-
----@param tables table[]
----@param key string
----@return table
-local function collect_values_for_key(tables, key)
-  local values = {}
-  for _, tbl in ipairs(tables) do
-    for _, value in ipairs(tbl[key]) do
-      table.insert(values, value)
-    end
-  end
-  return values
+local function print_error(...)
+  print("TS:NodeAction:Python:CycleImport - ", ...)
 end
 
-----@param import_from_statement TSNode
-----@return table
+---@param import_from_statement TSNode
+---@return table
 local function destructure_import_from_statement(import_from_statement)
   local module   = import_from_statement:named_child(0)
   local names    = {}
   local comments = {}
 
-  local prev_sibling_row = module:start()
+  local prev_sibling_row    = module:start()
   local siblings_share_line = false
-  local sibling  = module:next_named_sibling()
-  while sibling do
 
+  for sibling in nu.iter_next_named_sibling(module) do
     if sibling:type() == "comment" then
       table.insert(comments, sibling)
     else
@@ -38,8 +27,6 @@ local function destructure_import_from_statement(import_from_statement)
 
       table.insert(names, helpers.node_text(sibling))
     end
-
-    sibling = sibling:next_named_sibling()
   end
 
   local format = "single"
@@ -77,13 +64,11 @@ local function destructure_import_statement(import_statement)
   local modules  = {}
   local comments = {}
 
-  for child in import_statement:iter_children() do
-    if child:named() then
-      if child:type() == "comment" then
-        table.insert(comments, child)
-      else
-        table.insert(modules, helpers.node_text(child))
-      end
+  for node in nu.iter_named_children(import_statement) do
+    if node:type() == "comment" then
+      table.insert(comments, node)
+    else
+      table.insert(modules, helpers.node_text(node))
     end
   end
 
@@ -97,40 +82,15 @@ local function destructure_import_statement(import_statement)
   }
 end
 
----@param node TSNode
----@param func fun(node: TSNode): boolean
----@return TSNode[] in reverse order
-local function get_prev_siblings_while(node, func)
-  local nodes = {}
-  local prev_sibling = node:prev_named_sibling()
-  while prev_sibling and func(prev_sibling) do
-    table.insert(nodes, prev_sibling)
-    prev_sibling = prev_sibling:prev_named_sibling()
-  end
-  return nodes
-end
-
----@param node TSNode
----@param func fun(node: TSNode): boolean
----@return TSNode[]
-local function get_next_siblings_while(node, func)
-  local nodes = {}
-  local next_sibling = node:next_named_sibling()
-  while next_sibling and func(next_sibling) do
-    table.insert(nodes, next_sibling)
-    next_sibling = next_sibling:next_named_sibling()
-  end
-  return nodes
-end
-
 -- Collect qualifying siblings adjacent to origin_stmt and destructure them.
+--
 ---@param origin_stmt table
 ---@param prev_siblings TSNode[] in reverse order
 ---@param next_siblings TSNode[]
 ---@param destructure fun(node: TSNode): table
 ---@param of_any_format boolean
 ---@return table[]
-local function assemble_sibling_stmts(
+local function assemble_stmts(
     origin_stmt, prev_siblings, next_siblings, destructure, of_any_format)
   local stmts = {}
 
@@ -167,14 +127,17 @@ local cycler_types = {
       end
     end,
     cycle = {
-      single = function(stmts, names, indent, config)
+      single = function(_, names, indent, _)
         local replacement = {}
         for i, name in ipairs(names) do
-          table.insert(replacement, (i ~= 1 and indent or "") .. "import " .. name)
+          table.insert(
+            replacement,
+            (i ~= 1 and indent or "") .. "import " .. name
+          )
         end
         return replacement
       end,
-      inline = function(stmts, names, indent, config)
+      inline = function(_, names, indent, config)
         local replacement = {}
         local prepend     = "import "
         local line        = indent .. prepend .. table.concat(names, ", ")
@@ -208,7 +171,7 @@ local cycler_types = {
       end
     end,
     cycle = {
-      single = function(stmts, names, indent, config)
+      single = function(stmts, names, indent, _)
         local replacement = {}
         for i, name in ipairs(names) do
           table.insert(
@@ -277,36 +240,6 @@ local cycler_types = {
   },
 }
 
--- Create a fake node to represent the replacement target. This is necessary
--- when the replacement spans multiple nodes without a suitable parent to serve
--- as a the target (eg, a top-level node's parent is the root).
---
--- Should be indistiguishable from a TSNode, other than type(target) == "table",
--- but range() is only what's necessary by init.lua:replace_node().
---
----@param first_node TSNode
----@param last_node TSNode
----@return table
-local function make_target_node(first_node, last_node)
-  -- TSNode's are userdata, which can't be cloned/altered, so this proxy's calls
-  -- to it and overrides the position methods.
-  local target = {}
-  for k, _ in pairs(getmetatable(first_node)) do
-    target[k] = function(_, ...)
-      return first_node[k](first_node, ...)
-    end
-  end
-  local start_pos = { first_node:start() }
-  local end_pos   = { last_node:end_() }
-  function target:start() return unpack(start_pos) end
-  function target:end_() return unpack(end_pos) end
-  function target:range()
-    return start_pos[1], start_pos[2], end_pos[1], end_pos[2]
-  end
-
-  return target
-end
-
 ---@param formats table
 ---@param format string
 ---@return string|nil
@@ -336,30 +269,33 @@ local function cycle(node, config)
   end
 
   if not vim.tbl_contains(cycler.allowed_formats, format) then
-    print(ERROR_NS .. "Format '" .. format .. "' not supported")
+    print_error("Format '" .. format .. "' not supported")
     return
   end
 
   local is_valid_sibling = cycler.make_sibling_validator(stmt)
-  local stmts = assemble_sibling_stmts(
+  local stmts = assemble_stmts(
     stmt,
-    get_prev_siblings_while(stmt.node, is_valid_sibling),
-    get_next_siblings_while(stmt.node, is_valid_sibling),
+    nu.takewhile(is_valid_sibling, nu.iter_prev_named_sibling(stmt.node)),
+    nu.takewhile(is_valid_sibling, nu.iter_next_named_sibling(stmt.node)),
     cycler.destructure,
     config.siblings_of_any_format
   )
-  local names = collect_values_for_key(stmts, "names")
+  local names = vim.tbl_flatten(
+    vim.tbl_map(function(a_stmt) return a_stmt["names"] end, stmts)
+  )
 
   local start  = {node:start()}
   local indent = string.rep(" ", start[2])
 
   local replacement = cycler.cycle[format](stmts, names, indent, config)
-
+  local target = nu.make_target(
+    stmts[1].node,
+    { stmts[1].node:start() },
+    { stmts[#stmts].node:end_() }
+  )
   return replacement, {
-    target = make_target_node(
-      stmts[1].node,
-      stmts[#stmts].node
-    ),
+    target = target,
     cursor = {row = 0, col = 0},
     format = true,
   }
@@ -392,7 +328,7 @@ return function(config)
   }
 
   if #config.formats == 0 then
-    print(ERROR_NS .. "Empty config.formats, no formats to cycle")
+    print_error("Empty config.formats, no formats to cycle")
   end
 
   local function action(node)

@@ -80,6 +80,19 @@ describe("import_from_statement", function()
     )
   end)
 
+  it("cycles from inline to expand (single, slightly ambiguous)", function()
+    assert.are.same(
+      {
+        [[from foo import (]],
+        [[    bar,]],
+        [[)]],
+      },
+      Helper:call({
+        [[from foo import (]],
+        [[    bar)]],
+      })
+    )
+  end)
 
   it("cycles from inline to expand with mixed siblings", function()
     assert.are.same(
