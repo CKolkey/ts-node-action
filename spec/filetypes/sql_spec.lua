@@ -1,5 +1,6 @@
-local Helper = SpecHelper.new("sql", { shiftwidth = 2 })
+dofile("spec/spec_helper.lua")
 
+local Helper = SpecHelper.new("sql", { shiftwidth = 2 })
 
 describe("boolean", function()
   it("turns 'true' into 'false'", function()
@@ -11,7 +12,6 @@ describe("boolean", function()
   end)
 end)
 
-
 describe("operator", function()
   it("turns 'AND' into 'OR'", function()
     assert.are.same({ "AND" }, Helper:call({ "OR" }))
@@ -21,4 +21,3 @@ describe("operator", function()
     assert.are.same({ "OR" }, Helper:call({ "AND" }))
   end)
 end)
-
