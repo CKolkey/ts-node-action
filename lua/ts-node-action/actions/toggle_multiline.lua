@@ -4,6 +4,7 @@ local helpers = require("ts-node-action.helpers")
 ---@param uncollapsible table Used to specify "base" types that shouldn't be collapsed further.
 ---@return function
 local function collapse_child_nodes(padding, uncollapsible)
+  uncollapsible = uncollapsible or {}
   local function can_be_collapsed(child)
     return child:named_child_count() > 0 and not uncollapsible[child:type()]
   end
