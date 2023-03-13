@@ -35,6 +35,7 @@ local padding = {
 
 local uncollapsible = {
     ["term"] = true,
+    ["column_definition"] = true,
 }
 
 return {
@@ -44,4 +45,5 @@ return {
     ["keyword_and"] = actions.toggle_operator(operators),
     ["keyword_or"] = actions.toggle_operator(operators),
     ["select_expression"] = actions.toggle_multiline(padding, uncollapsible),
+    ["column_definitions"] = actions.toggle_multiline(padding, uncollapsible),
 }
