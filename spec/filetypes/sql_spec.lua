@@ -90,7 +90,7 @@ describe("expands and collapses: ", function()
     it("Collapses select_expression", function()
         assert.are.same({
                 "select a as c1,",
-                "  b as c2" },
+                "b as c2" },
             Helper:call({ "select a as c1, b as c2" },
                 { 1, 15 }))
     end)
@@ -106,7 +106,7 @@ describe("expands and collapses: ", function()
     it("Collapses select_expression", function()
         assert.are.same({
                 "select a as c1,",
-                "  (select 1) as sq" },
+                "(select 1) as sq" },
             Helper:call({ "select a as c1, (select 1) as sq" },
                 { 1, 15 }))
     end)
@@ -115,18 +115,18 @@ describe("expands and collapses: ", function()
         assert.are.same({ "create table tab (a int, b float)" },
             Helper:call({
                 "create table tab (",
-                "  a int,",
-                "  b float",
-                "  )",
+                "a int,",
+                "b float",
+                ")",
             }, { 1, 18 }))
     end)
 
     it("Collapses column_definition in create table statement", function()
         assert.are.same({
                 "create table tab (",
-                "  a int,",
-                "  b float",
-                "  )",
+                "a int,",
+                "b float",
+                ")",
             },
             Helper:call(
                 { "create table tab (a int, b float)" },
