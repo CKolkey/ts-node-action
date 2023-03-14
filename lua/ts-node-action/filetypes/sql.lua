@@ -1,10 +1,6 @@
 local helpers = require("ts-node-action.helpers")
 local actions = require("ts-node-action.actions")
 
-local padding = {
-    [","] = "%s ",
-}
-
 local boolean_override = {
     ["true"] = "false",
     ["TRUE"] = "FALSE",
