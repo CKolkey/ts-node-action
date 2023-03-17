@@ -15,5 +15,5 @@ return {
   typescript      = require("ts-node-action.filetypes.javascript"),
   typescriptreact = require("ts-node-action.filetypes.javascript"),
   svelte          = require("ts-node-action.filetypes.javascript"),
-  julia           = require("ts-node-action.filetypes.julia"),
+  sql             = require("ts-node-action.filetypes.sql"),
 }

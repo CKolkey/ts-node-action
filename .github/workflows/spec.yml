@@ -22,6 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Install tree-sitter CLI
+        run: npm i -g tree-sitter-cli
       - name: Test Dependencies
         run: |
           mkdir -p ~/.local/share/nvim/site/pack/plenary.nvim/start
@@ -46,7 +48,7 @@ jobs:
 
       - name: Compile parsers
         run: |
-          nvim --headless -c "TSInstallSync ruby python lua javascript julia yaml" -c "q"
+          nvim --headless -c "TSInstallSync ruby python lua javascript julia yaml sql" -c "q"
       - name: Tests
         env:
           ci: "1"
