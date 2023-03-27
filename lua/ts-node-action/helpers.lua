@@ -5,7 +5,11 @@ local M = {}
 --- @param node TSNode
 --- @return string
 function M.node_text(node)
-  return vim.treesitter.query.get_node_text(node, vim.api.nvim_get_current_buf())
+  if vim.treesitter.get_node_text then
+    return vim.treesitter.get_node_text(node, vim.api.nvim_get_current_buf())
+  else
+    return vim.treesitter.query.get_node_text(node, vim.api.nvim_get_current_buf())
+  end
 end
 
 -- Determine if a node spans multiple lines
