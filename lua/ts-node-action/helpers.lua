@@ -6,8 +6,15 @@ local M = {}
 --- @return table|string|nil
 function M.node_text(node)
   if not node then return end
+  
+  local text
+  if vim.treesitter.get_node_text then
+    text = vim.trim(vim.treesitter.get_node_text(node, vim.api.nvim_get_current_buf()))
+  else
+    -- TODO: Remove in 0.10
+    text = vim.trim(vim.treesitter.query.get_node_text(node, vim.api.nvim_get_current_buf()))
+  end
 
-  local text = vim.trim(vim.treesitter.query.get_node_text(node, 0))
   if text:match("\n") then
     return vim.tbl_map(vim.trim, vim.split(text, "\n"))
   else
