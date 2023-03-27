@@ -266,6 +266,7 @@ Builtin actions are all higher-order functions so they can easily have options o
 | if block/postfix |  | ✅ |  |  |  |  |  |  |  |  |
 | `toggle_hash_style()` |  | ✅ |  |  |  |  |  |  |  |  |
 | `conceal_string()` |  |  | ✅ |  |  |  |  |  | ✅ |  |
+| `cycle_import()` |  |  |  |  | ✅ |  |  |  |  |  |
 
 ## Testing
 To run the test suite, clone the repo and run `./run_spec`. It should pull all dependencies into `spec/support/` on
