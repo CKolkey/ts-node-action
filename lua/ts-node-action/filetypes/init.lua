@@ -16,4 +16,5 @@ return {
   typescriptreact = require("ts-node-action.filetypes.javascript"),
   svelte          = require("ts-node-action.filetypes.javascript"),
   sql             = require("ts-node-action.filetypes.sql"),
+  r               = require("ts-node-action.filetypes.r"),
 }
