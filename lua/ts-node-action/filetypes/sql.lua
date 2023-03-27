@@ -1,4 +1,3 @@
-local helpers = require("ts-node-action.helpers")
 local actions = require("ts-node-action.actions")
 
 local boolean_override = {
@@ -35,11 +34,11 @@ local uncollapsible = {
 }
 
 return {
-    ["keyword_true"] = actions.toggle_boolean(boolean_override),
-    ["keyword_false"] = actions.toggle_boolean(boolean_override),
-    ["binary_expression"] = actions.toggle_operator(operators),
-    ["keyword_and"] = actions.toggle_operator(operators),
-    ["keyword_or"] = actions.toggle_operator(operators),
-    ["select_expression"] = actions.toggle_multiline(padding, uncollapsible),
+    ["keyword_true"]       = actions.toggle_boolean(boolean_override),
+    ["keyword_false"]      = actions.toggle_boolean(boolean_override),
+    ["binary_expression"]  = actions.toggle_operator(operators),
+    ["keyword_and"]        = actions.toggle_operator(operators),
+    ["keyword_or"]         = actions.toggle_operator(operators),
+    ["select_expression"]  = actions.toggle_multiline(padding, uncollapsible),
     ["column_definitions"] = actions.toggle_multiline(padding, uncollapsible),
 }
