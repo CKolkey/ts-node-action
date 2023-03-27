@@ -2,6 +2,8 @@ return {
   ["*"]           = require("ts-node-action.filetypes.global"),
   lua             = require("ts-node-action.filetypes.lua"),
   json            = require("ts-node-action.filetypes.json"),
+  julia           = require("ts-node-action.filetypes.julia"),
+  yaml            = require("ts-node-action.filetypes.yaml"),
   ruby            = require("ts-node-action.filetypes.ruby"),
   eruby           = require("ts-node-action.filetypes.ruby"),
   python          = require("ts-node-action.filetypes.python"),
@@ -13,4 +15,5 @@ return {
   typescript      = require("ts-node-action.filetypes.javascript"),
   typescriptreact = require("ts-node-action.filetypes.javascript"),
   svelte          = require("ts-node-action.filetypes.javascript"),
+  sql             = require("ts-node-action.filetypes.sql"),
 }

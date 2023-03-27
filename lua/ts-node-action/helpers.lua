@@ -1,14 +1,24 @@
 local M = {}
 
--- Returns node text as a string
+-- Returns node text as a string if single-line, or table if multi-line
 --
 --- @param node TSNode
---- @return string
+--- @return table|string|nil
 function M.node_text(node)
+  if not node then return end
+  
+  local text
   if vim.treesitter.get_node_text then
-    return vim.treesitter.get_node_text(node, vim.api.nvim_get_current_buf())
+    text = vim.trim(vim.treesitter.get_node_text(node, vim.api.nvim_get_current_buf()))
   else
-    return vim.treesitter.query.get_node_text(node, vim.api.nvim_get_current_buf())
+    -- TODO: Remove in 0.10
+    text = vim.trim(vim.treesitter.query.get_node_text(node, vim.api.nvim_get_current_buf()))
+  end
+
+  if text:match("\n") then
+    return vim.tbl_map(vim.trim, vim.split(text, "\n"))
+  else
+    return text
   end
 end
 
@@ -34,43 +44,44 @@ end
 -- {
 --   ["is"]  = " %s ",
 --   ["not"] = {
---     [""]   = " %s ",
+--     " %s ",
 --     ["is"] = "%s ",
 --   },
 -- }
 -- The ["is"] key under "not" overrides the format to remove the space when the
 -- previous text is "is".
--- A [""] key is a catch-all for any non-nil prev_text.
--- A ["nil"] key will match when prev_text == nil.
--- See filetypes/python.lua for more info.
+-- A ["prev_nil"] key will match when there is no previous node text
+-- A ["next_nil"] key will match when there is no next node text
+-- If none of the context_prev's apply, the string in index 1 will be used
+-- See filetypes/python.lua or filetypes/ruby.lua for more examples
 --
 --- @param node TSNode
 --- @param padding table
---- @param context string|nil The [presumed padded] text of the previous node.
---- @return string
-function M.padded_node_text(node, padding, context)
-  local text = M.node_text(node)
+--- @return string|table|nil
+function M.padded_node_text(node, padding)
+  local text   = M.node_text(node)
+  local format = padding[text]
 
-  if padding[text] then
-    local format = padding[text]
+  if not format then return text end
 
-    if type(format) == "table" then
-      context = context and vim.trim(context)
+  if type(format) == "table" then
+    local context_prev = M.node_text(node:prev_sibling())
+    local context_next = M.node_text(node:next_sibling())
 
-      if format[context] then
-        text = string.format(format[context], text)
-      elseif format["nil"] and context == nil then
-        text = string.format(format["nil"], text)
-      elseif format[""] then
-        text = string.format(format[""], text)
-      end
-
+    if format[context_prev] then
+      format = format[context_prev]
+    elseif not context_prev and format["prev_nil"] then
+      format = format["prev_nil"]
+    elseif format[context_next] then
+      format = format[context_next]
+    elseif not context_next and format["next_nil"] then
+      format = format["next_nil"]
     else
-      text = string.format(format, text)
+      format = format[1]
     end
   end
 
-  return text
+  return string.format(format, text)
 end
 
 -- Prints out a node's tree, showing each child's index, type, text, and ID
@@ -88,14 +99,14 @@ function M.debug_print_tree(node)
   vim.pretty_print(tree)
 end
 
--- Dissassembles a node tree into it's named and unnamed parts
+-- Disassembles a node tree into it's named and unnamed parts
 --
 --- @param node TSNode
 --- @return table
 function M.destructure_node(node)
   local structure = {}
   for child, id in node:iter_children() do
-    structure[id or child:type()] = vim.trim(M.node_text(child))
+    structure[id or child:type()] = M.node_text(child)
   end
 
   return structure
