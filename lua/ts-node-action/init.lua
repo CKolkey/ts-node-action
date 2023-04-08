@@ -84,9 +84,10 @@ function M.setup(opts)
   )
 end
 
+--- @private
 --- @return TSNode, string
 --- @return nil
-function M.get_node()
+function M._get_node()
   local root_langtree = require("nvim-treesitter.parsers").get_parser()
   if not root_langtree then
     return
@@ -101,7 +102,7 @@ end
 
 
 M.node_action = require("ts-node-action.repeat").set(function()
-  local node, lang = M.get_node()
+  local node, lang = M._get_node()
   if not node then
     info("No node found at cursor")
     return
@@ -129,7 +130,7 @@ M.node_action = require("ts-node-action.repeat").set(function()
 end)
 
 function M.available_actions()
-  local node, lang = M.get_node()
+  local node, lang = M._get_node()
   if not node then
     info("No node found at cursor")
     return
@@ -151,7 +152,7 @@ function M.available_actions()
 end
 
 function M.debug()
-  local node, lang = M.get_node()
+  local node, lang = M._get_node()
   if not node then
     info("No node found at cursor")
     return

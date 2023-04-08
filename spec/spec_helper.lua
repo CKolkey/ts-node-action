@@ -53,7 +53,7 @@ function Buffer:set_cursor(pos)
     return node, self.lang
   end
 
-  require("ts-node-action").get_node = fake_get_node
+  require("ts-node-action")._get_node = fake_get_node
 
   return self
 end
