@@ -52,13 +52,13 @@ local function do_action(action, node)
   end
 end
 
---- @private
 --- @param node TSNode
+--- @param lang string
 --- @return function|nil
-local function find_action(node)
+local function find_action(node, lang)
   local type = node:type()
-  if M.node_actions[vim.o.filetype] and M.node_actions[vim.o.filetype][type] then
-    return M.node_actions[vim.o.filetype][type]
+  if M.node_actions[lang] and M.node_actions[lang][type] then
+    return M.node_actions[lang][type]
   else
     return M.node_actions["*"][type]
   end
@@ -84,22 +84,30 @@ function M.setup(opts)
   )
 end
 
-local function get_node()
-  if vim.treesitter.get_node then
-    return vim.treesitter.get_node()
-  else
-    return require("nvim-treesitter.ts_utils").get_node_at_cursor()
+--- @return TSNode, string
+--- @return nil
+function M.get_node()
+  local root_langtree = require("nvim-treesitter.parsers").get_parser()
+  if not root_langtree then
+    return
   end
+
+  local lnum, col = unpack(vim.api.nvim_win_get_cursor(0))
+  local range4 = { lnum - 1, col, lnum - 1, col }
+  local langtree = root_langtree:language_for_range(range4)
+  local node = langtree:named_node_for_range(range4)
+  return node, langtree:lang()
 end
 
+
 M.node_action = require("ts-node-action.repeat").set(function()
-  local node = get_node()
+  local node, lang = M.get_node()
   if not node then
     info("No node found at cursor")
     return
   end
 
-  local action = find_action(node)
+  local action = find_action(node, lang)
   if type(action) == "function" then
     do_action(action, node)
   elseif type(action) == "table" then
@@ -116,12 +124,12 @@ M.node_action = require("ts-node-action.repeat").set(function()
       )
     end
   else
-    info("No action defined for '" .. vim.o.filetype .. "' node type: '" .. node:type() .. "'")
+    info("No action defined for '" .. lang .. "' node type: '" .. node:type() .. "'")
   end
 end)
 
 function M.available_actions()
-  local node = get_node()
+  local node, lang = M.get_node()
   if not node then
     info("No node found at cursor")
     return
@@ -134,7 +142,7 @@ function M.available_actions()
     }
   end
 
-  local action = find_action(node)
+  local action = find_action(node, lang)
   if type(action) == "function" then
     return { format_action({ action }) }
   elseif type(action) == "table" then
@@ -143,7 +151,7 @@ function M.available_actions()
 end
 
 function M.debug()
-  local node = get_node()
+  local node, lang = M.get_node()
   if not node then
     info("No node found at cursor")
     return
@@ -152,6 +160,7 @@ function M.debug()
   print(vim.inspect(
     {
       node = {
+        lang = lang,
         filetype = vim.o.filetype,
         node_type = node:type(),
         named = node:named(),
