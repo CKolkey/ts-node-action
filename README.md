@@ -49,7 +49,7 @@ use({
 ```
 
 **Note**: It's not required to call `require("ts-node-action").setup()` to initialize the plugin,
-but a table can be passed into the setup function to specify new actions for nodes or additional filetypes.
+but a table can be passed into the setup function to specify new actions for nodes or additional langs.
 
 ## Usage
 
@@ -72,11 +72,11 @@ The `setup()` function accepts a table that conforms to the following schema:
 
 ```lua
 {
-    ['*'] = { -- Global table is checked for all filetypes
+    ['*'] = { -- Global table is checked for all langs
         ["node_type"] = fn,
         ...
     },
-    filetype = {
+    lang = {
         ["node_type"] = fn,
         ...
     },
@@ -84,10 +84,10 @@ The `setup()` function accepts a table that conforms to the following schema:
 }
 ```
 
-- `filetype` should be the value of `vim.o.filetype`, or `'*'` for the global table
+- `lang` should be the treesitter parser lang, or `'*'` for the global table
 - `node_type` should be the value of `vim.treesitter.get_node_at_cursor()`
 
-A definition on the `filetype` table will take precedence over the `*` (global) table.
+A definition on the `lang` table will take precedence over the `*` (global) table.
 
 ### Multiple Actions for a Node Type
 
@@ -143,7 +143,7 @@ TSNode. If present, this node will be used as the target for replacement instead
 
 Here's a simplified example of how a node-action function gets called:
 ```lua
-local action = node_actions[vim.o.filetype][node:type()]
+local action = node_actions[lang][node:type()]
 local replacement, opts = action(node)
 replace_node(node, replacement, opts or {})
 ```
@@ -156,7 +156,7 @@ node your cursor is currently on.
 <hr>
 
 `require("ts-node-action").debug()`
-Prints some helpful information about the current node, as well as the loaded node actions for all filetypes
+Prints some helpful information about the current node, as well as the loaded node actions for all langs
 <hr>
 
 ## null-ls Integration
@@ -251,7 +251,7 @@ NOTE: The order of formats can be important, as some identifiers are the same fo
 <hr />
 </details>
 
-Builtin actions are all higher-order functions so they can easily have options overridden on a per-filetype basis. Check out the implementations under `lua/filetypes/` to see how!
+Builtin actions are all higher-order functions so they can easily have options overridden on a per-lang basis. Check out the implementations under `lua/filetypes/` to see how!
 
 |  | (*) | Ruby | js/ts/tsx/jsx | Lua | Python | PHP | Rust | JSON | HTML | YAML |
 |---|---|---|---|---|---|---|---|---|---|---|
