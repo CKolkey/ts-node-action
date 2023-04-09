@@ -293,31 +293,31 @@ therefore important to place a format between those two so we can correcly chang
 overridden on a per-lang basis. Check out the implementations under
 `lua/filetypes/` to see how!
 
-  -----------------------------------------------------------------------------------------------------------
-                             (*)    Ruby   js/ts/tsx/jsx   Lua    Python   PHP    Rust   JSON   HTML   YAML
-  -------------------------- ------ ------ --------------- ------ -------- ------ ------ ------ ------ ------
-  toggle_boolean()           ✅     ✅     ✅              ✅     ✅       ✅     ✅                   ✅
+  --------------------------------------------------------------------------------------------------------------
+                             (*)   Ruby   js/ts/tsx/jsx   Lua   Python   PHP   Rust   JSON   HTML   YAML   R
+  -------------------------- ----- ------ --------------- ----- -------- ----- ------ ------ ------ ------ -----
+  toggle_boolean()           ✅    ✅     ✅              ✅    ✅       ✅    ✅                   ✅     ✅
 
-  cycle_case()               ✅     ✅     ✅              ✅     ✅       ✅     ✅                   
+  cycle_case()               ✅    ✅     ✅              ✅    ✅       ✅    ✅                          ✅
 
-  cycle_quotes()             ✅     ✅     ✅              ✅     ✅       ✅                          
+  cycle_quotes()             ✅    ✅     ✅              ✅    ✅       ✅                                ✅
 
-  toggle_multiline()                ✅     ✅              ✅     ✅       ✅     ✅     ✅            
+  toggle_multiline()               ✅     ✅              ✅    ✅       ✅    ✅     ✅                   
 
-  toggle_operator()                 ✅     ✅              ✅     ✅       ✅                          
+  toggle_operator()                ✅     ✅              ✅    ✅       ✅                                ✅
 
-  toggle_int_readability()          ✅     ✅                     ✅       ✅     ✅     ✅            
+  toggle_int_readability()         ✅     ✅                    ✅       ✅    ✅     ✅                   
 
-  toggle_block()                    ✅                                                                 
+  toggle_block()                   ✅                                                                      
 
-  if/else <-> ternery               ✅                            ✅                                   
+  if/else <-> ternery              ✅                           ✅                                         
 
-  if block/postfix                  ✅                                                                 
+  if block/postfix                 ✅                                                                      
 
-  toggle_hash_style()               ✅                                                                 
+  toggle_hash_style()              ✅                                                                      
 
-  conceal_string()                         ✅                                                   ✅     
-  -----------------------------------------------------------------------------------------------------------
+  conceal_string()                        ✅                                                 ✅            
+  --------------------------------------------------------------------------------------------------------------
 
 TESTING                                *ts-node-action-ts-node-action-testing*
 
