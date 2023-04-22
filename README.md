@@ -159,18 +159,21 @@ node your cursor is currently on.
 Prints some helpful information about the current node, as well as the loaded node actions for all langs
 <hr>
 
+`require("ts-node-action").available_actions()`
+Exposes the function assigned to the node your cursor is currently on, as well as its name
+<hr>
+
 ## null-ls Integration
 
-`require("ts-node-action").available_actions()`
-Exposes the function assigned to the node your cursor is currently on, as well as its name. This is mainly designed for `null-ls` integration, which might look something like this:
+Users can set up integration with [null-ls](https://github.com/jose-elias-alvarez/null-ls.nvim) and use it to display
+available node actions by registering the builtin `ts_node_action` code action source
 
 ```lua
-require "null-ls".register({
-  name = "more_actions",
-  method = { require "null-ls".methods.CODE_ACTION },
-  filetypes = { "_all" },
-  generator = {
-    fn = require("ts-node-action").available_actions
+local null_ls = require("null-ls")
+null_ls.setup({
+  sources = {
+    null_ls.builtins.code_actions.ts_node_action,
+    ...
   }
 })
 ```
