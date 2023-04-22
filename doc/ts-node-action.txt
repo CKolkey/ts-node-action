@@ -190,21 +190,25 @@ API                                        *ts-node-action-ts-node-action-api*
 
 `require("ts-node-action").node_action()`
 Main function for plugin. Should be assigned by user, and when called will attempt to run the assigned function for the
-node your cursor is currently on.`require("ts-node-action").debug()`
+node your cursor is currently on.
+
+`require("ts-node-action").debug()`
 Prints some helpful information about the current node, as well as the loaded node actions for all langs
-NULL-LS INTEGRATION        *ts-node-action-ts-node-action-null-ls-integration*
 
 `require("ts-node-action").available_actions()` Exposes the function assigned
-to the node your cursor is currently on, as well as its name. This is mainly
-designed for `null-ls` integration, which might look something like this:
+to the node your cursor is currently on, as well as its name
+
+NULL-LS INTEGRATION        *ts-node-action-ts-node-action-null-ls-integration*
+
+Users can set up integration with null-ls and use it to display available node
+actions by registering the builtin `ts_node_action` code action source
 
 >lua
-    require "null-ls".register({
-      name = "more_actions",
-      method = { require "null-ls".methods.CODE_ACTION },
-      filetypes = { "_all" },
-      generator = {
-        fn = require("ts-node-action").available_actions
+    local null_ls = require("null-ls")
+    null_ls.setup({
+      sources = {
+        null_ls.builtins.code_actions.ts_node_action,
+        ...
       }
     })
 <
