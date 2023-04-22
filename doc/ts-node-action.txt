@@ -1,4 +1,4 @@
-*ts-node-action.txt*         For NVIM v0.8.0        Last change: 2023 April 09
+*ts-node-action.txt*         For NVIM v0.8.0        Last change: 2023 April 22
 
 ==============================================================================
 Table of Contents                           *ts-node-action-table-of-contents*
@@ -190,18 +190,15 @@ API                                        *ts-node-action-ts-node-action-api*
 
 `require("ts-node-action").node_action()`
 Main function for plugin. Should be assigned by user, and when called will attempt to run the assigned function for the
-node your cursor is currently on.
-
-`require("ts-node-action").debug()`
-Prints some helpful information about the current node, as well as the loaded node actions for all langs
-
-`require("ts-node-action").available_actions()` Exposes the function assigned
-to the node your cursor is currently on, as well as its name
-
+node your cursor is currently on.`require("ts-node-action").debug()`
+Prints some helpful information about the current node, as well as the loaded node actions for all langs`require("ts-node-action").available_actions()`
+Exposes the function assigned to the node your cursor is currently on, as well as its name
 NULL-LS INTEGRATION        *ts-node-action-ts-node-action-null-ls-integration*
 
-Users can set up integration with null-ls and use it to display available node
-actions by registering the builtin `ts_node_action` code action source
+Users can set up integration with null-ls
+<https://github.com/jose-elias-alvarez/null-ls.nvim> and use it to display
+available node actions by registering the builtin `ts_node_action` code action
+source
 
 >lua
     local null_ls = require("null-ls")
