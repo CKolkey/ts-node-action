@@ -1,10 +1,5 @@
 local actions = require("ts-node-action.actions")
 
-local boolean_override = {
-  ["true"] = "false",
-  ["false"] = "true",
-}
-
 local operators = {
   -- assignment
   ["+="] = "-=",
@@ -72,15 +67,18 @@ local uncollapsible = {
 }
 
 return {
-  ["boolean_literal"]          = actions.toggle_boolean(boolean_override),
+  ["boolean_literal"]          = actions.toggle_boolean(),
   ["integer_literal"]          = actions.toggle_int_readability(),
   ["binary_expression"]        = actions.toggle_operator(operators),
   ["compound_assignment_expr"] = actions.toggle_operator(operators),
+  ["arguments"]                = actions.toggle_multiline(padding, uncollapsible),
+  ["parameters"]               = actions.toggle_multiline(padding, uncollapsible),
   ["block"]                    = actions.toggle_multiline(padding, uncollapsible),
   ["use_list"]                 = actions.toggle_multiline(padding_compact, uncollapsible),
   ["array_expression"]         = actions.toggle_multiline(padding, uncollapsible),
   ["tuple_expression"]         = actions.toggle_multiline(padding, uncollapsible),
-  ["arguments"]                = actions.toggle_multiline(padding, uncollapsible),
+  ["tuple_pattern"]            = actions.toggle_multiline(padding, uncollapsible),
   ["field_initializer_list"]   = actions.toggle_multiline(padding, uncollapsible),
   ["field_declaration_list"]   = actions.toggle_multiline(padding, uncollapsible),
+  ["enum_variant_list"]        = actions.toggle_multiline(padding, uncollapsible),
 }

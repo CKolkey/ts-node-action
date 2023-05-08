@@ -93,6 +93,38 @@ describe("operator", function()
 end)
 
 describe("toggle_multiline", function()
+    it("use_list", function()
+        assert.are.same(
+            {
+                "use std::collections::{",
+                "    HashMap,",
+                "    HashSet",
+                "};",
+            },
+            Helper:call(
+                {
+                    "use std::collections::{HashMap, HashSet};",
+                },
+                { 1, 23 }
+            )
+        )
+
+        assert.are.same(
+            {
+                "use std::collections::{HashMap, HashSet};",
+            },
+            Helper:call(
+                {
+                    "use std::collections::{",
+                    "    HashMap,",
+                    "    HashSet",
+                    "};",
+                },
+                { 1, 23 }
+            )
+        )
+    end)
+
     it("block", function()
         assert.are.same(
             {
@@ -125,34 +157,74 @@ describe("toggle_multiline", function()
         )
     end)
 
-    it("use_list", function()
+    it("parameters", function()
         assert.are.same(
             {
-                "use std::collections::{",
-                "    HashMap,",
-                "    HashSet",
-                "};",
+                "fn main(",
+                "    first: u8,",
+                "    second: u8",
+                ") {",
+                "    submod::hi();",
+                "}"
             },
             Helper:call(
                 {
-                    "use std::collections::{HashMap, HashSet};",
+                    "fn main(first: u8, second: u8) {",
+                    "    submod::hi();",
+                    "}"
                 },
-                { 1, 23 }
+                { 1, 8 }
             )
         )
 
         assert.are.same(
             {
-                "use std::collections::{HashMap, HashSet};",
+                "fn main(first: u8, second: u8) {",
+                "    submod::hi();",
+                "}"
             },
             Helper:call(
                 {
-                    "use std::collections::{",
-                    "    HashMap,",
-                    "    HashSet",
-                    "};",
+                    "fn main(",
+                    "    first: u8,",
+                    "    second: u8",
+                    ") {",
+                    "    submod::hi();",
+                    "}"
                 },
-                { 1, 23 }
+                { 1, 8 }
+            )
+        )
+    end)
+
+    it("arguments", function()
+        assert.are.same(
+            {
+                "list.insert_at_ith(",
+                "    0,",
+                "    first_value",
+                ");"
+            },
+            Helper:call(
+                {
+                    "list.insert_at_ith(0, first_value);",
+                },
+                { 1, 19 }
+            )
+        )
+
+        assert.are.same(
+            {
+                "list.insert_at_ith(0, first_value);",
+            },
+            Helper:call(
+                {
+                    "list.insert_at_ith(",
+                    "    0,",
+                    "    first_value",
+                    ");",
+                },
+                { 1, 19 }
             )
         )
     end)
@@ -191,38 +263,6 @@ describe("toggle_multiline", function()
         )
     end)
 
-    it("arguments", function()
-        assert.are.same(
-            {
-                "list.insert_at_ith(",
-                "    0,",
-                "    first_value",
-                ");"
-            },
-            Helper:call(
-                {
-                    "list.insert_at_ith(0, first_value);",
-                },
-                { 1, 19 }
-            )
-        )
-
-        assert.are.same(
-            {
-                "list.insert_at_ith(0, first_value);",
-            },
-            Helper:call(
-                {
-                    "list.insert_at_ith(",
-                    "    0,",
-                    "    first_value",
-                    ");",
-                },
-                { 1, 19 }
-            )
-        )
-    end)
-
     it("tuple_expression", function()
         assert.are.same(
             {
@@ -251,6 +291,72 @@ describe("toggle_multiline", function()
                     ")",
                 },
                 { 1, 11 }
+            )
+        )
+    end)
+
+    it("tuple_pattern", function()
+        assert.are.same(
+            {
+                "let (",
+                "a,",
+                "b",
+                ") = foo;"
+            },
+            Helper:call(
+                {
+                    "let (a, b) = foo;"
+                },
+                { 1, 5 }
+            )
+        )
+
+        assert.are.same(
+            {
+                "let (a, b) = foo;",
+            },
+            Helper:call(
+                {
+                    "let (",
+                    "    a,",
+                    "    b",
+                    ") = foo;",
+                },
+                { 1, 5 }
+            )
+        )
+    end)
+
+    it("enum_variant_list", function()
+        assert.are.same(
+            {
+                "enum Foo {",
+                "    A,",
+                "    B,",
+                "    C",
+                "}",
+            },
+            Helper:call(
+                {
+                    "enum Foo { A, B, C }",
+                },
+                { 1, 10 }
+            )
+        )
+
+        assert.are.same(
+            {
+                "enum Foo { A, B, C }",
+            },
+            Helper:call(
+                {
+                    "enum Foo {",
+                    "    A,",
+                    "    B,",
+                    "    C",
+                    "}",
+                },
+                { 1, 10 }
             )
         )
     end)
