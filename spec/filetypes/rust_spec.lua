@@ -2,14 +2,14 @@ dofile("spec/spec_helper.lua")
 
 local Helper = SpecHelper.new("rust", { shiftwidth = 4 })
 
-describe("boolean", function()
+describe("toggle_boolean", function()
     it("toggles 'true' and 'false'", function()
         assert.are.same({ "let i = true;" }, Helper:call({ "let i = false;" }, { 1, 9 }))
         assert.are.same({ "let i = false;" }, Helper:call({ "let i = true;" }, { 1, 9 }))
     end)
 end)
 
-describe("friendly integers", function()
+describe("toggle_int_readability", function()
     it("1 million to friendly", function()
         assert.are.same({ "x = 1000000" }, Helper:call({
             "x = 1_000_000",}, { 1, 5 }))
@@ -155,7 +155,9 @@ describe("toggle_multiline", function()
                 { 1, 11 }
             )
         )
+    end)
 
+    it("block fix #41 - as", function()
         assert.are.same(
             {
                 "{",
@@ -180,6 +182,56 @@ describe("toggle_multiline", function()
                     "}",
                 },
                 { 1, 1 }
+            )
+        )
+    end)
+
+    it("block fix #41 - let", function()
+        assert.are.same(
+            {
+                "fn test() { let foo = stuff(); }"
+            },
+            Helper:call(
+                {
+                    "fn test() {",
+                    "    let foo = stuff();",
+                    "}",
+                },
+                { 1, 11 }
+            )
+        )
+    end)
+
+    it("block fix #41 - &mut (reference_type)", function()
+        assert.are.same(
+            {
+                "fn test(",
+                "    foo: &mut Foo",
+                ") {",
+                "}"
+            },
+            Helper:call(
+                {
+                    "fn test(foo: &mut Foo) {",
+                    "}",
+                },
+                { 1, 8 }
+            )
+        )
+    end)
+
+    it("block fix #41 - &mut (reference_expression)", function()
+        assert.are.same(
+            {
+                "value.serialize(&mut serializer)"
+            },
+            Helper:call(
+                {
+                    "value.serialize(",
+                    "    &mut serializer",
+                    ")",
+                },
+                { 1, 16 }
             )
         )
     end)
