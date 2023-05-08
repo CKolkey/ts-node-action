@@ -155,6 +155,33 @@ describe("toggle_multiline", function()
                 { 1, 11 }
             )
         )
+
+        assert.are.same(
+            {
+                "{",
+                "    visitor.visit_char(self.parse_u8()? as char)",
+                "}",
+            },
+            Helper:call(
+                {
+                    "{ visitor.visit_char(self.parse_u8()? as char) }",
+                },
+                { 1, 1 }
+            )
+        )
+        assert.are.same(
+            {
+                "{ visitor.visit_char(self.parse_u8()? as char) }",
+            },
+            Helper:call(
+                {
+                    "{",
+                    "    visitor.visit_char(self.parse_u8()? as char)",
+                    "}",
+                },
+                { 1, 1 }
+            )
+        )
     end)
 
     it("parameters", function()
