@@ -1,4 +1,4 @@
-*ts-node-action.txt*         For NVIM v0.8.0        Last change: 2023 April 22
+*ts-node-action.txt*          For NVIM v0.8.0         Last change: 2023 May 19
 
 ==============================================================================
 Table of Contents                           *ts-node-action-table-of-contents*
@@ -20,7 +20,6 @@ Table of Contents                           *ts-node-action-table-of-contents*
 
 A framework for running functions on Tree-sitter nodes, and updating the buffer
 with the result.
-
 
 - Installation <https://github.com/CKolkey/ts-node-action/blob/master/README.md#installation>
 - Usage <https://github.com/CKolkey/ts-node-action/blob/master/README.md#usage>
@@ -101,7 +100,6 @@ The `setup()` function accepts a table that conforms to the following schema:
     }
 <
 
-
 - `lang` should be the treesitter parser lang, or `'*'` for the global table
 - `node_type` should be the value of `vim.treesitter.get_node_at_cursor()`
 
@@ -133,7 +131,6 @@ node under the cursor.
 You can read more about their API via `:help tsnode`
 
 This function can return one or two values:
-
 
 - The first being the text to replace the node with. The replacement text can be
     either a `"string"` or `{ "table", "of", "strings" }`. With a table of strings,
@@ -303,7 +300,7 @@ overridden on a per-lang basis. Check out the implementations under
 
   cycle_quotes()             ✅    ✅     ✅              ✅    ✅       ✅                                ✅
 
-  toggle_multiline()               ✅     ✅              ✅    ✅       ✅    ✅     ✅                   
+  toggle_multiline()               ✅     ✅              ✅    ✅       ✅    ✅     ✅                   ✅
 
   toggle_operator()                ✅     ✅              ✅    ✅       ✅                                ✅
 
