@@ -3,6 +3,10 @@ local helpers = require("ts-node-action.helpers")
 local boolean_pair_default = {
   ["true"]  = "false",
   ["false"] = "true",
+  ["True"]  = "False",
+  ["False"] = "True",
+  ["TRUE"] = "FALSE",
+  ["FALSE"] = "TRUE",
 }
 
 return function(boolean_pair_override)

@@ -50,11 +50,6 @@ local padding = {
   ["from"]   = "%s ",
 }
 
-local boolean_override = {
-  ["True"]  = "False",
-  ["False"] = "True",
-}
-
 --- @param node TSNode
 local function node_trim_whitespace(node)
   local start_row, _, end_row, _ = node:range()
@@ -524,8 +519,6 @@ return {
   ["set_comprehension"]        = actions.toggle_multiline(padding),
   ["dictionary_comprehension"] = actions.toggle_multiline(padding),
   ["generator_expression"]     = actions.toggle_multiline(padding),
-  ["true"]                     = actions.toggle_boolean(boolean_override),
-  ["false"]                    = actions.toggle_boolean(boolean_override),
   ["comparison_operator"]      = actions.toggle_operator(),
   ["integer"]                  = actions.toggle_int_readability(),
   ["conditional_expression"]   = { expand_conditional_expression(padding), },
