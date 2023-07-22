@@ -516,6 +516,38 @@ local function expand_conditional_expression(padding_override)
   return { action, name = "Expand Conditional" }
 end
 
+local function cycle_quotes()
+  quotes = { ["'"] = '"', ['"'] = "'" }
+
+  local function _replace(node)
+    local text = helpers.node_text(node)
+    assert(type(text) == "string")
+    local quote = text:match("[" .. [['"]] .. "]")
+    local replacement = quotes[quote]
+    return text:gsub(quote, replacement)
+  end
+
+  local function toggle_start(node)
+    while node:type() ~= "string_start" do
+      node = node:prev_sibling()
+    end
+    return _replace(node), { target = node }
+  end
+
+  local function toggle_end(node)
+    while node:type() ~= "string_end" do
+      node = node:next_sibling()
+    end
+    return _replace(node), { target = node }
+  end
+
+  return {
+    { toggle_start, name = "Toggle string start quote" },
+    { toggle_end, name = "Toggle string end quote" },
+    ask = false,
+  }
+end
+
 return {
   ["dictionary"] = actions.toggle_multiline(padding),
   ["set"] = actions.toggle_multiline(padding),
@@ -531,4 +563,7 @@ return {
   ["integer"] = actions.toggle_int_readability(),
   ["conditional_expression"] = { expand_conditional_expression(padding) },
   ["if_statement"] = { inline_if_statement(padding) },
+  ["string_start"] = cycle_quotes(),
+  ["string_content"] = cycle_quotes(),
+  ["string_end"] = cycle_quotes(),
 }
