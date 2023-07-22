@@ -1,12 +1,5 @@
 local actions = require("ts-node-action.actions")
 
-local boolean_override = {
-    ["true"] = "false",
-    ["TRUE"] = "FALSE",
-    ["false"] = "true",
-    ["FALSE"] = "TRUE",
-}
-
 local operators = {
     ["!="] = "=",
     ["="] = "!=",
@@ -34,8 +27,8 @@ local uncollapsible = {
 }
 
 return {
-    ["keyword_true"]       = actions.toggle_boolean(boolean_override),
-    ["keyword_false"]      = actions.toggle_boolean(boolean_override),
+    ["keyword_true"]       = actions.toggle_boolean(),
+    ["keyword_false"]      = actions.toggle_boolean(),
     ["binary_expression"]  = actions.toggle_operator(operators),
     ["keyword_and"]        = actions.toggle_operator(operators),
     ["keyword_or"]         = actions.toggle_operator(operators),

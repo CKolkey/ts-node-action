@@ -1,11 +1,6 @@
 local actions = require("ts-node-action.actions")
 local helpers = require("ts-node-action.helpers")
 
-local boolean_override = {
-	["TRUE"] = "FALSE",
-	["FALSE"] = "TRUE",
-}
-
 local operators = {
 	["!="] = "==",
 	["=="] = "!=",
@@ -56,8 +51,6 @@ local function toggle_multiline_args(node)
 	return replacement, { cursor = { col = range_end[4] - range_end[2] }, format = true }
 end
 return {
-	["true"] = actions.toggle_boolean(boolean_override),
-	["false"] = actions.toggle_boolean(boolean_override),
 	["binary"] = actions.toggle_operator(operators),
 	["call"] = { { toggle_multiline_args, name = "Toggle Multiline Arguments" } },
 	["formal_parameters"] = actions.toggle_multiline(padding),
