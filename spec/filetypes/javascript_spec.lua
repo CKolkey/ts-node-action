@@ -126,14 +126,18 @@ describe("arguments", function()
 
   it("collapses inner array/object", function()
     assert.are.same(
-      Helper:call({ "x(1, 2, [4, 5, 6])" }, { 1, 2 }),
-      {
+      { "x(1, 2, [4, 5, 6])" },
+      Helper:call({
         "x(",
         "  1,",
         "  2,",
-        "  [4, 5, 6]",
+        "  [",
+        "    4,",
+        "    5,",
+        "    6",
+        "  ]",
         ")"
-      }
+      }, { 1, 2 })
     )
   end)
 end)
