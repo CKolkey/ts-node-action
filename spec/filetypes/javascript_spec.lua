@@ -28,29 +28,23 @@ end)
 
 describe("array", function()
   it("expands single line array to multiple lines", function()
-    assert.are.same(
-      {
-        "[",
-        "  1,",
-        "  2,",
-        "  3",
-        "]"
-      },
-      Helper:call({ "[1, 2, 3]" })
-    )
+    assert.are.same({
+      "[",
+      "  1,",
+      "  2,",
+      "  3",
+      "]",
+    }, Helper:call({ "[1, 2, 3]" }))
   end)
 
   it("doesn't expand child arrays", function()
-    assert.are.same(
-      {
-        "[",
-        "  1,",
-        "  2,",
-        "  [3, 4, 5]",
-        "]"
-      },
-      Helper:call({ "[1, 2, [3, 4, 5]]" })
-    )
+    assert.are.same({
+      "[",
+      "  1,",
+      "  2,",
+      "  [3, 4, 5]",
+      "]",
+    }, Helper:call({ "[1, 2, [3, 4, 5]]" }))
   end)
 
   it("collapses multi-line array to single line", function()
@@ -61,7 +55,7 @@ describe("array", function()
         "  1,",
         "  2,",
         "  3",
-        "]"
+        "]",
       })
     )
   end)
@@ -78,7 +72,7 @@ describe("array", function()
         "    4,",
         "    5",
         "  ]",
-        "]"
+        "]",
       })
     )
   end)

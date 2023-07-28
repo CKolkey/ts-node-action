@@ -3,7 +3,6 @@ dofile("./spec/spec_helper.lua")
 local Helper = SpecHelper.new("python", { shiftwidth = 4 })
 
 describe("if_statement", function()
-
   it("if/else inlines with a single assignment", function()
     assert.are.same(
       { [[x = 1 if foo(y) else 2]] },
@@ -28,26 +27,31 @@ describe("if_statement", function()
     )
   end)
 
-  it("if/else doesn't inline a multi assignment when identifiers differ (consequence)", function()
-    local text = {
-      [[if foo(a):]],
-      [[    c = y = z = 1]],
-      [[else:]],
-      [[    x = y = z = 2]],
-    }
-    assert.are.same(text, text)
-  end)
+  it(
+    "if/else doesn't inline a multi assignment when identifiers differ (consequence)",
+    function()
+      local text = {
+        [[if foo(a):]],
+        [[    c = y = z = 1]],
+        [[else:]],
+        [[    x = y = z = 2]],
+      }
+      assert.are.same(text, text)
+    end
+  )
 
-  it("if/else doesn't inline a multi assignment when identifiers differ (alternative)", function()
-    local text = {
-      [[if foo(a):]],
-      [[    x = y = z = 1]],
-      [[else:]],
-      [[    x = y = c = 2]],
-    }
-    assert.are.same(text, text)
-  end)
-
+  it(
+    "if/else doesn't inline a multi assignment when identifiers differ (alternative)",
+    function()
+      local text = {
+        [[if foo(a):]],
+        [[    x = y = z = 1]],
+        [[else:]],
+        [[    x = y = c = 2]],
+      }
+      assert.are.same(text, text)
+    end
+  )
 
   it("if/else inlines with a return", function()
     assert.are.same(
@@ -109,25 +113,29 @@ describe("if_statement", function()
     )
   end)
 
-  it("if/else inlines with bare conditional_expression (auto parens)", function()
-    assert.are.same(
-      { [[x = (3 if a else 4) if z is not None else (5 if b else 6)]] },
-      Helper:call({
-        [[if z is not None:]],
-        [[    x = 3 if a else 4]],
-        [[else:]],
-        [[    x = 5 if b else 6]],
-      })
-    )
-  end)
+  it(
+    "if/else inlines with bare conditional_expression (auto parens)",
+    function()
+      assert.are.same(
+        { [[x = (3 if a else 4) if z is not None else (5 if b else 6)]] },
+        Helper:call({
+          [[if z is not None:]],
+          [[    x = 3 if a else 4]],
+          [[else:]],
+          [[    x = 5 if b else 6]],
+        })
+      )
+    end
+  )
 
-  it("if/else inlines with multiline parenthized fn args, boolean op, structures", function()
-    assert.are.same(
-      {
-        [=[y = x = [1, 3] if (foo(a, b) > 100 or foo(c, d) < 200) else (False or True)]=]
-      },
-      Helper:call(
+  it(
+    "if/else inlines with multiline parenthized fn args, boolean op, structures",
+    function()
+      assert.are.same(
         {
+          [=[y = x = [1, 3] if (foo(a, b) > 100 or foo(c, d) < 200) else (False or True)]=],
+        },
+        Helper:call({
           [[if (foo(a,]],
           [[        b) > 100 or]],
           [[    foo(c,]],
@@ -137,10 +145,10 @@ describe("if_statement", function()
           [[else:]],
           [[    y = x = (False or]],
           [[             True)]],
-        }
+        })
       )
-    )
-  end)
+    end
+  )
 
   it("if inlines with a single assignment", function()
     assert.are.same(
@@ -237,7 +245,7 @@ describe("if_statement", function()
       [[    x = 1]],
       [[else:]],
       [[    # comment]],
-      [[    x = 2]]
+      [[    x = 2]],
     }
     assert.are.same(text, Helper:call(text))
   end)
@@ -250,5 +258,4 @@ describe("if_statement", function()
     }
     assert.are.same(text, Helper:call(text))
   end)
-
 end)

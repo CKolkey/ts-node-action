@@ -5,14 +5,20 @@ local M = {}
 --- @param node TSNode
 --- @return table|string|nil
 function M.node_text(node)
-  if not node then return end
-  
+  if not node then
+    return
+  end
+
   local text
   if vim.treesitter.get_node_text then
-    text = vim.trim(vim.treesitter.get_node_text(node, vim.api.nvim_get_current_buf()))
+    text = vim.trim(
+      vim.treesitter.get_node_text(node, vim.api.nvim_get_current_buf())
+    )
   else
     -- TODO: Remove in 0.10
-    text = vim.trim(vim.treesitter.query.get_node_text(node, vim.api.nvim_get_current_buf()))
+    text = vim.trim(
+      vim.treesitter.query.get_node_text(node, vim.api.nvim_get_current_buf())
+    )
   end
 
   if text:match("\n") then
@@ -59,10 +65,12 @@ end
 --- @param padding table
 --- @return string|table|nil
 function M.padded_node_text(node, padding)
-  local text   = M.node_text(node)
+  local text = M.node_text(node)
   local format = padding[text]
 
-  if not format then return text end
+  if not format then
+    return text
+  end
 
   if type(format) == "table" then
     local context_prev = M.node_text(node:prev_sibling())
@@ -89,10 +97,11 @@ end
 --- @param node TSNode
 --- @return nil
 function M.debug_print_tree(node)
-  local tree  = {}
+  local tree = {}
   local index = 1
   for child, id in node:iter_children() do
-    tree[tostring(index)] = { type = child:type(), text = M.node_text(child), id = id }
+    tree[tostring(index)] =
+      { type = child:type(), text = M.node_text(child), id = id }
     index = index + 1
   end
 
