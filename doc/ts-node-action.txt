@@ -21,17 +21,18 @@ Table of Contents                           *ts-node-action-table-of-contents*
 A framework for running functions on Tree-sitter nodes, and updating the buffer
 with the result.
 
-- Installation <https://github.com/CKolkey/ts-node-action/blob/master/README.md#installation>
-- Usage <https://github.com/CKolkey/ts-node-action/blob/master/README.md#usage>
-- Configuration <https://github.com/CKolkey/ts-node-action/blob/master/README.md#configuration>
-    - Multiple Actions for a Node Type <https://github.com/CKolkey/ts-node-action/blob/master/README.md#multiple-actions-for-a-node-type>
-    - Writing Your Own Actions <https://github.com/CKolkey/ts-node-action#writing-your-own-node-actions>
-- API <https://github.com/CKolkey/ts-node-action#writing-your-own-node-actions>
-    - Helpers <https://github.com/CKolkey/ts-node-action#helpers>
-    - Null-LS <https://github.com/CKolkey/ts-node-action#null-ls-integration>
-- Builtin Actions <https://github.com/CKolkey/ts-node-action#builtin-actions>
-- Testing <https://github.com/CKolkey/ts-node-action#testing>
-- Contributing <https://github.com/CKolkey/ts-node-action#contributing>
+- |ts-node-action-installation|
+- |ts-node-action-usage|
+- |ts-node-action-configuration|
+    - |ts-node-action-multiple-actions-for-a-node-type|
+- |ts-node-action-writing-your-own-node-actions|
+    - |ts-node-action-options|
+- |ts-node-action-api|
+- |ts-node-action-null-ls-integration|
+- |ts-node-action-helpers|
+- |ts-node-action-builtin-actions|
+- |ts-node-action-testing|
+- |ts-node-action-contributing|
 
 
 INSTALLATION                      *ts-node-action-ts-node-action-installation*
@@ -58,10 +59,10 @@ INSTALLATION                      *ts-node-action-ts-node-action-installation*
     })
 <
 
-**Note**: It’s not required to call `require("ts-node-action").setup()` to
-initialize the plugin, but a table can be passed into the setup function to
-specify new actions for nodes or additional langs.
 
+  [!NOTE] It’s not required to call `require("ts-node-action").setup()` to
+  initialize the plugin, but a table can be passed into the setup function to
+  specify new actions for nodes or additional langs.
 
 USAGE                                    *ts-node-action-ts-node-action-usage*
 
@@ -71,7 +72,12 @@ the user.
 For example, this would bind the function to `K`:
 
 >lua
-    vim.keymap.set({ "n" }, "K", require("ts-node-action").node_action, { desc = "Trigger Node Action" })
+    vim.keymap.set(
+        { "n" },
+        "K",
+        require("ts-node-action").node_action,
+        { desc = "Trigger Node Action" },
+    )
 <
 
 If `tpope/vim-repeat` is installed, calling `node_action()` is dot-repeatable.
@@ -162,6 +168,9 @@ Here’s how that can look.
 <
 
 
+OPTIONS ~
+
+
 CURSOR
 
 If the `cursor` key is present with an empty table value, the cursor will be
@@ -197,11 +206,20 @@ Here’s a simplified example of how a node-action function gets called:
 
 API                                        *ts-node-action-ts-node-action-api*
 
-`require("ts-node-action").node_action()`
-Main function for plugin. Should be assigned by user, and when called will attempt to run the assigned function for the
-node your cursor is currently on.`require("ts-node-action").debug()`
-Prints some helpful information about the current node, as well as the loaded node actions for all langs`require("ts-node-action").available_actions()`
-Exposes the function assigned to the node your cursor is currently on, as well as its name
+`require("ts-node-action").node_action()` Main function for plugin. Should be
+assigned by user, and when called will attempt to run the assigned function for
+the node your cursor is currently on.
+
+------------------------------------------------------------------------------
+`require("ts-node-action").debug()` Prints some helpful information about the
+current node, as well as the loaded node actions for all langs
+
+------------------------------------------------------------------------------
+`require("ts-node-action").available_actions()` Exposes the function assigned
+to the node your cursor is currently on, as well as its name
+
+------------------------------------------------------------------------------
+
 NULL-LS INTEGRATION        *ts-node-action-ts-node-action-null-ls-integration*
 
 Users can set up integration with null-ls
@@ -219,26 +237,42 @@ source
     })
 <
 
-This will present the available node action(s) for the node under your cursor alongside your `lsp`/`null-ls` code actions.
+This will present the available node action(s) for the node under your cursor
+alongside your `lsp`/`null-ls` code actions.
+
+------------------------------------------------------------------------------
+
 HELPERS                                *ts-node-action-ts-node-action-helpers*
 
-`require("ts-node-action.helpers").node_text(node)`
+>lua
+    require("ts-node-action.helpers").node_text(node)
+<
 
->
+>lua
     @node: tsnode
     @return: string
 <
 
-Returns the text of the specified node.`require("ts-node-action.helpers").node_is_multiline(node)`
+Returns the text of the specified node.
 
->
+------------------------------------------------------------------------------
+>lua
+    require("ts-node-action.helpers").node_is_multiline(node)
+<
+
+>lua
     @node: tsnode
     @return: boolean
 <
 
-Returns true if node spans multiple lines, and false if it’s a single line.`require("ts-node-action.helpers").padded_node_text(node, padding)`
+Returns true if node spans multiple lines, and false if it’s a single line.
 
->
+------------------------------------------------------------------------------
+>lua
+    require("ts-node-action.helpers").padded_node_text(node, padding)
+<
+
+>lua
     @node: tsnode
     @padding: table
     @return: string
@@ -259,53 +293,65 @@ BUILTIN ACTIONS                *ts-node-action-ts-node-action-builtin-actions*
 
 Cycle Case ~
 
-`require("ts-node-action.actions").cycle_case(formats)`
+>lua
+    require("ts-node-action.actions").cycle_case(formats)
+<
 
->
+>lua
     @param formats table|nil
 <
 
 `formats` param can be a table of strings specifying the different formats to
-cycle through. By default it’s `{ "snake_case", "pascal_case",
-"screaming_snake_case", "camel_case" }`.
+cycle through. By default it’s
+
+>lua
+    { "snake_case", "pascal_case", "screaming_snake_case", "camel_case" }
+<
 
 A table can also be used in place of a string to implement a custom formatter.
-Every format is a table that implements the following interface: - pattern
-(string) - apply (function) - standardize (function)
+Every format is a table that implements the following interface:
+
+- pattern (string)
+- apply (function)
+- standardize (function)
 
 
-PATTERN ~
+PATTERN 
 
 A Lua pattern (string) that matches the format
 
 
-APPLY ~
+APPLY
 
 A function that takes a _table_ of standardized strings as it’s argument, and
 returns a _string_ in the format
 
 
-STANDARDIZE ~
+STANDARDIZE
 
 A function that takes a _string_ in this format, and returns a table of
 strings, all lower case, no special chars. ie:
 
->
+>lua
         standardize("ts_node_action") -> { "ts", "node", "action" }
         standardize("tsNodeAction")   -> { "ts", "node", "action" }
         standardize("TsNodeAction")   -> { "ts", "node", "action" }
         standardize("TS_NODE_ACTION") -> { "ts", "node", "action" }
 <
 
-NOTE: The order of formats can be important, as some identifiers are the same for multiple formats.
-Take the string 'action' for example. This is a match for both snake_case _and_ camel_case. It’s
-therefore important to place a format between those two so we can correcly change the string.Builtin actions are all higher-order functions so they can easily have options
+
+  [!NOTE] The order of formats can be important, as some identifiers are the same
+  for multiple formats. Take the string 'action' for example. This is a match for
+  both snake_case _and_ camel_case. It’s therefore important to place a format
+  between those two so we can correcly change the string.
+------------------------------------------------------------------------------
+Builtin actions are all higher-order functions so they can easily have options
 overridden on a per-lang basis. Check out the implementations under
 `lua/filetypes/` to see how!
 
-  --------------------------------------------------------------------------------------------------------------
+  -------------------------------------------------------------------------------------------------------------
                              (*)   Ruby   js/ts/tsx/jsx   Lua   Python   PHP   Rust   JSON   HTML   YAML   R
-  -------------------------- ----- ------ --------------- ----- -------- ----- ------ ------ ------ ------ -----
+  -------------------------- ----- ------ --------------- ----- -------- ----- ------ ------ ------ ------ ----
   toggle_boolean()           ✅    ✅     ✅              ✅    ✅       ✅    ✅                   ✅     ✅
 
   cycle_case()               ✅    ✅     ✅              ✅    ✅       ✅    ✅                          ✅
@@ -327,7 +373,7 @@ overridden on a per-lang basis. Check out the implementations under
   toggle_hash_style()              ✅                                                                      
 
   conceal_string()                        ✅                                                 ✅            
-  --------------------------------------------------------------------------------------------------------------
+  -------------------------------------------------------------------------------------------------------------
 
 TESTING                                *ts-node-action-ts-node-action-testing*
 
@@ -342,7 +388,7 @@ CONTRIBUTING                      *ts-node-action-ts-node-action-contributing*
 If you come up with something that would be a good fit, pull requests for node
 actions are welcome!
 
-Visit: https://www.github.com/ckolkey/ts-node-action
+Visit: <https://www.github.com/ckolkey/ts-node-action>
 
 ==============================================================================
 2. Links                                                *ts-node-action-links*
