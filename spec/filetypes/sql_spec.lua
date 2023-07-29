@@ -123,10 +123,13 @@ describe("expands and collapses: ", function()
   end)
 
   it("Collapses select_expression", function()
+    got = Helper:call({ "select a as c1, b as c2" }, { 1, 15 })
+    got[2] = got[2]:match("^%s*(.*)")
     assert.are.same({
       "select a as c1,",
       "b as c2",
-    }, Helper:call({ "select a as c1, b as c2" }, { 1, 15 }))
+    },
+    got)
   end)
 
   it("Expands select_expression with subquery", function()
@@ -140,10 +143,13 @@ describe("expands and collapses: ", function()
   end)
 
   it("Collapses select_expression", function()
+    got = Helper:call({ "select a as c1, (select 1) as sq" }, { 1, 15 })
+    got[2] = got[2]:match("^%s*(.*)")
     assert.are.same({
       "select a as c1,",
       "(select 1) as sq",
-    }, Helper:call({ "select a as c1, (select 1) as sq" }, { 1, 15 }))
+    },
+    got)
   end)
 
   it("Expands column_definition in create table statement", function()

@@ -28,7 +28,6 @@ return {
   ["object_pattern"] = actions.toggle_multiline(padding),
   ["object_type"] = actions.toggle_multiline(padding),
   ["formal_parameters"] = actions.toggle_multiline(padding),
-  ["argument_list"] = actions.toggle_multiline(padding),
-  ["method_parameters"] = actions.toggle_multiline(padding),
+  ["arguments"] = actions.toggle_multiline(padding),
   ["number"] = actions.toggle_int_readability(),
 }

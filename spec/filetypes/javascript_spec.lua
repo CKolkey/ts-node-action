@@ -77,3 +77,61 @@ describe("array", function()
     )
   end)
 end)
+
+describe("arguments", function()
+  it("expands arguments into multiple lines", function()
+    assert.are.same(
+      {
+        "x(",
+        "  1,",
+        "  2,",
+        "  3",
+        ")"
+      },
+      Helper:call({ "x(1, 2, 3)" }, { 1, 2 })
+    )
+  end)
+
+  it("collapses into single line", function()
+    assert.are.same(
+      Helper:call({ "x(1, 2, 3)" }, { 1, 2 }),
+      {
+        "x(",
+        "  1,",
+        "  2,",
+        "  3",
+        ")"
+      }
+    )
+  end)
+
+  it("do not expand inner array/object", function()
+    assert.are.same(
+      {
+        "x(",
+        "  1,",
+        "  2,",
+        "  [4, 5, 6]",
+        ")"
+      },
+      Helper:call({ "x(1, 2, [4, 5, 6])" }, { 1, 2 })
+    )
+  end)
+
+  it("collapses inner array/object", function()
+    assert.are.same(
+      { "x(1, 2, [4, 5, 6])" },
+      Helper:call({
+        "x(",
+        "  1,",
+        "  2,",
+        "  [",
+        "    4,",
+        "    5,",
+        "    6",
+        "  ]",
+        ")"
+      }, { 1, 2 })
+    )
+  end)
+end)
