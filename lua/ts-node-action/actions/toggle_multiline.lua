@@ -14,7 +14,9 @@ local function collapse_child_nodes(padding, uncollapsible)
     for child, _ in node:iter_children() do
       if can_be_collapsed(child) then
         local child_text = collapse_child_nodes(padding, uncollapsible)(child)
-        if not child_text then return end -- We found a comment, abort
+        if not child_text then
+          return
+        end -- We found a comment, abort
 
         table.insert(replacement, child_text)
       elseif child:type() == "comment" then -- TODO: use child:extra() when that API gets merged into stable
@@ -38,7 +40,8 @@ local function expand_child_nodes(node)
       table.insert(replacement, helpers.node_text(child))
     else
       if child:next_sibling() and child:prev_sibling() then
-        replacement[#replacement] = replacement[#replacement] .. helpers.node_text(child)
+        replacement[#replacement] = replacement[#replacement]
+          .. helpers.node_text(child)
       elseif not child:prev_sibling() then -- Opening brace
         table.insert(replacement, helpers.node_text(child))
       else -- Closing brace
@@ -54,7 +57,7 @@ end
 ---@param uncollapsible table
 ---@return table
 return function(padding, uncollapsible)
-  padding       = padding or {}
+  padding = padding or {}
   uncollapsible = uncollapsible or {}
 
   local function action(node)

@@ -2,33 +2,40 @@ local helpers = require("ts-node-action.helpers")
 local actions = require("ts-node-action.actions")
 
 local padding = {
-  [","]  = "%s ",
-  [":"]  = { "%s ", ["next_nil"] = "%s" },
-  ["{"]  = "%s ",
+  [","] = "%s ",
+  [":"] = { "%s ", ["next_nil"] = "%s" },
+  ["{"] = "%s ",
   ["=>"] = " %s ",
-  ["="]  = " %s ",
-  ["}"]  = " %s",
-  ["+"]  = " %s ",
-  ["-"]  = " %s ",
-  ["*"]  = " %s ",
-  ["/"]  = " %s ",
+  ["="] = " %s ",
+  ["}"] = " %s",
+  ["+"] = " %s ",
+  ["-"] = " %s ",
+  ["*"] = " %s ",
+  ["/"] = " %s ",
 }
 
-local identifier_formats = { "snake_case", "pascal_case", "screaming_snake_case" }
+local identifier_formats =
+  { "snake_case", "pascal_case", "screaming_snake_case" }
 
 local uncollapsible = {
-  ["conditional"] = true
+  ["conditional"] = true,
 }
 
 local function toggle_block(node)
   local structure = helpers.destructure_node(node)
-  if type(structure.body) == "table" then return end
+  if type(structure.body) == "table" then
+    return
+  end
 
   local replacement
 
   if helpers.node_is_multiline(node) then
     if structure.parameters then
-      replacement = "{ " .. structure.parameters .. " " .. structure.body .. " }"
+      replacement = "{ "
+        .. structure.parameters
+        .. " "
+        .. structure.body
+        .. " }"
     else
       replacement = "{ " .. structure.body .. " }"
     end
@@ -51,10 +58,11 @@ local function inline_conditional(structure)
   local replacement = {
     structure.consequence,
     structure["if"] or structure["unless"],
-    structure.condition
+    structure.condition,
   }
 
-  return table.concat(replacement, " "), { cursor = { col = #structure.consequence + 1 } }
+  return table.concat(replacement, " "),
+    { cursor = { col = #structure.consequence + 1 } }
 end
 
 local function collapse_ternary(structure)
@@ -63,7 +71,7 @@ local function collapse_ternary(structure)
     " ? ",
     structure.consequence,
     " : ",
-    structure.alternative[2]
+    structure.alternative[2],
   }
 
   return table.concat(replacement), { cursor = { col = #replacement[1] + 1 } }
@@ -88,7 +96,7 @@ local function expand_ternary(node)
     structure.consequence,
     "else",
     structure.alternative,
-    "end"
+    "end",
   }
 
   return replacement, { cursor = {}, format = true }
@@ -99,18 +107,21 @@ local function multiline_conditional(node)
   local replacement = {
     (structure["if"] or structure["unless"]) .. " " .. structure.condition,
     structure.body,
-    "end"
+    "end",
   }
 
   return replacement, { cursor = {}, format = true }
 end
 
 local function toggle_hash_style(node)
-  local styles    = { ["=>"] = ": ", [":"] = " => " }
+  local styles = { ["=>"] = ": ", [":"] = " => " }
   local structure = helpers.destructure_node(node)
 
   -- Not handling non string/symbol keys
-  if not structure.key:sub(1):match([[^"']]) and not structure.key:sub(1):match("%a") then
+  if
+    not structure.key:sub(1):match([[^"']])
+    and not structure.key:sub(1):match("%a")
+  then
     return
   end
 
@@ -121,27 +132,35 @@ local function toggle_hash_style(node)
     structure.key = structure.key:sub(2)
   end
 
-  local replacement = structure.key .. styles[structure[":"] or structure["=>"]] .. structure.value
-  local opts        = { cursor = { col = structure[":"] and #structure.key + 1 or #structure.key } }
+  local replacement = structure.key
+    .. styles[structure[":"] or structure["=>"]]
+    .. structure.value
+  local opts = {
+    cursor = { col = structure[":"] and #structure.key + 1 or #structure.key },
+  }
 
   return replacement, opts
 end
 
 return {
-  ["identifier"]        = actions.cycle_case(identifier_formats),
-  ["constant"]          = actions.cycle_case(identifier_formats),
-  ["binary"]            = actions.toggle_operator(),
-  ["array"]             = actions.toggle_multiline(padding, uncollapsible),
-  ["hash"]              = actions.toggle_multiline(padding, uncollapsible),
-  ["argument_list"]     = actions.toggle_multiline(padding, uncollapsible),
+  ["identifier"] = actions.cycle_case(identifier_formats),
+  ["constant"] = actions.cycle_case(identifier_formats),
+  ["binary"] = actions.toggle_operator(),
+  ["array"] = actions.toggle_multiline(padding, uncollapsible),
+  ["hash"] = actions.toggle_multiline(padding, uncollapsible),
+  ["argument_list"] = actions.toggle_multiline(padding, uncollapsible),
   ["method_parameters"] = actions.toggle_multiline(padding, uncollapsible),
-  ["integer"]           = actions.toggle_int_readability(),
-  ["block"]             = { { toggle_block, name = "Toggle Block" } },
-  ["do_block"]          = { { toggle_block, name = "Toggle Block" } },
-  ["if"]                = { { handle_conditional, name = "Handle Conditional" } },
-  ["unless"]            = { { handle_conditional, name = "Handle Conditional" } },
-  ["if_modifier"]       = { { multiline_conditional, name = "Multiline Conditional" } },
-  ["unless_modifier"]   = { { multiline_conditional, name = "Multiline Conditional" } },
-  ["conditional"]       = { { expand_ternary, name = "Expand Ternary" } },
-  ["pair"]              = { { toggle_hash_style, name = "Toggle Hash Style" } },
+  ["integer"] = actions.toggle_int_readability(),
+  ["block"] = { { toggle_block, name = "Toggle Block" } },
+  ["do_block"] = { { toggle_block, name = "Toggle Block" } },
+  ["if"] = { { handle_conditional, name = "Handle Conditional" } },
+  ["unless"] = { { handle_conditional, name = "Handle Conditional" } },
+  ["if_modifier"] = {
+    { multiline_conditional, name = "Multiline Conditional" },
+  },
+  ["unless_modifier"] = {
+    { multiline_conditional, name = "Multiline Conditional" },
+  },
+  ["conditional"] = { { expand_ternary, name = "Expand Ternary" } },
+  ["pair"] = { { toggle_hash_style, name = "Toggle Hash Style" } },
 }

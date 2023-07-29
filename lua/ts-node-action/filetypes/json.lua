@@ -7,5 +7,5 @@ local padding = {
 
 return {
   ["object"] = actions.toggle_multiline(padding),
-  ["array"]  = actions.toggle_multiline(padding),
+  ["array"] = actions.toggle_multiline(padding),
 }

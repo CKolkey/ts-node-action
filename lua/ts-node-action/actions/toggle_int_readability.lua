@@ -22,7 +22,8 @@ return function(delimiter)
       if string.find(text, delimiter) then
         text = text:gsub(delimiter, "")
       else
-        text = table.concat(group_string(text:reverse(), 3), delimiter):reverse()
+        text =
+          table.concat(group_string(text:reverse(), 3), delimiter):reverse()
       end
     end
 

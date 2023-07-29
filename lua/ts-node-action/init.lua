@@ -12,17 +12,18 @@ local function replace_node(node, replacement, opts)
   local start_row, start_col, end_row, end_col = (opts.target or node):range()
   vim.api.nvim_buf_set_text(
     vim.api.nvim_get_current_buf(),
-    start_row, start_col, end_row, end_col, replacement
+    start_row,
+    start_col,
+    end_row,
+    end_col,
+    replacement
   )
 
   if opts.cursor then
-    vim.api.nvim_win_set_cursor(
-      vim.api.nvim_get_current_win(),
-      {
-        start_row + (opts.cursor.row or 0) + 1,
-        start_col + (opts.cursor.col or 0)
-      }
-    )
+    vim.api.nvim_win_set_cursor(vim.api.nvim_get_current_win(), {
+      start_row + (opts.cursor.row or 0) + 1,
+      start_col + (opts.cursor.col or 0),
+    })
   end
 
   if opts.format then
@@ -38,7 +39,11 @@ end
 --- @param message string
 --- @return nil
 local function info(message)
-  vim.notify(message, vim.log.levels.INFO, { title = "Node Action", icon = " " })
+  vim.notify(
+    message,
+    vim.log.levels.INFO,
+    { title = "Node Action", icon = " " }
+  )
 end
 
 --- @private
@@ -100,7 +105,6 @@ function M._get_node()
   return node, langtree:lang()
 end
 
-
 M.node_action = require("ts-node-action.repeat").set(function()
   local node, lang = M._get_node()
   if not node then
@@ -115,17 +119,23 @@ M.node_action = require("ts-node-action.repeat").set(function()
     if #action == 1 then
       do_action(action[1][1], node)
     else
-      vim.ui.select(
-        action,
-        {
-          prompt      = "Select Action",
-          format_item = function(choice) return choice.name end
-        },
-        function(choice) do_action(choice[1], node) end
-      )
+      vim.ui.select(action, {
+        prompt = "Select Action",
+        format_item = function(choice)
+          return choice.name
+        end,
+      }, function(choice)
+        do_action(choice[1], node)
+      end)
     end
   else
-    info("No action defined for '" .. lang .. "' node type: '" .. node:type() .. "'")
+    info(
+      "No action defined for '"
+        .. lang
+        .. "' node type: '"
+        .. node:type()
+        .. "'"
+    )
   end
 end)
 
@@ -138,8 +148,10 @@ function M.available_actions()
 
   local function format_action(tbl)
     return {
-      action = function() do_action(tbl[1], node) end,
-      title  = tbl.name or "Anonymous Node Action",
+      action = function()
+        do_action(tbl[1], node)
+      end,
+      title = tbl.name or "Anonymous Node Action",
     }
   end
 
@@ -158,20 +170,18 @@ function M.debug()
     return
   end
 
-  print(vim.inspect(
-    {
-      node = {
-        lang = lang,
-        filetype = vim.o.filetype,
-        node_type = node:type(),
-        named = node:named(),
-        named_children = node:named_child_count(),
-      },
-      plugin = {
-        node_actions = M.node_actions,
-      }
-    }
-  ))
+  print(vim.inspect({
+    node = {
+      lang = lang,
+      filetype = vim.o.filetype,
+      node_type = node:type(),
+      named = node:named(),
+      named_children = node:named_child_count(),
+    },
+    plugin = {
+      node_actions = M.node_actions,
+    },
+  }))
 end
 
 return M
