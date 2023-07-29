@@ -122,6 +122,18 @@ a table of tables, like so:
 `vim.ui.select` will use the value of `name` to when prompting you on which
 action to perform.
 
+If you want to bypass `vim.ui.select` and instead just want all actions to be
+applied without prompting, you can pass `ask = false` as an argument in the
+`node_type` value. Using the same example as above, it would look like this:
+
+>lua
+    ["node_type"] = {
+      { function_one, name = "Action One" },
+      { function_two, name = "Action Two" },
+      ask = false,
+    }
+<
+
 
 WRITING YOUR OWN NODE ACTIONS*ts-node-action-ts-node-action-writing-your-own-node-actions*
 
