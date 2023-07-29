@@ -102,6 +102,18 @@ To define multiple actions for a node type, structure your `node_type` value as 
 
 `vim.ui.select` will use the value of `name` to when prompting you on which action to perform.
 
+If you want to bypass `vim.ui.select` and instead just want all actions to be applied
+without prompting, you can pass `ask = false` as an argument in the `node_type` value.
+Using the same example as above, it would look like this:
+
+```lua
+["node_type"] = {
+  { function_one, name = "Action One" },
+  { function_two, name = "Action Two" },
+  ask = false,
+}
+```
+
 ## Writing your own Node Actions
 
 All node actions should be a function that takes one argument: the tree-sitter node under the cursor.

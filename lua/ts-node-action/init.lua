@@ -116,8 +116,10 @@ M.node_action = require("ts-node-action.repeat").set(function()
   if type(action) == "function" then
     do_action(action, node)
   elseif type(action) == "table" then
-    if #action == 1 then
-      do_action(action[1][1], node)
+    if action.ask == false or #action == 1 then
+      for _, act in ipairs(action) do
+        do_action(act[1], node)
+      end
     else
       vim.ui.select(action, {
         prompt = "Select Action",
