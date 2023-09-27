@@ -105,7 +105,7 @@ function M.debug_print_tree(node)
     index = index + 1
   end
 
-  vim.pretty_print(tree)
+  vim.print(tree)
 end
 
 -- Disassembles a node tree into it's named and unnamed parts
