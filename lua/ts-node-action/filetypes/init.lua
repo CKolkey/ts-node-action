@@ -18,4 +18,5 @@ return {
   sql = require("ts-node-action.filetypes.sql"),
   r = require("ts-node-action.filetypes.r"),
   git_rebase = require("ts-node-action.filetypes.git_rebase"),
+  c_sharp = require("ts-node-action.filetypes.c_sharp"),
 }

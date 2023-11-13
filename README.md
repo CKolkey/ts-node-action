@@ -346,19 +346,19 @@ overridden on a per-lang basis. Check out the implementations under
 
 <!-- markdownlint-disable line-length -->
 
-|                            | (\*) | Ruby | js/ts/tsx/jsx | Lua | Python | PHP | Rust | JSON | HTML | YAML | R   |
-| -------------------------- | ---- | ---- | ------------- | --- | ------ | --- | ---- | ---- | ---- | ---- | --- |
-| `toggle_boolean()`         | ✅    | ✅    | ✅             | ✅   | ✅      | ✅   | ✅    |      |      | ✅    | ✅   |
-| `cycle_case()`             | ✅    | ✅    | ✅             | ✅   | ✅      | ✅   | ✅    |      |      |      | ✅   |
-| `cycle_quotes()`           | ✅    | ✅    | ✅             | ✅   | ✅      | ✅   |      |      |      |      | ✅   |
-| `toggle_multiline()`       |      | ✅    | ✅             | ✅   | ✅      | ✅   | ✅    | ✅    |      |      | ✅   |
-| `toggle_operator()`        |      | ✅    | ✅             | ✅   | ✅      | ✅   |      |      |      |      | ✅   |
-| `toggle_int_readability()` |      | ✅    | ✅             |     | ✅      | ✅   | ✅    | ✅    |      |      |     |
-| `toggle_block()`           |      | ✅    |               |     |        |     |      |      |      |      |     |
-| if/else \<-> ternery       |      | ✅    |               |     | ✅      |     |      |      |      |      |     |
-| if block/postfix           |      | ✅    |               |     |        |     |      |      |      |      |     |
-| `toggle_hash_style()`      |      | ✅    |               |     |        |     |      |      |      |      |     |
-| `conceal_string()`         |      |      | ✅             |     |        |     |      |      | ✅    |      |     |
+|                            | (\*) | Ruby | js/ts/tsx/jsx | Lua | Python | PHP | Rust | C#  | JSON | HTML | YAML | R   |
+| -------------------------- | ---- | ---- | ------------- | --- | ------ | --- | ---- | --- | ---- | ---- | ---- | --- |
+| `toggle_boolean()`         | ✅    | ✅    | ✅             | ✅   | ✅      | ✅   | ✅    | ✅    |      |      | ✅    | ✅   |
+| `cycle_case()`             | ✅    | ✅    | ✅             | ✅   | ✅      | ✅   | ✅    | ✅    |      |      |      | ✅   |
+| `cycle_quotes()`           | ✅    | ✅    | ✅             | ✅   | ✅      | ✅   |      |      |      |      |      | ✅   |
+| `toggle_multiline()`       |      | ✅    | ✅             | ✅   | ✅      | ✅   |  ✅   |      | ✅    |      |      | ✅   |
+| `toggle_operator()`        |      | ✅    | ✅             | ✅   | ✅      | ✅   |       |   ✅  |      |      |      | ✅   |
+| `toggle_int_readability()` |      | ✅    | ✅             |     | ✅      | ✅   | ✅     | ✅    | ✅    |      |      |     |
+| `toggle_block()`           |      | ✅    |               |     |        |     |       |      |      |      |      |     |
+| if/else \<-> ternery       |      | ✅    |               |     | ✅      |     |      |      |      |      |      |     |
+| if block/postfix           |      | ✅    |               |     |        |     |      |      |      |      |      |     |
+| `toggle_hash_style()`      |      | ✅    |               |     |        |     |      |      |      |      |      |     |
+| `conceal_string()`         |      |      | ✅             |     |        |     |      |      |      | ✅    |      |     |
 
 <!-- markdownlint-enable line-length -->
 
