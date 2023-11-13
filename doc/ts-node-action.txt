@@ -1,4 +1,4 @@
-*ts-node-action.txt*       For NVIM v0.8.0      Last change: 2023 September 27
+*ts-node-action.txt*       For NVIM v0.8.0       Last change: 2023 November 13
 
 ==============================================================================
 Table of Contents                           *ts-node-action-table-of-contents*
@@ -349,31 +349,31 @@ Builtin actions are all higher-order functions so they can easily have options
 overridden on a per-lang basis. Check out the implementations under
 `lua/filetypes/` to see how!
 
-  -------------------------------------------------------------------------------------------------------------
-                             (*)   Ruby   js/ts/tsx/jsx   Lua   Python   PHP   Rust   JSON   HTML   YAML   R
-  -------------------------- ----- ------ --------------- ----- -------- ----- ------ ------ ------ ------ ----
-  toggle_boolean()           ✅    ✅     ✅              ✅    ✅       ✅    ✅                   ✅     ✅
+  ------------------------------------------------------------------------------------------------------------------
+                             (*)   Ruby   js/ts/tsx/jsx   Lua   Python   PHP   Rust   C#   JSON   HTML   YAML   R
+  -------------------------- ----- ------ --------------- ----- -------- ----- ------ ---- ------ ------ ------ ----
+  toggle_boolean()           ✅    ✅     ✅              ✅    ✅       ✅    ✅     ✅                 ✅     ✅
 
-  cycle_case()               ✅    ✅     ✅              ✅    ✅       ✅    ✅                          ✅
+  cycle_case()               ✅    ✅     ✅              ✅    ✅       ✅    ✅     ✅                        ✅
 
-  cycle_quotes()             ✅    ✅     ✅              ✅    ✅       ✅                                ✅
+  cycle_quotes()             ✅    ✅     ✅              ✅    ✅       ✅                                     ✅
 
-  toggle_multiline()               ✅     ✅              ✅    ✅       ✅    ✅     ✅                   ✅
+  toggle_multiline()               ✅     ✅              ✅    ✅       ✅    ✅          ✅                   ✅
 
-  toggle_operator()                ✅     ✅              ✅    ✅       ✅                                ✅
+  toggle_operator()                ✅     ✅              ✅    ✅       ✅           ✅                        ✅
 
-  toggle_int_readability()         ✅     ✅                    ✅       ✅    ✅     ✅                   
+  toggle_int_readability()         ✅     ✅                    ✅       ✅    ✅     ✅   ✅                   
 
-  toggle_block()                   ✅                                                                      
+  toggle_block()                   ✅                                                                           
 
-  if/else <-> ternery              ✅                           ✅                                         
+  if/else <-> ternery              ✅                           ✅                                              
 
-  if block/postfix                 ✅                                                                      
+  if block/postfix                 ✅                                                                           
 
-  toggle_hash_style()              ✅                                                                      
+  toggle_hash_style()              ✅                                                                           
 
-  conceal_string()                        ✅                                                 ✅            
-  -------------------------------------------------------------------------------------------------------------
+  conceal_string()                        ✅                                                      ✅            
+  ------------------------------------------------------------------------------------------------------------------
 
 TESTING                                *ts-node-action-ts-node-action-testing*
 
