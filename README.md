@@ -334,7 +334,7 @@ all lower case, no special chars. ie:
 > The order of formats can be important, as some identifiers are the same
 > for multiple formats. Take the string 'action' for example. This is a match for
 > both snake*case \_and* camel_case. It's therefore important to place a format
-> between those two so we can correcly change the string.
+> between those two so we can correctly change the string.
 
 ______________________________________________________________________
 
@@ -355,7 +355,7 @@ overridden on a per-lang basis. Check out the implementations under
 | `toggle_operator()`        |      | ✅    | ✅             | ✅   | ✅      | ✅   |       |   ✅  |      |      |      | ✅   |
 | `toggle_int_readability()` |      | ✅    | ✅             |     | ✅      | ✅   | ✅     | ✅    | ✅    |      |      |     |
 | `toggle_block()`           |      | ✅    |               |     |        |     |       |      |      |      |      |     |
-| if/else \<-> ternery       |      | ✅    |               |     | ✅      |     |      |      |      |      |      |     |
+| if/else \<-> ternary       |      | ✅    |               |     | ✅      |     |      |      |      |      |      |     |
 | if block/postfix           |      | ✅    |               |     |        |     |      |      |      |      |      |     |
 | `toggle_hash_style()`      |      | ✅    |               |     |        |     |      |      |      |      |      |     |
 | `conceal_string()`         |      |      | ✅             |     |        |     |      |      |      | ✅    |      |     |
