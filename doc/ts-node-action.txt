@@ -1,4 +1,4 @@
-*ts-node-action.txt*       For NVIM v0.8.0       Last change: 2023 November 13
+*ts-node-action.txt*         For NVIM v0.8.0        Last change: 2024 April 30
 
 ==============================================================================
 Table of Contents                           *ts-node-action-table-of-contents*
@@ -14,6 +14,7 @@ Table of Contents                           *ts-node-action-table-of-contents*
   - Builtin Actions            |ts-node-action-ts-node-action-builtin-actions|
   - Testing                            |ts-node-action-ts-node-action-testing|
   - Contributing                  |ts-node-action-ts-node-action-contributing|
+2. Links                                                |ts-node-action-links|
 
 ==============================================================================
 1. TS Node Action                              *ts-node-action-ts-node-action*
@@ -343,7 +344,7 @@ strings, all lower case, no special chars. ie:
   [!NOTE] The order of formats can be important, as some identifiers are the same
   for multiple formats. Take the string 'action' for example. This is a match for
   both snake_case _and_ camel_case. It’s therefore important to place a format
-  between those two so we can correcly change the string.
+  between those two so we can correctly change the string.
 ------------------------------------------------------------------------------
 Builtin actions are all higher-order functions so they can easily have options
 overridden on a per-lang basis. Check out the implementations under
@@ -366,7 +367,7 @@ overridden on a per-lang basis. Check out the implementations under
 
   toggle_block()                   ✅                                                                           
 
-  if/else <-> ternery              ✅                           ✅                                              
+  if/else <-> ternary              ✅                           ✅                                              
 
   if block/postfix                 ✅                                                                           
 
