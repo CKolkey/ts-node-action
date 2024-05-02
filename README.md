@@ -182,8 +182,9 @@ Boolean value. If `true`, will run `=` operator on new buffer text. Requires
 
 #### `target`
 
-TSNode. If present, this node will be used as the target for replacement instead
-of the node under your cursor.
+TSNode or table. To change the target of the substitution you can specify either a TSNode or a table.
+- If a TSNode, it will be used as the target of the substitution instead of the node under your cursor.
+- If a table, it must be specified as `{start_row, start_col, end_row, end_col}` and the specified range in the current buffer must be non-empty.
 
 Here's a simplified example of how a node-action function gets called:
 
