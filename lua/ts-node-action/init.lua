@@ -2,14 +2,22 @@ local M = {}
 
 --- @private
 --- @param replacement string|table
---- @param opts { cursor: { col: number, row: number }, callback: function, format: boolean, target: TSNode }
+--- @param opts {cursor: { col: number, row: number }, callback: function, format: boolean, target: TSNode|table}
 --- All opts fields are optional
 local function replace_node(node, replacement, opts)
   if type(replacement) ~= "table" then
     replacement = { replacement }
   end
 
-  local start_row, start_col, end_row, end_col = (opts.target or node):range()
+  local start_row, start_col, end_row, end_col
+  if not opts.target then
+    start_row, start_col, end_row, end_col = node:range()
+  elseif type(opts.target) == "TSNode" then
+    start_row, start_col, end_row, end_col = opts.target:range()
+  else
+    start_row, start_col, end_row, end_col = table.unpack(opts.target)
+  end
+
   vim.api.nvim_buf_set_text(
     vim.api.nvim_get_current_buf(),
     start_row,
