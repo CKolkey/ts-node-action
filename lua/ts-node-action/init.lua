@@ -1,15 +1,46 @@
 local M = {}
 
 --- @private
+--- @param targets TSNode[]
+--- @return integer start_row
+--- @return integer start_col
+--- @return integer end_row
+--- @return integer end_col
+local function combined_range(targets)
+  local start_row, start_col, end_row, end_col
+  for _, target in ipairs(targets) do
+    local sr, sc, er, ec = target:range()
+    if start_row == nil or sr < start_row then
+      start_row = sr
+    end
+    if start_col == nil or sc < start_col then
+      start_col = sc
+    end
+    if end_row == nil or er > end_row then
+      end_row = er
+    end
+    if end_col == nil or ec > end_col then
+      end_col = ec
+    end
+  end
+  return start_row, start_col, end_row, end_col
+end
+
+--- @private
 --- @param replacement string|table
---- @param opts { cursor: { col: number, row: number }, callback: function, format: boolean, target: TSNode }
+--- @param opts { cursor: { col: number, row: number }, callback: function, format: boolean, target: TSNode | TSNode[] }
 --- All opts fields are optional
 local function replace_node(node, replacement, opts)
   if type(replacement) ~= "table" then
     replacement = { replacement }
   end
 
-  local start_row, start_col, end_row, end_col = (opts.target or node):range()
+  local start_row, start_col, end_row, end_col
+  if vim.islist(opts.target) then
+    start_row, start_col, end_row, end_col = combined_range(opts.target)
+  else
+    start_row, start_col, end_row, end_col = (opts.target or node):range()
+  end
   vim.api.nvim_buf_set_text(
     vim.api.nvim_get_current_buf(),
     start_row,
