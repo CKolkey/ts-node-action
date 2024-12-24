@@ -182,8 +182,9 @@ Boolean value. If `true`, will run `=` operator on new buffer text. Requires
 
 #### `target`
 
-TSNode. If present, this node will be used as the target for replacement instead
+TSNode or list of TSNodes. If present, this node will be used as the target for replacement instead
 of the node under your cursor.
+If list of nodes their combined range will be used for replacement. Note that in this case if the target nodes specified are not next to each other, any thing in between will also be replaced.
 
 Here's a simplified example of how a node-action function gets called:
 
