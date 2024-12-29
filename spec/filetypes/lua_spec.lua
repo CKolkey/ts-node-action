@@ -21,61 +21,75 @@ end)
 describe("table_constructor", function()
   it("expands single line table to multiple lines", function()
     assert.are.same({
-      "{",
+      "local tbl = {",
       "    1,",
       "    2,",
       "    3",
       "}",
-    }, Helper:call({ "{ 1, 2, 3 }" }))
+    }, Helper:call({ "local tbl = { 1, 2, 3 }" }, { 1, 13 }))
   end)
 
   it("collapses multi line table to single lines", function()
     assert.are.same(
-      { "{ 1, 2, 3 }" },
+      { "local tbl = { 1, 2, 3 }" },
       Helper:call({
-        "{",
+        "local tbl = {",
         "    1,",
         "    2,",
         "    3",
         "}",
-      })
+      }, { 1, 13 })
     )
   end)
 
   it("expands single line table to multiple lines", function()
     assert.are.same({
-      "{",
+      "local tbl = {",
       "    a = 1,",
       "    b = 2,",
       "    ['c'] = 3",
       "}",
-    }, Helper:call({ "{ a = 1, b = 2, ['c'] = 3 }" }))
+    }, Helper:call({ "local tbl = { a = 1, b = 2, ['c'] = 3 }" }, { 1, 13 }))
   end)
 
   it("collapses multi line table to single lines", function()
     assert.are.same(
-      { "{ a = 1, b = 2, ['c'] = 3 }" },
+      { "local tbl = { a = 1, b = 2, ['c'] = 3 }" },
       Helper:call({
-        "{",
+        "local tbl = {",
         "    a = 1,",
         "    b = 2,",
         "    ['c'] = 3",
         "}",
-      })
+      }, { 1, 13 })
     )
   end)
 
-  it("doesn't change string values", function()
+  it("collapsing doesn't change string values", function()
     assert.are.same(
-      { [[{ a = 1, b = 2, ['c'] = 3, d = "-" }]] },
+      { [[local tbl = { a = 1, b = 2, ['c'] = 3, d = "-" }]] },
       Helper:call({
-        "{",
+        "local tbl = {",
         "    a = 1,",
         "    b = 2,",
-        "    ['c'] = 3",
+        "    ['c'] = 3,",
         '    d = "-"',
         "}",
-      })
+      }, { 1, 13 })
+    )
+  end)
+
+    it("expanding doesn't change string values", function()
+    assert.are.same(
+      {
+        "local tbl = {",
+        "    a = 1,",
+        "    b = 2,",
+        "    ['c'] = 3,",
+        '    d = "-"',
+        "}",
+      },
+      Helper:call({ [[local tbl = { a = 1, b = 2, ['c'] = 3, d = "-" }]] }, { 1, 13 })
     )
   end)
 end)
