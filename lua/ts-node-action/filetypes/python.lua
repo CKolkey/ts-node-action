@@ -48,6 +48,7 @@ local padding = {
   ["as"] = " %s ",
   ["import"] = " %s ",
   ["from"] = "%s ",
+  ["not in"] = " %s ",
 }
 
 --- @param node TSNode
