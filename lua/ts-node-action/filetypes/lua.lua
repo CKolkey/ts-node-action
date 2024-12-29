@@ -26,6 +26,10 @@ local quote_override = {
   { "[[", "]]" },
 }
 
+local uncollapsible = {
+  ["string"] = true,
+}
+
 local function toggle_function(node)
   local struct = helpers.destructure_node(node)
   if type(struct.body) == "table" then
@@ -70,8 +74,8 @@ local function toggle_named_function(node)
 end
 
 return {
-  ["table_constructor"] = actions.toggle_multiline(padding),
-  ["arguments"] = actions.toggle_multiline(padding),
+  ["table_constructor"] = actions.toggle_multiline(padding, uncollapsible),
+  ["arguments"] = actions.toggle_multiline(padding, uncollapsible),
   ["binary_expression"] = actions.toggle_operator(operator_override),
   ["string"] = actions.cycle_quotes(quote_override),
   ["function_definition"] = { { toggle_function, "Toggle Function" } },

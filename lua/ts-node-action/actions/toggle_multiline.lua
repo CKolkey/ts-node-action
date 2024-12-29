@@ -21,6 +21,8 @@ local function collapse_child_nodes(padding, uncollapsible)
         table.insert(replacement, child_text)
       elseif child:extra() then -- Comment node
         return
+      elseif child:named() then -- identifiers, strings, numbers, etc.
+        table.insert(replacement, helpers.node_text(child))
       else
         table.insert(replacement, helpers.padded_node_text(child, padding))
       end
@@ -53,8 +55,8 @@ local function expand_child_nodes(node)
   return replacement
 end
 
----@param padding table
----@param uncollapsible table
+---@param padding? table
+---@param uncollapsible? table
 ---@return table
 return function(padding, uncollapsible)
   padding = padding or {}
@@ -67,6 +69,7 @@ return function(padding, uncollapsible)
     else
       fn = expand_child_nodes
     end
+
     return fn(node), { cursor = {}, format = true }
   end
 

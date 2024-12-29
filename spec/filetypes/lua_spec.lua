@@ -64,6 +64,20 @@ describe("table_constructor", function()
       })
     )
   end)
+
+  it("doesn't change string values", function()
+    assert.are.same(
+      { [[{ a = 1, b = 2, ['c'] = 3, d = "-" }]] },
+      Helper:call({
+        "{",
+        "    a = 1,",
+        "    b = 2,",
+        "    ['c'] = 3",
+        '    d = "-"',
+        "}",
+      })
+    )
+  end)
 end)
 
 describe("function_definition (anon)", function()
