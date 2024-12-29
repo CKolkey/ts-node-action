@@ -2,7 +2,7 @@ local M = {}
 
 -- Returns node text as a string if single-line, or table if multi-line
 --
---- @param node TSNode
+--- @param node? TSNode
 --- @return table|string|nil
 function M.node_text(node)
   if not node then
