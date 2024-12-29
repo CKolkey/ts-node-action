@@ -79,7 +79,7 @@ describe("table_constructor", function()
     )
   end)
 
-    it("expanding doesn't change string values", function()
+  it("expanding doesn't change string values", function()
     assert.are.same(
       {
         "local tbl = {",
@@ -89,7 +89,10 @@ describe("table_constructor", function()
         '    d = "-"',
         "}",
       },
-      Helper:call({ [[local tbl = { a = 1, b = 2, ['c'] = 3, d = "-" }]] }, { 1, 13 })
+      Helper:call(
+        { [[local tbl = { a = 1, b = 2, ['c'] = 3, d = "-" }]] },
+        { 1, 13 }
+      )
     )
   end)
 end)
