@@ -39,7 +39,6 @@ with the result.
 ```lua
 {
     'ckolkey/ts-node-action',
-     dependencies = { 'nvim-treesitter' },
      opts = {},
 },
 ```
@@ -49,7 +48,6 @@ with the result.
 ```lua
 use({
     'ckolkey/ts-node-action',
-     requires = { 'nvim-treesitter' },
      config = function()
          require("ts-node-action").setup({})
      end

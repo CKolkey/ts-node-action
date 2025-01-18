@@ -1,5 +1,7 @@
 local M = {}
 
+local ts = vim.treesitter
+
 --- @private
 --- @param targets TSNode[]
 --- @return integer start_row
@@ -124,14 +126,18 @@ end
 --- @return TSNode, string
 --- @return nil
 function M._get_node()
-  local root_langtree = require("nvim-treesitter.parsers").get_parser()
-  if not root_langtree then
+  -- stylua: ignore
+  local parser = (vim.fn.has("nvim-0.12") == 1 and ts.get_parser())
+    or (vim.fn.has("nvim-0.11") == 1 and ts.get_parser(nil, nil, { error = false }))
+    or (pcall(ts.get_parser, nil, nil))
+
+  if not parser then
     return
   end
 
   local lnum, col = unpack(vim.api.nvim_win_get_cursor(0))
   local range4 = { lnum - 1, col, lnum - 1, col }
-  local langtree = root_langtree:language_for_range(range4)
+  local langtree = parser:language_for_range(range4)
   local node = langtree:named_node_for_range(range4)
   return node, langtree:lang()
 end
