@@ -43,7 +43,6 @@ INSTALLATION                      *ts-node-action-ts-node-action-installation*
 >lua
     {
         'ckolkey/ts-node-action',
-         dependencies = { 'nvim-treesitter' },
          opts = {},
     },
 <
@@ -53,7 +52,6 @@ INSTALLATION                      *ts-node-action-ts-node-action-installation*
 >lua
     use({
         'ckolkey/ts-node-action',
-         requires = { 'nvim-treesitter' },
          config = function()
              require("ts-node-action").setup({})
          end
