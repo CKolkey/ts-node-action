@@ -8,6 +8,7 @@ return {
   eruby = require("ts-node-action.filetypes.ruby"),
   python = require("ts-node-action.filetypes.python"),
   php = require("ts-node-action.filetypes.php"),
+  php_only = require("ts-node-action.filetypes.php"),
   rust = require("ts-node-action.filetypes.rust"),
   html = require("ts-node-action.filetypes.html"),
   javascript = require("ts-node-action.filetypes.javascript"),
