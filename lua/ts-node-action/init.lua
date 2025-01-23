@@ -123,13 +123,12 @@ function M.setup(opts)
 end
 
 --- @private
---- @return TSNode, string
---- @return nil
+--- @return TSNode|nil, string|nil
 function M._get_node()
   -- stylua: ignore
   local parser = (vim.fn.has("nvim-0.12") == 1 and ts.get_parser())
-    or (vim.fn.has("nvim-0.11") == 1 and ts.get_parser(nil, nil, { error = false }))
-    or (pcall(ts.get_parser, nil, nil))
+      or (vim.fn.has("nvim-0.11") == 1 and ts.get_parser(nil, nil, { error = false }))
+      or (type(ts.get_parser) == "function" and ts.get_parser(nil, nil))
 
   if not parser then
     return
