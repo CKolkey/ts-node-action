@@ -29,6 +29,32 @@ local function combined_range(targets)
 end
 
 --- @private
+--- @param targets TSNode[]
+--- @return integer start_row
+--- @return integer start_col
+--- @return integer end_row
+--- @return integer end_col
+local function combined_range(targets)
+  local start_row, start_col, end_row, end_col
+  for _, target in ipairs(targets) do
+    local sr, sc, er, ec = target:range()
+    if start_row == nil or sr < start_row then
+      start_row = sr
+    end
+    if start_col == nil or sc < start_col then
+      start_col = sc
+    end
+    if end_row == nil or er > end_row then
+      end_row = er
+    end
+    if end_col == nil or ec > end_col then
+      end_col = ec
+    end
+  end
+  return start_row, start_col, end_row, end_col
+end
+
+--- @private
 --- @param replacement string|table
 --- @param opts { cursor: { col: number, row: number }, callback: function, format: boolean, target: TSNode | TSNode[] }
 --- All opts fields are optional
