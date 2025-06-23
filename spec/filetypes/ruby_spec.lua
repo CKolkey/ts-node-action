@@ -792,4 +792,40 @@ describe("identifier", function()
   it("transforms snake case to pascal case (single-word)", function()
     assert.are.same({ "Node" }, Helper:call({ "node" }))
   end)
+
+  describe("method", function()
+    it("expands endless method", function()
+      assert.are.same({
+        [[def method(a, b:) = "hello world"]],
+      }, Helper:call(
+          { [[def method(a, b:)]], [[  "hello world"]], [[end]] }
+        ))
+    end)
+
+    it("collapses single line method to endless method", function()
+      assert.are.same({
+            [[def method(a, b:)]],
+            [[  "hello world"]],
+            [[end]]
+      }, Helper:call(
+          { [[def method(a, b:) = "hello world"]],  }
+        ))
+    end)
+
+    it("ignores multi-line methods", function()
+      assert.are.same({
+            [[def method(a, b:)]],
+            [[  "hello world"]],
+            [[  "hello world"]],
+            [[end]]
+      }, Helper:call(
+          {
+            [[def method(a, b:)]],
+            [[  "hello world"]],
+            [[  "hello world"]],
+            [[end]]
+          }
+        ))
+    end)
+  end)
 end)

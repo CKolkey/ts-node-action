@@ -142,6 +142,21 @@ local function toggle_hash_style(node)
   return replacement, opts
 end
 
+local function toggle_endless_method(node)
+  local structure = helpers.destructure_node(node)
+  if type(structure["body"]) ~= "string" then -- multi-line methods not eligible
+    return
+  end
+
+  if structure["="] then
+    -- Expand to multi-line
+    return { "def " .. structure["name"] .. (structure["parameters"] or ""), structure["body"], "end" }, { format = true }
+  else
+    -- collapse to single line
+    return { "def " .. structure["name"] .. (structure["parameters"] or "") .. " = " .. structure["body"] }, { format = true }
+  end
+end
+
 return {
   ["identifier"] = actions.cycle_case(identifier_formats),
   ["constant"] = actions.cycle_case(identifier_formats),
@@ -163,4 +178,5 @@ return {
   },
   ["conditional"] = { { expand_ternary, name = "Expand Ternary" } },
   ["pair"] = { { toggle_hash_style, name = "Toggle Hash Style" } },
+  ["method"] = { { toggle_endless_method, name = "Toggle endless method" } }
 }
