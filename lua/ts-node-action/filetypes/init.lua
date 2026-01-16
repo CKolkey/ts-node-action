@@ -20,4 +20,5 @@ return {
   r = require("ts-node-action.filetypes.r"),
   git_rebase = require("ts-node-action.filetypes.git_rebase"),
   c_sharp = require("ts-node-action.filetypes.c_sharp"),
+  toml = require("ts-node-action.filetypes.toml")
 }
